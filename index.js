@@ -134,7 +134,7 @@ export const hasAllowance = async (contractInstance, addrFrom, addrSpender) =>
  */
 export const safe_arc200_transfer = async (ci, addrTo, amt, simulate) => {
   try {
-    const contractInstance = init(
+    const contractInstance = new Contract(
       ci.getContractId(),
       {
         addr: ci.getSender(),

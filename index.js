@@ -2,6 +2,7 @@ import CONTRACT from "temptemp3";
 
 import ARC200Spec from "./abi/arc/200/contract.json" assert { type: "json" }; // spec
 import ARC200Extension from "./abi/arc/200/extension.json" assert { type: "json" }; // extension (non-standard methods)
+import { zeroAddress } from "temptemp3/src/utils/account";
 
 const BalanceBoxCost = 28500;
 const AllowanceBoxCost = 28100;
@@ -215,7 +216,12 @@ export const safe_arc200_approve = async (ci, addrSpender, amt, simulate) => {
  * - wrapper for CONTRACT class
  */
 class Contract {
-  constructor(contractId, algodClient, acc, simulate = true) {
+  constructor(
+    contractId,
+    algodClient,
+    acc = { addr: zeroAddress },
+    simulate = true
+  ) {
     this.contractInstance = new CONTRACT(
       contractId,
       algodClient,

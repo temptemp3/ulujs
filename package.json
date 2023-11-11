@@ -1,7 +1,7 @@
 {
-  "name": "arc200.js",
+  "name": "arc200",
   "version": "1.0.0",
-  "description": "",
+  "description": "arc200 js library",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,5 +11,14 @@
   "dependencies": {
     "temptemp3": "github:temptemp3/tt3"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/temptemp3/arc200.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/temptemp3/arc200.js/issues"
+  },
+  "homepage": "https://github.com/temptemp3/arc200.js#readme"
 }

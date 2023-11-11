@@ -1,4 +1,4 @@
-import CONTRACT from "temptemp3";
+import CONTRACT from "arccjs";
 import dotenv from "dotenv";
 
 import ARC200Spec from "./abi/arc/200/contract.json" assert { type: "json" }; // spec

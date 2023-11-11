@@ -1,9 +1,7 @@
 import CONTRACT from "temptemp3";
 
-console.log(CONTRACT);
-
-import ARC200Spec from "../abi/arc/200/contract.json" assert { type: "json" }; // spec
-import ARC200Extension from "../abi/arc/200/extension.json" assert { type: "json" }; // extension (non-standard methods)
+import ARC200Spec from "./abi/arc/200/contract.json" assert { type: "json" }; // spec
+import ARC200Extension from "./abi/arc/200/extension.json" assert { type: "json" }; // extension (non-standard methods)
 
 const BalanceBoxCost = 28500;
 const AllowanceBoxCost = 28100;

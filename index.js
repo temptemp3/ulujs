@@ -1,7 +1,10 @@
 import CONTRACT from "temptemp3";
+import dotenv from "dotenv";
 
 import ARC200Spec from "./abi/arc/200/contract.json" assert { type: "json" }; // spec
 import ARC200Extension from "./abi/arc/200/extension.json" assert { type: "json" }; // extension (non-standard methods)
+
+dotenv.config();
 
 const BalanceBoxCost = 28500;
 const AllowanceBoxCost = 28100;
@@ -10,9 +13,8 @@ const AllowanceBoxCost = 28100;
  * oneAddress is the address of the account that holds more
  * more than 0 ALGOs. This account is used to allow for simulation.
  */
-export const oneAddress = 
+export const oneAddress =
   "G3MSA75OZEJTCCENOJDLDJK7UD7E2K5DNC7FVHCNOV7E3I4DTXTOWDUIFQ";
-
 
 /*
  * handleResponse
@@ -22,10 +24,7 @@ export const oneAddress =
  * @returns: response
  */
 const handleResponse = (name, res) => {
-  if (debug) {
-    console.log(`${name}:`);
-    console.log({ res });
-  } else {
+  if (process.env.DEBUG === "1") {
     console.log(`${name}: ${res.returnValue}`);
   }
   return res;

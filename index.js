@@ -2,10 +2,17 @@ import CONTRACT from "temptemp3";
 
 import ARC200Spec from "./abi/arc/200/contract.json" assert { type: "json" }; // spec
 import ARC200Extension from "./abi/arc/200/extension.json" assert { type: "json" }; // extension (non-standard methods)
-import { zeroAddress } from "temptemp3/src/utils/account";
 
 const BalanceBoxCost = 28500;
 const AllowanceBoxCost = 28100;
+
+/*
+ * oneAddress is the address of the account that holds more
+ * more than 0 ALGOs. This account is used to allow for simulation.
+ */
+export const oneAddress = 
+  "G3MSA75OZEJTCCENOJDLDJK7UD7E2K5DNC7FVHCNOV7E3I4DTXTOWDUIFQ";
+
 
 /*
  * handleResponse
@@ -219,7 +226,7 @@ class Contract {
   constructor(
     contractId,
     algodClient,
-    acc = { addr: zeroAddress },
+    acc = { addr: oneAddress },
     simulate = true
   ) {
     this.contractInstance = new CONTRACT(

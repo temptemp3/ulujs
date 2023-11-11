@@ -20,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/temptemp3/arc200.js/issues"
   },
-  "homepage": "https://github.com/temptemp3/arc200.js#readme"
+  "homepage": "https://github.com/temptemp3/arc200.js#readme",
+  "engines": {
+    "npm": ">=10.2.0",
+    "node": ">=21.1.0"
+  },
 }

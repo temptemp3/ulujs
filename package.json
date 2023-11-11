@@ -1,6 +1,6 @@
 {
   "name": "arc200js",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "arc200 js library",
   "main": "index.js",
   "scripts": {
@@ -25,5 +25,6 @@
   "engines": {
     "npm": ">=10.2.0",
     "node": ">=21.1.0"
-  }
+  },
+  "devDependencies": {}
 }

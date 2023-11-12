@@ -273,6 +273,16 @@ class Contract {
   hasBalance = async (addr) => await hasBalance(this.contractInstance, addr);
   hasAllowance = async (addrFrom, addrSpender) =>
     await hasAllowance(this.contractInstance, addrFrom, addrSpender);
+  // helper methods
+  getMetadata = async () => {
+    const [ name, symbol, totalSupply, decimals ] = await Promise.all([
+      this.arc200_name(),
+      this.arc200_symbol(),
+      this.arc200_totalSupply(),
+      this.arc200_decimals(),
+    ]);
+    return { name, symbol, totalSupply, decimals };
+  }
 }
 
 export default Contract;

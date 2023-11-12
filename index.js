@@ -1,10 +1,10 @@
 import CONTRACT from "arccjs";
-import dotenv from "dotenv";
+//import dotenv from "dotenv";
 
 import ARC200Spec from "./abi/arc/200/contract.json" assert { type: "json" }; // spec
 import ARC200Extension from "./abi/arc/200/extension.json" assert { type: "json" }; // extension (non-standard methods)
 
-dotenv.config();
+//dotenv.config();
 
 const BalanceBoxCost = 28500;
 const AllowanceBoxCost = 28100;
@@ -24,9 +24,11 @@ export const oneAddress =
  * @returns: response
  */
 const handleResponse = (name, res) => {
+  /*
   if (process.env.DEBUG === "1") {
     console.log(`${name}: ${res.returnValue}`);
   }
+  */
   return res;
 };
 

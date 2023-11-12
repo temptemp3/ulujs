@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "arccjs": "^1.0.7",
+    "arccjs": "^1.0.10",
     "express": "^4.18.2"
   },
   "type": "module",

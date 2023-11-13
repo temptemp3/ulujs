@@ -23,7 +23,6 @@ export const oneAddress =
  * @returns: prepared string
  */
 const prepareString = (str) => {
-  if (typeof str !== "string") return str;
   const index = str.indexOf("\x00");
   if (index > 0) {
     return str.slice(0, str.indexOf("\x00"));
@@ -260,14 +259,24 @@ class Contract {
   }
   // standard methods
   arc200_name = async () => {
+    const res = await arc200_name(this.contractInstance);
+    if (!res.success) return res;
     if (this.opts?.formatBytes)
-      return prepareString(await arc200_name(this.contractInstance));
-    return await arc200_name(this.contractInstance);
+      return {
+        ...res,
+        returnValue: prepareString(res.returnValue),
+      };
+    return res;
   };
   arc200_symbol = async () => {
+    const res = await arc200_symbol(this.contractInstance);
+    if (!res.success) return res;
     if (this.opts?.formatBytes)
-      return prepareString(await arc200_symbol(this.contractInstance));
-    return await arc200_symbol(this.contractInstance);
+      return {
+        ...res,
+        returnValue: prepareString(res.returnValue),
+      };
+    return res;
   };
   arc200_totalSupply = async () =>
     await arc200_totalSupply(this.contractInstance);

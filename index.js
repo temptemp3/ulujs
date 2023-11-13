@@ -258,12 +258,12 @@ class Contract {
   }
   // standard methods
   arc200_name = async () => {
-    if (opts.formatBytes)
+    if (this.opts.formatBytes)
       return prepareString(await arc200_name(this.contractInstance));
     return await arc200_name(this.contractInstance);
   };
   arc200_symbol = async () => {
-    if (opts.formatBytes)
+    if (this.opts.formatBytes)
       return prepareString(await arc200_symbol(this.contractInstance));
     return await arc200_symbol(this.contractInstance);
   };

@@ -258,13 +258,15 @@ class Contract {
   }
   // standard methods
   arc200_name = async () => {
-    if(opts.formatBytes) return prepareString(await arc200_name(this.contractInstance);
+    if (opts.formatBytes)
+      return prepareString(await arc200_name(this.contractInstance));
     return await arc200_name(this.contractInstance);
-  }
+  };
   arc200_symbol = async () => {
-    if(opts.formatBytes) return prepareString(await arc200_symbol(this.contractInstance);
+    if (opts.formatBytes)
+      return prepareString(await arc200_symbol(this.contractInstance));
     return await arc200_symbol(this.contractInstance);
-  }
+  };
   arc200_totalSupply = async () =>
     await arc200_totalSupply(this.contractInstance);
   arc200_decimals = async () => await arc200_decimals(this.contractInstance);
@@ -295,14 +297,14 @@ class Contract {
     await hasAllowance(this.contractInstance, addrFrom, addrSpender);
   // helper methods
   getMetadata = async () => {
-    const [ name, symbol, totalSupply, decimals ] = await Promise.all([
+    const [name, symbol, totalSupply, decimals] = await Promise.all([
       this.arc200_name(),
       this.arc200_symbol(),
       this.arc200_totalSupply(),
       this.arc200_decimals(),
     ]);
     return { name, symbol, totalSupply, decimals };
-  }
+  };
 }
 
 export default Contract;

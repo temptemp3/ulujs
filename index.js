@@ -314,7 +314,26 @@ class Contract {
       this.arc200_totalSupply(),
       this.arc200_decimals(),
     ]);
-    return { name, symbol, totalSupply, decimals };
+    if (
+      !name.success ||
+      !symbol.success ||
+      !totalSupply.success ||
+      !decimals.success
+    ) {
+      return {
+        success: false,
+        error: "Failed to get metadata",
+      };
+    }
+    return {
+      success: true,
+      response: {
+        name: name.returnValue,
+        symbol: symbol.returnValue,
+        totalSupply: totalSupply.returnValue,
+        decimals: decimals.returnValue,
+      },
+    };
   };
 }
 

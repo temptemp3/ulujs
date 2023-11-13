@@ -17,6 +17,21 @@ export const oneAddress =
   "G3MSA75OZEJTCCENOJDLDJK7UD7E2K5DNC7FVHCNOV7E3I4DTXTOWDUIFQ";
 
 /*
+ * prepareString
+ * - prepare string (strip trailing null bytes)
+ * @param str: string to prepare
+ * @returns: prepared string
+ */
+const prepareString = (str) => {
+  const index = str.indexOf("\x00");
+  if (index > 0) {
+    return str.slice(0, str.indexOf("\x00"));
+  } else {
+    return str;
+  }
+};
+
+/*
  * handleResponse
  * - handle response
  * @param name: name of method
@@ -228,8 +243,7 @@ class Contract {
   constructor(
     contractId,
     algodClient,
-    acc = { addr: oneAddress },
-    simulate = true
+    opts = { addr: oneAddress, simulate: true, formatBytes: true }
   ) {
     this.contractInstance = new CONTRACT(
       contractId,
@@ -238,13 +252,19 @@ class Contract {
         ...ARC200Spec,
         methods: [...ARC200Spec.methods, ...ARC200Extension.methods], // mixin non-standard methods
       },
-      acc,
-      simulate
+      opts.acc,
+      opts.simulate
     );
   }
   // standard methods
-  arc200_name = async () => await arc200_name(this.contractInstance);
-  arc200_symbol = async () => await arc200_symbol(this.contractInstance);
+  arc200_name = async () => {
+    if(opts.formatBytes) return prepareString(await arc200_name(this.contractInstance);
+    return await arc200_name(this.contractInstance);
+  }
+  arc200_symbol = async () => {
+    if(opts.formatBytes) return prepareString(await arc200_symbol(this.contractInstance);
+    return await arc200_symbol(this.contractInstance);
+  }
   arc200_totalSupply = async () =>
     await arc200_totalSupply(this.contractInstance);
   arc200_decimals = async () => await arc200_decimals(this.contractInstance);

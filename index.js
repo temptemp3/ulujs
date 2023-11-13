@@ -327,7 +327,7 @@ class Contract {
     }
     return {
       success: true,
-      response: {
+      returnValue: {
         name: name.returnValue,
         symbol: symbol.returnValue,
         totalSupply: totalSupply.returnValue,

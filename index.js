@@ -243,7 +243,7 @@ class Contract {
   constructor(
     contractId,
     algodClient,
-    opts = { addr: oneAddress, simulate: true, formatBytes: true }
+    opts = { acc: { addr: oneAddress }, simulate: true, formatBytes: true }
   ) {
     this.contractInstance = new CONTRACT(
       contractId,
@@ -255,15 +255,16 @@ class Contract {
       opts.acc,
       opts.simulate
     );
+    this.opts = opts;
   }
   // standard methods
   arc200_name = async () => {
-    if (this.opts.formatBytes)
+    if (this.opts?.formatBytes)
       return prepareString(await arc200_name(this.contractInstance));
     return await arc200_name(this.contractInstance);
   };
   arc200_symbol = async () => {
-    if (this.opts.formatBytes)
+    if (this.opts?.formatBytes)
       return prepareString(await arc200_symbol(this.contractInstance));
     return await arc200_symbol(this.contractInstance);
   };

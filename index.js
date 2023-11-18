@@ -295,7 +295,7 @@ class Contract {
     await arc200_balanceOf(this.contractInstance, addr);
   arc200_allowance = async (addrFrom, addrSpender) =>
     await arc200_allowance(this.contractInstance, addrFrom, addrSpender);
-  arc200_transfer = async (addrTo, amt, simulate) =>
+  arc200_transfer = async (addrTo, amt, simulate, waitForConfirmation) =>
     await safe_arc200_transfer(
       this.contractInstance,
       addrTo,

@@ -1,6 +1,6 @@
 {
   "name": "arc200js",
-  "version": "1.2.17",
+  "version": "1.2.18",
   "description": "arc200 js library",
   "main": "index.js",
   "scripts": {

@@ -151,14 +151,11 @@ export const hasAllowance = async (contractInstance, addrFrom, addrSpender) =>
  */
 export const safe_arc200_transfer = async (ci, addrTo, amt, simulate) => {
   try {
+    const opts = { acc: { addr: ci.getSender(), sk: ci.getSk() }, simulate, formatBytes: true }
     const ARC200 = new Contract(
       ci.getContractId(),
       ci.algodClient,
-      {
-        addr: ci.getSender(),
-        sk: ci.getSk(),
-      },
-      simulate
+      opts
     );
     const bal = await ci.arc200_balanceOf(addrTo);
     const addPayment = !bal.success || (bal.success && bal.returnValue === 0n);

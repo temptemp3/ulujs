@@ -195,22 +195,27 @@ export const safe_arc200_transferFrom = async (
   waitForConfirmation
 ) => {
   try {
-    const contractInstance = newContractInstance(ci.getContractId(), simulate);
-    const addrSpender = contractInstance.getSenderAddress();
+    const opts = {
+      acc: { addr: ci.getSender(), sk: ci.getSk() },
+      simulate,
+      formatBytes: true,
+      waitForConfirmation,
+    };
+    const ARC200 = new Contract(ci.getContractId(), ci.algodClient, opts);
+    const bal = await ci.arc200_balanceOf(addrTo);
+    const addPayment = !bal.success || (bal.success && bal.returnValue === 0n);
+    if (addPayment) {
+      ARC200.contractInstance.setPaymentAmount(BalanceBoxCost);
+    }
+    const addrSpender = ARC200.contractInstance.getSender();
     console.log(
       `TransferFrom spender: ${addrSpender} from: ${addrFrom} to: ${addrTo} amount: ${amt}`
     );
-    const p = async () => {
-      const res = await contractInstance
-        .arc200_transferFrom(addrFrom, addrTo, amt)
-        .catch(() => {});
-      return res;
-    };
-    const res = await p();
-    if (!res?.success) {
-      contractInstance.setPaymentAmount(BalanceBoxCost);
-      const res = await p();
-    }
+    return await ARC200.contractInstance.arc200_transferFrom(
+      addrFrom,
+      addrTo,
+      amt
+    );
   } catch (e) {
     console.log(e);
   }
@@ -246,7 +251,9 @@ export const safe_arc200_approve = async (
     if (addPayment) {
       ARC200.contractInstance.setPaymentAmount(AllowanceBoxCost);
     }
-    console.log(`Approval from: ${addrFrom} spender: ${addrSpender} amount: ${amt}`);
+    console.log(
+      `Approval from: ${addrFrom} spender: ${addrSpender} amount: ${amt}`
+    );
     return await ARC200.contractInstance.arc200_approve(addrSpender, amt);
   } catch (e) {
     console.log(e);
@@ -317,7 +324,13 @@ class Contract {
       simulate,
       waitForConfirmation
     );
-  arc200_transferFrom = async (addrFrom, addrTo, amt, simulate) =>
+  arc200_transferFrom = async (
+    addrFrom,
+    addrTo,
+    amt,
+    simulate,
+    waitForConfirmation
+  ) =>
     await safe_arc200_transferFrom(
       this.contractInstance,
       addrFrom,

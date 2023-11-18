@@ -246,8 +246,8 @@ export const safe_arc200_approve = async (
     if (addPayment) {
       ARC200.contractInstance.setPaymentAmount(AllowanceBoxCost);
     }
-    console.log(`Approval from: ${addrFrom} spender: ${addrTo} amount: ${amt}`);
-    return await ARC200.contractInstance.arc200_transfer(addrTo, amt);
+    console.log(`Approval from: ${addrFrom} spender: ${addrSpender} amount: ${amt}`);
+    return await ARC200.contractInstance.arc200_approve(addrSpender, amt);
   } catch (e) {
     console.log(e);
   }

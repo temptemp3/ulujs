@@ -149,7 +149,13 @@ export const hasAllowance = async (contractInstance, addrFrom, addrSpender) =>
  * @param amt: amount to send
  * @returns: undefined
  */
-export const safe_arc200_transfer = async (ci, addrTo, amt, simulate, waitForConfirmation) => {
+export const safe_arc200_transfer = async (
+  ci,
+  addrTo,
+  amt,
+  simulate,
+  waitForConfirmation
+) => {
   try {
     const opts = {
       acc: { addr: ci.getSender(), sk: ci.getSk() },
@@ -241,7 +247,12 @@ class Contract {
   constructor(
     contractId,
     algodClient,
-    opts = { acc: { addr: oneAddress }, simulate: true, formatBytes: true, waitForConfirmation: false }
+    opts = {
+      acc: { addr: oneAddress },
+      simulate: true,
+      formatBytes: true,
+      waitForConfirmation: false,
+    }
   ) {
     this.contractInstance = new CONTRACT(
       contractId,
@@ -285,14 +296,21 @@ class Contract {
   arc200_allowance = async (addrFrom, addrSpender) =>
     await arc200_allowance(this.contractInstance, addrFrom, addrSpender);
   arc200_transfer = async (addrTo, amt, simulate) =>
-    await safe_arc200_transfer(this.contractInstance, addrTo, amt, simulate);
+    await safe_arc200_transfer(
+      this.contractInstance,
+      addrTo,
+      amt,
+      simulate,
+      waitForConfirmation
+    );
   arc200_transferFrom = async (addrFrom, addrTo, amt, simulate) =>
     await safe_arc200_transferFrom(
       this.contractInstance,
       addrFrom,
       addrTo,
       amt,
-      simulate
+      simulate,
+      waitForConfirmation
     );
   arc200_approve = async (addrSpender, amt, simulate) =>
     await safe_arc200_approve(

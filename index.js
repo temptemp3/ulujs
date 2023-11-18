@@ -326,12 +326,13 @@ class Contract {
       simulate,
       waitForConfirmation
     );
-  arc200_approve = async (addrSpender, amt, simulate) =>
+  arc200_approve = async (addrSpender, amt, simulate, waitForConfirmation) =>
     await safe_arc200_approve(
       this.contractInstance,
       addrSpender,
       amt,
-      simulate
+      simulate,
+      waitForConfirmation
     );
   // non-standard methods
   hasBalance = async (addr) => await hasBalance(this.contractInstance, addr);

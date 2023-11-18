@@ -149,12 +149,13 @@ export const hasAllowance = async (contractInstance, addrFrom, addrSpender) =>
  * @param amt: amount to send
  * @returns: undefined
  */
-export const safe_arc200_transfer = async (ci, addrTo, amt, simulate) => {
+export const safe_arc200_transfer = async (ci, addrTo, amt, simulate, waitForConfirmation) => {
   try {
     const opts = {
       acc: { addr: ci.getSender(), sk: ci.getSk() },
       simulate,
       formatBytes: true,
+      waitForConfirmation,
     };
     const ARC200 = new Contract(ci.getContractId(), ci.algodClient, opts);
     const bal = await ci.arc200_balanceOf(addrTo);
@@ -240,7 +241,7 @@ class Contract {
   constructor(
     contractId,
     algodClient,
-    opts = { acc: { addr: oneAddress }, simulate: true, formatBytes: true }
+    opts = { acc: { addr: oneAddress }, simulate: true, formatBytes: true, waitForConfirmation: false }
   ) {
     this.contractInstance = new CONTRACT(
       contractId,
@@ -250,7 +251,8 @@ class Contract {
         methods: [...ARC200Spec.methods, ...ARC200Extension.methods], // mixin non-standard methods
       },
       opts.acc,
-      opts.simulate
+      opts.simulate,
+      opts.waitForConfirmation
     );
     this.opts = opts;
   }

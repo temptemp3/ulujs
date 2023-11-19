@@ -247,7 +247,7 @@ export const safe_arc200_approve = async (
     const ARC200 = new Contract(ci.getContractId(), ci.algodClient, opts);
     const addrFrom = ARC200.contractInstance.getSender();
     const all = await ci.arc200_allowance(addrFrom, addrSpender);
-    const addPayment = !all.success //|| (all.success && all.returnValue === 0n);
+    const addPayment = !all.success || (all.success && all.returnValue === 0n);
     if (addPayment) {
       ARC200.contractInstance.setPaymentAmount(AllowanceBoxCost);
     }

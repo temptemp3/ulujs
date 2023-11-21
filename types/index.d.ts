@@ -27,20 +27,20 @@ declare module "arc200js" {
       amt: bigint,
       simulate: boolean,
       waitForConfirmation: boolean
-    ): Promise<{ success: boolean, txId?:string, txns:string[] }>;
+    ): Promise<{ success: boolean, txId?:string, txns?:string[] }>;
     arc200_transferFrom(
       addrFrom: string,
       addrTo: string,
       amt: bigint,
       simulate: boolean,
       waitForConfirmation: boolean
-      ): Promise<{ success: boolean, txId?:string, txns:string[] }>;
+      ): Promise<{ success: boolean, txId?:string, txns?:string[] }>;
     arc200_approve(
       addrSpender: string,
       amt: bigint,
       simulate: boolean,
       waitForConfirmation: boolean
-      ): Promise<{ success: boolean, txId?:string, txns:string[] }>;
+      ): Promise<{ success: boolean, txId?:string, txns?:string[] }>;
     hasBalance(addr: string): Promise<{ success: boolean }>;
     hasAllowance(
       addrFrom: string,
@@ -101,7 +101,7 @@ declare module "arc200js" {
     amt: bigint,
     simulate: boolean,
     waitForConfirmation: boolean
-  ): Promise<{ success: boolean; txId?: string; txns: string[] }>;
+  ): Promise<{ success: boolean; txId?: string; txns?: string[] }>;
 
   export function safe_arc200_transferFrom(
     ci: Contract,
@@ -110,7 +110,7 @@ declare module "arc200js" {
     amt: bigint,
     simulate: boolean,
     waitForConfirmation: boolean
-  ): Promise<{ success: boolean; txId?: string; txns: string[] }>;
+  ): Promise<{ success: boolean; txId?: string; txns?: string[] }>;
 
   export function safe_arc200_approve(
     ci: Contract,
@@ -118,7 +118,7 @@ declare module "arc200js" {
     amt: bigint,
     simulate: boolean,
     waitForConfirmation: boolean
-  ): Promise<{ success: boolean; txId?: string; txns: string[] }>;
+  ): Promise<{ success: boolean; txId?: string; txns?: string[] }>;
 
   export default Contract;
 }

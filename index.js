@@ -149,7 +149,8 @@ export const hasAllowance = async (contractInstance, addrFrom, addrSpender) =>
  * @param amt: amount to send
  * @param simulate: boolean
  * @param waitForConfirmation: boolean
- * @returns: { success: boolean }
+ * @returns: if simulate: true  { success: bool, txns: string[] }
+ *           if simulate: false { success: bool, txId: string }
  */
 export const safe_arc200_transfer = async (
   ci,
@@ -188,7 +189,8 @@ export const safe_arc200_transfer = async (
  * @param amt: amount to spend
  * @param simulate: boolean
  * @param waitForConfirmation: boolean
- * @returns: { success: boolean }
+ * @returns: if simulate: true  { success: bool, txns: string[] }
+ *           if simulate: false { success: bool, txId: string }
  */
 export const safe_arc200_transferFrom = async (
   ci,
@@ -233,7 +235,8 @@ export const safe_arc200_transferFrom = async (
  * @param amt: amount to approve
  * @param simulate: boolean
  * @param waitForConfirmation: boolean
- * @returns: { success: boolean }
+ * @returns: if simulate: true  { success: bool, txns: string[] }
+ *           if simulate: false { success: bool, txId: string }
  */
 
 export const safe_arc200_approve = async (

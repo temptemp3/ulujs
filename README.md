@@ -64,7 +64,10 @@ console.log("Has allowance:", hasAllowance);
 Approve a spender to withdraw from your account, multiple times, up to the specified amount.
 
 ```javascript
+// Simulate transaction
 await contract.arc200_approve(spenderAddress, amount);
+// Send transaction and wait for confirmation
+await contract.arc200_approve(spenderAddress, amount, false, true);
 ```
 
 ### arc200_transferFrom
@@ -72,7 +75,10 @@ await contract.arc200_approve(spenderAddress, amount);
 Perform a transfer of tokens from one account to another by an approved spender.
 
 ```javascript
+// Simulate transaction
 await contract.arc200_transferFrom(fromAddress, toAddress, amount);
+// Send transaction and wait for confirmation
+await contract.arc200_transferFrom(fromAddress, toAddress, amount, false, true);
 ```
 
 ### arc200_transfer
@@ -80,7 +86,10 @@ await contract.arc200_transferFrom(fromAddress, toAddress, amount);
 Transfer tokens to a specified address.
 
 ```javascript
+// Simulate transaction
 await contract.arc200_transfer(toAddress, amount);
+// Send transaction and wait for confirmation
+await contract.arc200_transfer(toAddress, amount, false, true);
 ```
 
 ### arc200_allowance

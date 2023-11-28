@@ -22,6 +22,6 @@
   "homepage": "https://github.com/temptemp3/arc200js#readme",
   "engines": {
     "npm": ">=10.2.0",
-    "node": ">=21.1.0"
+    "node": ">=20.9.0"
   }
 }

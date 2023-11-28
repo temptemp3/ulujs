@@ -23,5 +23,6 @@
   "engines": {
     "npm": ">=10.2.0",
     "node": ">=20.9.0"
-  }
+  },
+  "types": ".types/index.d.ts"
 }

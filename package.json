@@ -1,6 +1,6 @@
 {
   "name": "arc200js",
-  "version": "1.2.20",
+  "version": "1.2.21",
   "description": "arc200 js library",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,7 @@
   "homepage": "https://github.com/temptemp3/arc200js#readme",
   "engines": {
     "npm": ">=10.2.0",
-    "node": ">=21.1.0"
+    "node": ">=20.9.0"
   },
   "types": ".types/index.d.ts"
 }

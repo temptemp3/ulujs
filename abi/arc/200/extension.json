@@ -30,7 +30,45 @@
       "desc": "Transfers tokens from source to destination as approved spender",
       "args": [],
       "returns": { "type": "void" }
-    } 
+    },
+    {
+      "name": "state",
+      "desc": "",
+      "readonly": true,
+      "args": [],
+      "returns": [
+        {
+          "type": "bytes",
+          "size": 32
+        },
+        {
+          "type": "bytes",
+          "size": 8
+        },
+        {
+          "type": "uint",
+          "bits": 64
+        },
+        {
+          "type": "uint",
+          "bits": 256
+        },
+        {
+          "type": "address"
+        },
+        {
+          "type": "address"
+        },
+        {
+          "type": "bytes",
+          "size": 1
+        },
+        {
+          "type": "bytes",
+          "size": 1
+        }
+      ]
+    }
   ],
   "events": []
 }

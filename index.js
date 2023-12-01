@@ -359,6 +359,7 @@ class Contract {
       simulate,
       waitForConfirmation
     );
+  arc200_Transfer = async () => await this.contractInstance.arc200_Transfer();
   // non-standard methods
   hasBalance = async (addr) => await hasBalance(this.contractInstance, addr);
   hasAllowance = async (addrFrom, addrSpender) =>

@@ -27,20 +27,23 @@ declare module "arc200js" {
       amt: bigint,
       simulate: boolean,
       waitForConfirmation: boolean
-    ): Promise<{ success: boolean, txId?:string, txns?:string[] }>;
+    ): Promise<{ success: boolean; txId?: string; txns?: string[] }>;
     arc200_transferFrom(
       addrFrom: string,
       addrTo: string,
       amt: bigint,
       simulate: boolean,
       waitForConfirmation: boolean
-      ): Promise<{ success: boolean, txId?:string, txns?:string[] }>;
+    ): Promise<{ success: boolean; txId?: string; txns?: string[] }>;
     arc200_approve(
       addrSpender: string,
       amt: bigint,
       simulate: boolean,
       waitForConfirmation: boolean
-      ): Promise<{ success: boolean, txId?:string, txns?:string[] }>;
+    ): Promise<{ success: boolean; txId?: string; txns?: string[] }>;
+    arc200_Transfer(): Promise<any[]>;
+    arc200_Approval(): Promise<any[]>;
+    getEvents(query: any): Promise<any[]>;
     hasBalance(addr: string): Promise<{ success: boolean }>;
     hasAllowance(
       addrFrom: string,

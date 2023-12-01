@@ -359,8 +359,12 @@ class Contract {
       simulate,
       waitForConfirmation
     );
-  arc200_Transfer = async () => await this.contractInstance.arc200_Transfer();
+  arc200_Transfer = async (query) =>
+    await this.contractInstance.arc200_Transfer(query);
+  arc200_Approval = async (query) =>
+    await this.contractInstance.arc200_Approval(query);
   // non-standard methods
+  getEvents = async (query) => await this.contractInstance.getEvents(query);
   hasBalance = async (addr) => await hasBalance(this.contractInstance, addr);
   hasAllowance = async (addrFrom, addrSpender) =>
     await hasAllowance(this.contractInstance, addrFrom, addrSpender);

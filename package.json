@@ -3,6 +3,11 @@
   "version": "2.1.1",
   "description": "arc200 js library",
   "main": "index.js",
+  "babel": {
+    "plugins": [
+      "@babel/plugin-syntax-import-assertions"
+    ]
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\""
   },
@@ -24,5 +29,8 @@
   "types": ".types/index.d.ts",
   "dependencies": {
     "arccjs": "^2.1.0"
+  },
+  "devDependencies": {
+    "@babel/plugin-syntax-import-assertions": "^7.23.3"
   }
 }

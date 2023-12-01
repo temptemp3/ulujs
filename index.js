@@ -277,6 +277,7 @@ class Contract {
   constructor(
     contractId,
     algodClient,
+    indexerClient,
     opts = {
       acc: { addr: oneAddress },
       simulate: true,
@@ -287,9 +288,11 @@ class Contract {
     this.contractInstance = new CONTRACT(
       contractId,
       algodClient,
+      indexerClient,
       {
         ...ARC200Spec,
         methods: [...ARC200Spec.methods, ...ARC200Extension.methods], // mixin non-standard methods
+        events: [...ARC200Spec.events, ...ARC200Extension.events], // mixin non-standard events
       },
       opts.acc,
       opts.simulate,

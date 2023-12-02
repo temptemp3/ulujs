@@ -36,38 +36,10 @@
       "desc": "",
       "readonly": true,
       "args": [],
-      "returns": [
-        {
-          "type": "bytes",
-          "size": 32
-        },
-        {
-          "type": "bytes",
-          "size": 8
-        },
-        {
-          "type": "uint",
-          "bits": 64
-        },
-        {
-          "type": "uint",
-          "bits": 256
-        },
-        {
-          "type": "address"
-        },
-        {
-          "type": "address"
-        },
-        {
-          "type": "bytes",
-          "size": 1
-        },
-        {
-          "type": "bytes",
-          "size": 1
-        }
-      ]
+      "returns": {
+        "type": "(byte[32],byte[8],uint64,uint256,address,address,byte,byte)",
+        "desc": ""
+      }
     }
   ],
   "events": []

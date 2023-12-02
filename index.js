@@ -368,7 +368,38 @@ class Contract {
   hasBalance = async (addr) => await hasBalance(this.contractInstance, addr);
   hasAllowance = async (addrFrom, addrSpender) =>
     await hasAllowance(this.contractInstance, addrFrom, addrSpender);
-  state = async () => await this.contractInstance.state();
+  state = async () => {
+    const stateR = await this.contractInstance.state();
+    if (!stateR.success) {
+      return {
+        success: false,
+        error: "Failed to get state",
+      };
+    }
+    const [
+      name,
+      symbol,
+      decimals,
+      totalSupply,
+      zeroAddress,
+      manager,
+      enableZeroAddressBurn,
+      closed,
+    ] = stateR.returnValue;
+    return {
+      success: true,
+      returnValue: {
+        name: prepareString(name),
+        symbol: prepareString(symbol),
+        decimals,
+        totalSupply,
+        zeroAddress,
+        manager,
+        enableZeroAddressBurn,
+        closed,
+      },
+    };
+  };
   // helper methods
   getMetadata = async () => {
     const [name, symbol, totalSupply, decimals] = await Promise.all([

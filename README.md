@@ -26,10 +26,11 @@ import Contract from 'arc200js';
 
 // Initialize Algod client
 const algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
+const indexerClient = new algosdk.Indexer(indexerToken, indexerServer, indexerPort);
 
 // Initialize ARC200 Contract instance
 const tokenId = 123456; // Replace with your token ID
-const contract = new Contract(tokenId, algodClient);
+const contract = new Contract(tokenId, algodClient, indexerClient);
 ```
 
 ### getMetadata

@@ -21,7 +21,7 @@
     "npm": ">=10.2.0",
     "node": ">=20.9.0"
   },
-  "types": ".types/index.d.ts",
+  "types": "./types/index.d.ts",
   "dependencies": {
     "arccjs": "^2.1.0"
   }

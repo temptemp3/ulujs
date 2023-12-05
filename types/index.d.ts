@@ -3,6 +3,7 @@ declare module "arc200js" {
     constructor(
       contractId: number,
       algodClient: unknown,
+      indexerClient: unknown,
       opts?: {
         acc?: { addr: string; sk: Uint8Array };
         simulate?: boolean;

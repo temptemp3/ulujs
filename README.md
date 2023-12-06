@@ -37,7 +37,17 @@ const tokenId = 123456; // Replace with your token ID
 const contract = new Contract(tokenId, algodClient, indexerClient);
 ```
 
-### standard events
+### Event queries
+
+The `query` argument may be used to retrieve matching events:
+
+```javascript
+const { minRound, maxRound, address, round, txid } = query || {};
+```
+
+`minRound` and `maxRound` may be used to specify a range of rounds to query events from. `address` may be used to filter events by address. `round` and `txid` may be used to retrieve events from a specific round or transaction ID.
+
+### Standard events
 
 The following events are available for standard ARC200 token functionalities:
 
@@ -97,7 +107,7 @@ await contract.arc200_Approval({minRound: 1699029707});
 // returns events with round >= 1699029707
 ```
 
-### non-standard events
+### Non-standard events
 
 The following events are available for extended ARC200 token functionalities:
 

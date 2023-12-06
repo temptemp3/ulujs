@@ -21,44 +21,132 @@ npm install arc200js
 Import and initialize the `arc200js` library in your project:
 
 ```javascript
-import algosdk from 'algosdk';
-import Contract from 'arc200js';
+import algosdk from "algosdk";
+import Contract from "arc200js";
 
 // Initialize Algod client
 const algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
-const indexerClient = new algosdk.Indexer(indexerToken, indexerServer, indexerPort);
+const indexerClient = new algosdk.Indexer(
+  indexerToken,
+  indexerServer,
+  indexerPort
+);
 
 // Initialize ARC200 Contract instance
 const tokenId = 123456; // Replace with your token ID
 const contract = new Contract(tokenId, algodClient, indexerClient);
 ```
 
-### getMetadata
+### standard events
 
-Retrieve token metadata such as name, symbol, total supply, and decimals.
+The following events are available for standard ARC200 token functionalities:
 
-```javascript
-const metadata = await contract.getMetadata();
-console.log(metadata);
-```
+### arc200_Transfer
 
-### hasBalance
-
-Check if an address has any balance of the ARC200 token.
+Triggered when tokens are transferred from one account to another.
 
 ```javascript
-const hasBalance = await contract.hasBalance(address);
-console.log("Has balance:", hasBalance);
+await contract.arc200_Transfer();
+//[
+//   [
+//         "WR4C7PMYKZ45ZWFWHTQRWHL424VDYXKYH4X2BX4J6KZ7BD3IQD4Q",
+//         1519106,
+//         1699029707,
+//         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+//         "VIAGCPULN6FUTHUNPQZDRQIHBT7IUVT264B3XDXLZNX7OZCJP6MEF7JFQU",
+//         10000000000000000n,
+//   ],
+//   ...
+//]
 ```
 
-### hasAllowance
-
-Determine if a spender is allowed to spend from a given address.
+Additionally, the `query` argument may be used to retrieve matching events:
 
 ```javascript
-const hasAllowance = await contract.hasAllowance(ownerAddress, spenderAddress);
-console.log("Has allowance:", hasAllowance);
+await contract.arc200_Transfer(query);
+// returns events matching query
+await contract.arc200_Transfer({minRound: 1699029707});
+// returns events with round >= 1699029707
 ```
+
+### arc200_Approval
+
+Triggered when a spender is approved to withdraw from an owner's account.
+
+```javascript
+await contract.arc200_Approval();
+//[
+//   [
+//         "WR4C7PMYKZ45ZWFWHTQRWHL424VDYXKYH4X2BX4J6KZ7BD3IQD4Q",
+//         1519106,
+//         1699029707,
+//         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+//         "VIAGCPULN6FUTHUNPQZDRQIHBT7IUVT264B3XDXLZNX7OZCJP6MEF7JFQU",
+//         10000000000000000n,
+//   ],
+//   ...
+//]
+```
+
+Additionally, the `query` argument may be used to retrieve matching events:
+
+```javascript
+await contract.arc200_Transfer(query);
+// returns events matching query
+await contract.arc200_Approval({minRound: 1699029707});
+// returns events with round >= 1699029707
+```
+
+### non-standard events
+
+The following events are available for extended ARC200 token functionalities:
+
+### getEvents
+
+Retrieve all events of the ARC200 token.
+
+```javascript
+await contract.getEvents();
+//{
+//   arc200_Transfer: {
+//     name: "arc200_Transfer",
+//     signature: "...",
+//     selector: "...",
+//     events: [
+//       [
+//         "WR4C7PMYKZ45ZWFWHTQRWHL424VDYXKYH4X2BX4J6KZ7BD3IQD4Q",
+//         1519106,
+//         1699029707,
+//         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+//         "VIAGCPULN6FUTHUNPQZDRQIHBT7IUVT264B3XDXLZNX7OZCJP6MEF7JFQU",
+//         10000000000000000n,
+//       ],
+//       ...
+//     ]
+//   },
+//   arc200_Approval: {
+//     name: "arc200_Approval",
+//     signature: "...",
+//     selector: "...",
+//     events: [
+//       [
+//         "WR4C7PMYKZ45ZWFWHTQRWHL424VDYXKYH4X2BX4J6KZ7BD3IQD4Q",
+//         1519106,
+//         1699029707,
+//         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+//         "VIAGCPULN6FUTHUNPQZDRQIHBT7IUVT264B3XDXLZNX7OZCJP6MEF7JFQU",
+//         10000000000000000n,
+//       ],
+//       ...
+//     ]
+//   }
+//}
+```
+
+
+### standard methods
+
+The following methods are available for standard ARC200 token functionalities:
 
 ### arc200_approve
 
@@ -111,6 +199,37 @@ const balance = await contract.arc200_balanceOf(address);
 console.log("Balance:", balance.returnValue);
 ```
 
+### non-standard methods
+
+The following methods are available for extended ARC200 token functionalities:
+
+### getMetadata
+
+Retrieve token metadata such as name, symbol, total supply, and decimals.
+
+```javascript
+const metadata = await contract.getMetadata();
+console.log(metadata);
+```
+
+### hasBalance
+
+Check if an address has any balance of the ARC200 token.
+
+```javascript
+const hasBalance = await contract.hasBalance(address);
+console.log("Has balance:", hasBalance);
+```
+
+### hasAllowance
+
+Determine if a spender is allowed to spend from a given address.
+
+```javascript
+const hasAllowance = await contract.hasAllowance(ownerAddress, spenderAddress);
+console.log("Has allowance:", hasAllowance);
+```
+
 ## API Reference
 
 Each method provided by `arc200js` offers specific functionalities:
@@ -123,6 +242,9 @@ Each method provided by `arc200js` offers specific functionalities:
 - `arc200_transfer(to, amount)`: Enables direct transfer of tokens to a specified address.
 - `arc200_allowance(owner, spender)`: Returns the remaining amount a spender is allowed to withdraw from an owner.
 - `arc200_balanceOf(address)`: Provides the token balance of a given address.
+- `arc200_Transfer(query)`: Retrieves all `arc200_Transfer` events of the ARC200 token.
+- `arc200_Approval(query)`: Retrieves all `arc200_Approval` events of the ARC200 token.
+- `getEvents()`: Retrieves all events of the ARC200 token.
 
 ## Contributing
 

@@ -166,7 +166,12 @@ export const safe_arc200_transfer = async (
       formatBytes: true,
       waitForConfirmation,
     };
-    const ARC200 = new Contract(ci.getContractId(), ci.algodClient, opts);
+    const ARC200 = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient,
+      opts
+    );
     const bal = await ci.arc200_balanceOf(addrTo);
     const addPayment = !bal.success || (bal.success && bal.returnValue === 0n);
     if (addPayment) {
@@ -207,7 +212,12 @@ export const safe_arc200_transferFrom = async (
       formatBytes: true,
       waitForConfirmation,
     };
-    const ARC200 = new Contract(ci.getContractId(), ci.algodClient, opts);
+    const ARC200 = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient,
+      opts
+    );
     const bal = await ci.arc200_balanceOf(addrTo);
     const addPayment = !bal.success || (bal.success && bal.returnValue === 0n);
     if (addPayment) {
@@ -253,7 +263,7 @@ export const safe_arc200_approve = async (
       formatBytes: true,
       waitForConfirmation,
     };
-    const ARC200 = new Contract(ci.getContractId(), ci.algodClient, opts);
+    const ARC200 = new Contract(ci.getContractId(), ci.algodClient, ci.indexerClient, opts);
     const addrFrom = ARC200.contractInstance.getSender();
     const all = await ci.arc200_allowance(addrFrom, addrSpender);
     const addPayment = !all.success || (all.success && all.returnValue === 0n);

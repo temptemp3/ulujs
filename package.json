@@ -1,7 +1,7 @@
 {
-  "name": "arc200js",
-  "version": "2.3.2",
-  "description": "arc200 js library",
+  "name": "swap200js",
+  "version": "0.0.1",
+  "description": "arc200 swap js library",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\""
@@ -11,12 +11,12 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/temptemp3/arc200js.git"
+    "url": "git@github.com:temptemp3/swap200js.git"
   },
   "bugs": {
-    "url": "https://github.com/temptemp3/arc200js/issues"
+    "url": "https://github.com/temptemp3/swap200js/issues"
   },
-  "homepage": "https://github.com/temptemp3/arc200js#readme",
+  "homepage": "https://github.com/temptemp3/swap200js#readme",
   "engines": {
     "npm": ">=10.2.0",
     "node": ">=20.9.0"

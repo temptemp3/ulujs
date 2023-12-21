@@ -360,6 +360,51 @@ const swap = async (
 };
 
 /*
+ * withdraw
+ * - withdraw tokens from reserve or liquidity
+ * @param ci: contract instance
+ * @param amount: amount to withdraw
+ * @param isA: withdraw A
+ * @param simulate: boolean
+ * @param waitForConfirmation: boolean
+ * @returns: if simulate: true  { success: bool, txns: string[] }
+ *         if simulate: false { success: bool, txId: string }
+ * @note: isA: true  => withdraw A
+ *           false => withdraw B
+ */
+const withdrawReserve = async (
+  ci,
+  amount,
+  isA,
+  simulate,
+  waitForConfirmation
+) => {
+  try {
+    const opts = {
+      acc: { addr: ci.getSender(), sk: ci.getSk() },
+      simulate,
+      formatBytes: true,
+      waitForConfirmation,
+    };
+    const SWAP200 = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient,
+      opts
+    );
+    SWAP200.contractInstance.setFee(3000);
+    SWAP200.contractInstance.setPaymentAmount(28500 * 2);
+    let res = isA
+      ? await SWAP200.contractInstance.Trader_withdrawA(amount)
+      : await SWAP200.contractInstance.Trader_withdrawB(amount);
+    if (!res.success) throw new Error("Trader_withdraw failed");
+    return res;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+/*
  * Contract class
  * - wrapper for CONTRACT class
  */
@@ -518,6 +563,22 @@ class Contract {
       simulate,
       waitForConfirmation
     );
+  Provider_withdrawA = async (amount, simulate, waitForConfirmation) =>
+    await withdrawReserve(
+      this.contractInstance,
+      amount,
+      true,
+      simulate,
+      waitForConfirmation
+    );
+  Provider_withdrawB = async (amount, simulate, waitForConfirmation) =>
+    await withdrawReserve(
+      this.contractInstance,
+      amount,
+      false,
+      simulate,
+      waitForConfirmation
+    );
   //  helper methods
   swap = async (amount, ol, swapAForB, simulate, waitForConfirmation) =>
     await swap(
@@ -525,6 +586,14 @@ class Contract {
       amount,
       ol,
       swapAForB,
+      simulate,
+      waitForConfirmation
+    );
+  withdrawReserve = async (amount, isA, simulate, waitForConfirmation) =>
+    await withdrawReserve(
+      this.contractInstance,
+      amount,
+      isA,
       simulate,
       waitForConfirmation
     );

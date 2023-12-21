@@ -270,7 +270,12 @@ export const safe_arc200_approve = async (
       formatBytes: true,
       waitForConfirmation,
     };
-    const ARC200 = new Contract(ci.getContractId(), ci.algodClient, ci.indexerClient, opts);
+    const ARC200 = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient,
+      opts
+    );
     const addrFrom = ARC200.contractInstance.getSender();
     const all = await ci.arc200_allowance(addrFrom, addrSpender);
     const addPayment = !all.success || (all.success && all.returnValue === 0n);
@@ -303,11 +308,56 @@ export const safe_arc200_approve = async (
  * @returns: bigint
  */
 export const reserve = async (contractInstance, addr) =>
-  handleResponse(
-    `Reserve ${addr}`,
-    await contractInstance.reserve(addr)
-  );
+  handleResponse(`Reserve ${addr}`, await contractInstance.reserve(addr));
 
+/*
+ * swap
+ * - swap tokens
+ * @param ci: contract instance
+ * @param amount: amount to swap
+ * @param ol: output liquidity
+ * @param swapAForB: swap A for B
+ * @param simulate: boolean
+ * @param waitForConfirmation: boolean
+ * @returns: if simulate: true  { success: bool, txns: string[] }
+ *          if simulate: false { success: bool, txId: string }
+ * @note: swapAForB: true  => swap A for B
+ *                false => swap B for A
+ * @note: ol: output liquidity
+ * @note: amount: amount to swap
+ */
+const swap = async (
+  ci,
+  amount,
+  ol,
+  swapAForB,
+  simulate,
+  waitForConfirmation
+) => {
+  try {
+    const opts = {
+      acc: { addr: ci.getSender(), sk: ci.getSk() },
+      simulate,
+      formatBytes: true,
+      waitForConfirmation,
+    };
+    const SWAP200 = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient,
+      opts
+    );
+    SWAP200.contractInstance.setFee(5000);
+    SWAP200.contractInstance.setPaymentAmount(28500 * 2);
+    const res = swapAForB
+      ? await SWAP200.Trader_swapAForB(amount, ol)
+      : await SWAP200.Trader_swapBForA(amount, ol);
+    if (!res.success) throw new Error("Trader_swap failed");
+    return res;
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 /*
  * Contract class
@@ -331,8 +381,16 @@ class Contract {
       indexerClient,
       {
         ...ARC200Spec,
-        methods: [...ARC200Spec.methods, ...ARC200Extension.methods, ...SWAP200Extension.methods], // mixin non-standard methods
-        events: [...ARC200Spec.events, ...ARC200Extension.events, ...SWAP200Extension.events], // mixin non-standard events
+        methods: [
+          ...ARC200Spec.methods,
+          ...ARC200Extension.methods,
+          ...SWAP200Extension.methods,
+        ], // mixin non-standard methods
+        events: [
+          ...ARC200Spec.events,
+          ...ARC200Extension.events,
+          ...SWAP200Extension.events,
+        ], // mixin non-standard events
       },
       opts.acc,
       opts.simulate,
@@ -440,8 +498,36 @@ class Contract {
     };
   };
   // swap200 methods
-  reserve = async (addr) =>
-    await reserve(this.contractInstance, addr);
+  //  standard methods
+  reserve = async (addr) => await reserve(this.contractInstance, addr);
+  swapAForB = async (amount, ol, simulate, waitForConfirmation) =>
+    await swap(
+      this.contractInstance,
+      amount,
+      ol,
+      true,
+      simulate,
+      waitForConfirmation
+    );
+  swapBForA = async (amount, ol, simulate, waitForConfirmation) =>
+    await swap(
+      this.contractInstance,
+      amount,
+      ol,
+      false,
+      simulate,
+      waitForConfirmation
+    );
+  //  helper methods
+  swap = async (amount, ol, swapAForB, simulate, waitForConfirmation) =>
+    await swap(
+      this.contractInstance,
+      amount,
+      ol,
+      swapAForB,
+      simulate,
+      waitForConfirmation
+    );
 }
 
 export default Contract;

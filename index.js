@@ -395,8 +395,8 @@ const withdrawReserve = async (
     SWAP200.contractInstance.setFee(3000);
     SWAP200.contractInstance.setPaymentAmount(28500 * 2);
     let res = isA
-      ? await SWAP200.contractInstance.Trader_withdrawA(amount)
-      : await SWAP200.contractInstance.Trader_withdrawB(amount);
+      ? await SWAP200.contractInstance.Provider_withdrawA(amount)
+      : await SWAP200.contractInstance.Provider_withdrawB(amount);
     if (!res.success) throw new Error("Trader_withdraw failed");
     return res;
   } catch (e) {

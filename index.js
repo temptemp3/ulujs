@@ -1,13 +1,8 @@
 import CONTRACT from "arccjs";
-//import dotenv from "dotenv";
 
 import ARC200Spec from "./abi/arc/200/contract.json" assert { type: "json" }; // spec
 import ARC200Extension from "./abi/arc/200/extension.json" assert { type: "json" }; // extension (non-standard methods)
-
-//dotenv.config();
-
-const BalanceBoxCost = 28500;
-const AllowanceBoxCost = 28100;
+import SWAP200Extension from "./abi/swap/200/extension.json" assert { type: "json" }; // extension (non-standard methods)
 
 /*
  * oneAddress is the address of the account that holds more
@@ -46,6 +41,18 @@ const handleResponse = (name, res) => {
   */
   return res;
 };
+
+// :::'###::::'########:::'######:::'#######::::'#####:::::'#####:::
+// ::'## ##::: ##.... ##:'##... ##:'##.... ##::'##.. ##:::'##.. ##::
+// :'##:. ##:: ##:::: ##: ##:::..::..::::: ##:'##:::: ##:'##:::: ##:
+// '##:::. ##: ########:: ##::::::::'#######:: ##:::: ##: ##:::: ##:
+//  #########: ##.. ##::: ##:::::::'##:::::::: ##:::: ##: ##:::: ##:
+//  ##.... ##: ##::. ##:: ##::: ##: ##::::::::. ##:: ##::. ##:: ##::
+//  ##:::: ##: ##:::. ##:. ######:: #########::. #####::::. #####:::
+// ..:::::..::..:::::..:::......:::.........::::.....::::::.....::::
+
+const BalanceBoxCost = 28500;
+const AllowanceBoxCost = 28100;
 
 /*
  * arc200_name
@@ -279,6 +286,29 @@ export const safe_arc200_approve = async (
   }
 };
 
+// :'######::'##:::::'##::::'###::::'########:::'#######::::'#####:::::'#####:::
+// '##... ##: ##:'##: ##:::'## ##::: ##.... ##:'##.... ##::'##.. ##:::'##.. ##::
+//  ##:::..:: ##: ##: ##::'##:. ##:: ##:::: ##:..::::: ##:'##:::: ##:'##:::: ##:
+// . ######:: ##: ##: ##:'##:::. ##: ########:::'#######:: ##:::: ##: ##:::: ##:
+// :..... ##: ##: ##: ##: #########: ##.....:::'##:::::::: ##:::: ##: ##:::: ##:
+// '##::: ##: ##: ##: ##: ##.... ##: ##:::::::: ##::::::::. ##:: ##::. ##:: ##::
+// . ######::. ###. ###:: ##:::: ##: ##:::::::: #########::. #####::::. #####:::
+// :......::::...::...:::..:::::..::..:::::::::.........::::.....::::::.....::::
+
+/*
+ * reserve
+ * - return amount to redeam or add to liquidity
+ * @param contractInstance: contract instance
+ * @param addr: address
+ * @returns: bigint
+ */
+export const reserve = async (contractInstance, addr) =>
+  handleResponse(
+    `Reserve ${addr}`,
+    await contractInstance.reserve(addr)
+  );
+
+
 /*
  * Contract class
  * - wrapper for CONTRACT class
@@ -301,8 +331,8 @@ class Contract {
       indexerClient,
       {
         ...ARC200Spec,
-        methods: [...ARC200Spec.methods, ...ARC200Extension.methods], // mixin non-standard methods
-        events: [...ARC200Spec.events, ...ARC200Extension.events], // mixin non-standard events
+        methods: [...ARC200Spec.methods, ...ARC200Extension.methods, ...SWAP200Extension.methods], // mixin non-standard methods
+        events: [...ARC200Spec.events, ...ARC200Extension.events, ...SWAP200Extension.events], // mixin non-standard events
       },
       opts.acc,
       opts.simulate,
@@ -310,7 +340,8 @@ class Contract {
     );
     this.opts = opts;
   }
-  // standard methods
+  // arc200 methods
+  //  standard methods
   arc200_name = async () => {
     const res = await arc200_name(this.contractInstance);
     if (!res.success) return res;
@@ -373,44 +404,13 @@ class Contract {
     await this.contractInstance.arc200_Transfer(query);
   arc200_Approval = async (query) =>
     await this.contractInstance.arc200_Approval(query);
-  // non-standard methods
+  //  non-standard methods
   getEvents = async (query) => await this.contractInstance.getEvents(query);
   hasBalance = async (addr) => await hasBalance(this.contractInstance, addr);
   hasAllowance = async (addrFrom, addrSpender) =>
     await hasAllowance(this.contractInstance, addrFrom, addrSpender);
-  state = async () => {
-    const stateR = await this.contractInstance.state();
-    if (!stateR.success) {
-      return {
-        success: false,
-        error: "Failed to get state",
-      };
-    }
-    const [
-      name,
-      symbol,
-      decimals,
-      totalSupply,
-      zeroAddress,
-      manager,
-      enableZeroAddressBurn,
-      closed,
-    ] = stateR.returnValue;
-    return {
-      success: true,
-      returnValue: {
-        name: prepareString(name),
-        symbol: prepareString(symbol),
-        decimals,
-        totalSupply,
-        zeroAddress,
-        manager,
-        enableZeroAddressBurn,
-        closed,
-      },
-    };
-  };
-  // helper methods
+  //   arc200 state methood not supported swap200
+  //  helper methods
   getMetadata = async () => {
     const [name, symbol, totalSupply, decimals] = await Promise.all([
       this.arc200_name(),
@@ -439,6 +439,9 @@ class Contract {
       },
     };
   };
+  // swap200 methods
+  reserve = async (addr) =>
+    await reserve(this.contractInstance, addr);
 }
 
 export default Contract;

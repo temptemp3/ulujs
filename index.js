@@ -350,8 +350,8 @@ const swap = async (
     SWAP200.contractInstance.setFee(5000);
     SWAP200.contractInstance.setPaymentAmount(28500 * 2);
     const res = swapAForB
-      ? await SWAP200.Trader_swapAForB(amount, ol)
-      : await SWAP200.Trader_swapBForA(amount, ol);
+      ? await SWAP200.contractInstance.Trader_swapAForB(amount, ol)
+      : await SWAP200.contractInstance.Trader_swapBForA(amount, ol);
     if (!res.success) throw new Error("Trader_swap failed");
     return res;
   } catch (e) {
@@ -500,7 +500,7 @@ class Contract {
   // swap200 methods
   //  standard methods
   reserve = async (addr) => await reserve(this.contractInstance, addr);
-  swapAForB = async (amount, ol, simulate, waitForConfirmation) =>
+  Trader_swapAForB = async (amount, ol, simulate, waitForConfirmation) =>
     await swap(
       this.contractInstance,
       amount,
@@ -509,7 +509,7 @@ class Contract {
       simulate,
       waitForConfirmation
     );
-  swapBForA = async (amount, ol, simulate, waitForConfirmation) =>
+  Trader_swapBForA = async (amount, ol, simulate, waitForConfirmation) =>
     await swap(
       this.contractInstance,
       amount,

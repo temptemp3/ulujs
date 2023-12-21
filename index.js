@@ -2,7 +2,7 @@ import CONTRACT from "arccjs";
 
 import ARC200Spec from "./abi/arc/200/contract.json" assert { type: "json" }; // spec
 import ARC200Extension from "./abi/arc/200/extension.json" assert { type: "json" }; // extension (non-standard methods)
-import SWAP200Extension from "./abi/swap/200/extension.json" assert { type: "json" }; // extension (non-standard methods)
+import SWAP200Extension from "./abi/other/swap200/extension.json" assert { type: "json" }; // extension (non-standard methods)
 
 /*
  * oneAddress is the address of the account that holds more

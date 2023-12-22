@@ -405,6 +405,47 @@ const withdrawReserve = async (
 };
 
 /*
+ * depositReserve
+ * - deposits tokens to reserve from balance
+ * @param ci: contract instance
+ * @param amount: amount to deposit
+ * @param isA: deposit A
+ * @param simulate: boolean
+ * @param waitForConfirmation: boolean
+ */
+const depositReserve = async (
+  ci,
+  amount,
+  isA,
+  simulate,
+  waitForConfirmation
+) => {
+  try {
+    const opts = {
+      acc: { addr: ci.getSender(), sk: ci.getSk() },
+      simulate,
+      formatBytes: true,
+      waitForConfirmation,
+    };
+    const SWAP200 = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient,
+      opts
+    );
+    SWAP200.contractInstance.setFee(3000);
+    SWAP200.contractInstance.setPaymentAmount(28500 * 2);
+    let res = isA
+      ? await SWAP200.contractInstance.Provider_depositA(amount)
+      : await SWAP200.contractInstance.Provider_depositB(amount);
+    if (!res.success) throw new Error("Trader_deposit failed");
+    return res;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+/*
  * Contract class
  * - wrapper for CONTRACT class
  */
@@ -579,6 +620,22 @@ class Contract {
       simulate,
       waitForConfirmation
     );
+  Provider_depositA = async (amount, simulate, waitForConfirmation) =>
+    await depositReserve(
+      this.contractInstance,
+      amount,
+      true,
+      simulate,
+      waitForConfirmation
+    );
+  Provider_depositB = async (amount, simulate, waitForConfirmation) =>
+    await depositReserve(
+      this.contractInstance,
+      amount,
+      false,
+      simulate,
+      waitForConfirmation
+    );
   //  helper methods
   swap = async (amount, ol, swapAForB, simulate, waitForConfirmation) =>
     await swap(
@@ -591,6 +648,14 @@ class Contract {
     );
   withdrawReserve = async (amount, isA, simulate, waitForConfirmation) =>
     await withdrawReserve(
+      this.contractInstance,
+      amount,
+      isA,
+      simulate,
+      waitForConfirmation
+    );
+  depositReserve = async (amount, isA, simulate, waitForConfirmation) =>
+    await depositReserve(
       this.contractInstance,
       amount,
       isA,

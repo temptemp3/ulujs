@@ -310,6 +310,9 @@ export const safe_arc200_approve = async (
 export const reserve = async (contractInstance, addr) =>
   handleResponse(`Reserve ${addr}`, await contractInstance.reserve(addr));
 
+export const Info = async (contractInstance) =>
+  handleResponse(`Info`, await contractInstance.Info());
+
 /*
  * swap
  * - swap tokens
@@ -640,6 +643,7 @@ class Contract {
   // swap200 methods
   //  standard methods
   reserve = async (addr) => await reserve(this.contractInstance, addr);
+  Info = async () => await Info(this.contractInstance);
   Trader_swapAForB = async (amount, ol, simulate, waitForConfirmation) =>
     await swap(
       this.contractInstance,

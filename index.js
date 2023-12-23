@@ -438,7 +438,61 @@ const depositReserve = async (
     let res = isA
       ? await SWAP200.contractInstance.Provider_depositA(amount)
       : await SWAP200.contractInstance.Provider_depositB(amount);
-    if (!res.success) throw new Error("Trader_deposit failed");
+    if (!res.success) throw new Error("Provider_deposit failed");
+    return res;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const depositLiquidity = async (ci, lp, ol, simulate, waitForConfirmation) => {
+  try {
+    const opts = {
+      acc: { addr: ci.getSender(), sk: ci.getSk() },
+      simulate,
+      formatBytes: true,
+      waitForConfirmation,
+    };
+    const SWAP200 = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient,
+      opts
+    );
+    SWAP200.contractInstance.setFee(2000);
+    SWAP200.contractInstance.setPaymentAmount(28500);
+    let res = await SWAP200.contractInstance.Provider_deposit(lp, ol);
+    if (!res.success) throw new Error("Provider_deposit failed");
+    return res;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const withdrawLiquidity = async (
+  ci,
+  lp,
+  outls,
+  simulate,
+  waitForConfirmation
+) => {
+  try {
+    const opts = {
+      acc: { addr: ci.getSender(), sk: ci.getSk() },
+      simulate,
+      formatBytes: true,
+      waitForConfirmation,
+    };
+    const SWAP200 = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient,
+      opts
+    );
+    SWAP200.contractInstance.setFee(2000);
+    SWAP200.contractInstance.setPaymentAmount(28500);
+    let res = await SWAP200.contractInstance.Provider_withdraw(lp, outls);
+    if (!res.success) throw new Error("Provider_withdraw failed");
     return res;
   } catch (e) {
     console.log(e);
@@ -636,6 +690,22 @@ class Contract {
       simulate,
       waitForConfirmation
     );
+  Provider_deposit = async (lp, ol, simulate, waitForConfirmation) =>
+    await depositLiquidity(
+      this.contractInstance,
+      lp,
+      ol,
+      simulate,
+      waitForConfirmation
+    );
+  Provider_withdraw = async (lp, outls, simulate, waitForConfirmation) =>
+    await withdrawLiquidity(
+      this.contractInstance,
+      lp,
+      outls,
+      simulate,
+      waitForConfirmation
+    );
   //  helper methods
   swap = async (amount, ol, swapAForB, simulate, waitForConfirmation) =>
     await swap(
@@ -659,6 +729,22 @@ class Contract {
       this.contractInstance,
       amount,
       isA,
+      simulate,
+      waitForConfirmation
+    );
+  depositLiquidity = async (lp, ol, simulate, waitForConfirmation) =>
+    await depositLiquidity(
+      this.contractInstance,
+      lp,
+      ol,
+      simulate,
+      waitForConfirmation
+    );
+  withdrawLiquidity = async (lp, outls, simulate, waitForConfirmation) =>
+    await withdrawLiquidity(
+      this.contractInstance,
+      lp,
+      outls,
       simulate,
       waitForConfirmation
     );

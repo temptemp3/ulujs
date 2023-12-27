@@ -107,7 +107,7 @@ class Contract {
     const res = await this.contractInstance.Announce(query);
     return {
       ...res,
-      events: decodeAnnounceEvent(res.events),
+      events: res.events.map(decodeAnnounceEvent),
     };
   };
 }

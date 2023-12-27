@@ -1,21 +1,57 @@
-declare module "arc200js" {
+declare module "swap200js" {
   type ContractEvent = [
     string, // Transaction ID
     number, // Round
-    number, // Timestamp
+    number // Timestamp
   ];
   type TransferEvent = [
     ...ContractEvent,
     string, // From
     string, // To
-    bigint, // Amount
-  ]
+    bigint // Amount
+  ];
   type ApprovalEvent = [
     ...ContractEvent,
     string, // Owner
     string, // Spender
-    bigint, // Amount
-  ]
+    bigint // Amount
+  ];
+  type HarvestEvent = [
+    ...ContractEvent,
+    [
+      bigint, // protoFee
+      bigint, // lpFee
+      bigint, // totFee
+      string, // protoAddr
+      number // locked
+    ]
+  ];
+  type DepositEvent = [
+    ...ContractEvent,
+    [
+      string, // address
+      bals, // [inA, inB]
+      bigint, //
+      bals, //
+      bals //
+    ]
+  ];
+  type SwapEvent = [
+    ...ContractEvent,
+    [
+      string, // address (who)
+      bals, // [inA, inB]
+      bals, // [outA, outB]
+      bals // [poolA, poolB]
+    ]
+  ];
+  type WithdrawEvent = [
+    ...ContractEvent,
+    [
+      string, // address
+      bals // [outA, outB]
+    ]
+  ];
   class Contract {
     constructor(
       contractId: number,
@@ -28,7 +64,6 @@ declare module "arc200js" {
         waitForConfirmation?: boolean;
       }
     );
-
     arc200_name(): Promise<
       { success: true; returnValue: string } | { success: false; error: any }
     >;
@@ -100,6 +135,34 @@ declare module "arc200js" {
       round?: number;
       txid?: string;
     }): Promise<ApprovalEvent[]>;
+    Harvest(query?: {
+      minRound?: number;
+      maxRound?: number;
+      address?: string;
+      round?: number;
+      txid?: string;
+    }): Promise<HarvestEvent[]>;
+    Deposit(query?: {
+      minRound?: number;
+      maxRound?: number;
+      address?: string;
+      round?: number;
+      txid?: string;
+    }): Promise<DepositEvent[]>;
+    Swap(query?: {
+      minRound?: number;
+      maxRound?: number;
+      address?: string;
+      round?: number;
+      txid?: string;
+    }): Promise<SwapEvent[]>;
+    Withdraw(query?: {
+      minRound?: number;
+      maxRound?: number;
+      address?: string;
+      round?: number;
+      txid?: string;
+    }): Promise<WithdrawEvent[]>;
     getEvents(query: {
       minRound?: number;
       maxRound?: number;
@@ -120,6 +183,30 @@ declare module "arc200js" {
           selector: string;
           events: ApprovalEvent[];
         },
+        {
+          name: "Harvest";
+          signature: string;
+          selector: string;
+          events: HarvestEvent[];
+        },
+        {
+          name: "Deposit";
+          signature: string;
+          selector: string;
+          events: DepositEvent[];
+        },
+        {
+          name: "Swap";
+          signature: string;
+          selector: string;
+          events: SwapEvent[];
+        },
+        {
+          name: "Withdraw";
+          signature: string;
+          selector: string;
+          events: WithdrawEvent[];
+        }
       ]
     >;
     hasBalance(
@@ -148,7 +235,154 @@ declare module "arc200js" {
           error: any;
         }
     >;
+    reserve(
+      addr: string
+    ): Promise<
+      { success: true; returnValue: bigint } | { success: false; error: any }
+    >;
+    Info(): Promise<
+      | {
+          success: true;
+          returnValue: [
+            lptBals: bals, // [lptMinted, lptSupply]
+            poolBals: bals, // [A, B]
+            protoInfo: [bigint, bigint, bigint, string, number], // [protoId, protoFee, protoLpFee, protoAddr, locked]
+            protoBals: bals, // [protoA, protoB]
+            tokB: bigint, // tokB
+            tokA: bigint // tokA
+          ];
+        }
+      | {
+          success: false;
+          error: any;
+        }
+    >;
+    Trader_swapAForB(
+      amount: bigint,
+      ol: bigint,
+      simulate: boolean,
+      waitForConfirmation: boolean
+    ): Promise<
+      | { success: true; returnValue: bals; txns: string[] }
+      | { success: false; error: any }
+    >;
+    Trader_swapBForA(
+      amount: bigint,
+      ol: bigint,
+      simulate: boolean,
+      waitForConfirmation: boolean
+    ): Promise<
+      | { success: true; returnValue: bals; txns: string[] }
+      | { success: false; error: any }
+    >;
+    Trader_withdrawA(
+      amount: bigint,
+      simulate: boolean,
+      waitForConfirmation: boolean
+    ): Promise<
+      | { success: true; returnValue: bigint; txns: string[] }
+      | { success: false; error: any }
+    >;
+    Trader_withdrawB(
+      amount: bigint,
+      simulate: boolean,
+      waitForConfirmation: boolean
+    ): Promise<
+      | { success: true; returnValue: bigint; txns: string[] }
+      | { success: false; error: any }
+    >;
+    Trader_depositA(
+      amount: bigint,
+      simulate: boolean,
+      waitForConfirmation: boolean
+    ): Promise<
+      | { success: true; returnValue: bigint; txns: string[] }
+      | { success: false; error: any }
+    >;
+    Trader_depositB(
+      amount: bigint,
+      simulate: boolean,
+      waitForConfirmation: boolean
+    ): Promise<
+      | { success: true; returnValue: bigint; txns: string[] }
+      | { success: false; error: any }
+    >;
+    Trader_depositLiquidity(
+      inBals: bals,
+      lpl: bigint,
+      simulate: boolean,
+      waitForConfirmation: boolean
+    ): Promise<
+      | { success: true; returnValue: bigint; txns: string[] }
+      | { success: false; error: any }
+    >;
+    Provider_withdraw(
+      lp: bigint,
+      outls: bals,
+      simulate: boolean,
+      waitForConfirmation: boolean
+    ): Promise<
+      | { success: true; returnValue: bals; txns: string[] }
+      | { success: false; error: any }
+    >;
+    swap(
+      amount: bigint,
+      ol: bigint,
+      swapAForB: boolean,
+      simulate: boolean,
+      waitForConfirmation: boolean
+    ): Promise<
+      | { success: true; returnValue: bals; txns: string[] }
+      | { success: false; error: any }
+    >;
+    withdrawReserve(
+      amount: bigint,
+      isA: boolean,
+      simulate: boolean,
+      waitForConfirmation: boolean
+    ): Promise<
+      | { success: true; returnValue: bigint; txns: string[] }
+      | { success: false; error: any }
+    >;
+    depositReserve(
+      amount: bigint,
+      isA: boolean,
+      simulate: boolean,
+      waitForConfirmation: boolean
+    ): Promise<
+      | { success: true; returnValue: bigint; txns: string[] }
+      | { success: false; error: any }
+    >;
+    depositLiquidity(
+      inBals: bals,
+      lpl: bigint,
+      simulate: boolean,
+      waitForConfirmation: boolean
+    ): Promise<
+      | { success: true; returnValue: bigint; txns: string[] }
+      | { success: false; error: any }
+    >;
+    withdrawLiquidity(
+      lp: bigint,
+      outls: bals,
+      simulate: boolean,
+      waitForConfirmation: boolean
+    ): Promise<
+      | { success: true; returnValue: bals; txns: string[] }
+      | { success: false; error: any }
+    >;
   }
+
+  export default Contract;
+
+  // :::'###::::'########:::'######:::'#######::::'#####:::::'#####:::
+  // ::'## ##::: ##.... ##:'##... ##:'##.... ##::'##.. ##:::'##.. ##::
+  // :'##:. ##:: ##:::: ##: ##:::..::..::::: ##:'##:::: ##:'##:::: ##:
+  // '##:::. ##: ########:: ##::::::::'#######:: ##:::: ##: ##:::: ##:
+  //  #########: ##.. ##::: ##:::::::'##:::::::: ##:::: ##: ##:::: ##:
+  //  ##.... ##: ##::. ##:: ##::: ##: ##::::::::. ##:: ##::. ##:: ##::
+  //  ##:::: ##: ##:::. ##:. ######:: #########::. #####::::. #####:::
+  // ..:::::..::..:::::..:::......:::.........::::.....::::::.....::::
 
   export function arc200_name(
     contractInstance: Contract
@@ -244,5 +478,105 @@ declare module "arc200js" {
     | { success: false; error: any }
   >;
 
-  export default Contract;
+  // :'######::'##:::::'##::::'###::::'########:::'#######::::'#####:::::'#####:::
+  // '##... ##: ##:'##: ##:::'## ##::: ##.... ##:'##.... ##::'##.. ##:::'##.. ##::
+  //  ##:::..:: ##: ##: ##::'##:. ##:: ##:::: ##:..::::: ##:'##:::: ##:'##:::: ##:
+  // . ######:: ##: ##: ##:'##:::. ##: ########:::'#######:: ##:::: ##: ##:::: ##:
+  // :..... ##: ##: ##: ##: #########: ##.....:::'##:::::::: ##:::: ##: ##:::: ##:
+  // '##::: ##: ##: ##: ##: ##.... ##: ##:::::::: ##::::::::. ##:: ##::. ##:: ##::
+  // . ######::. ###. ###:: ##:::: ##: ##:::::::: #########::. #####::::. #####:::
+  // :......::::...::...:::..:::::..::..:::::::::.........::::.....::::::.....::::
+
+  type bals = [bigint, bigint];
+
+  export function reserve(
+    contractInstance: Contract,
+    addr: string
+  ): Promise<
+    { success: true; returnValue: bigint } | { success: false; error: any }
+  >;
+
+  export function Info(contractInstance: Contract): Promise<
+    | {
+        success: true;
+        returnValue: [
+          lptBals: bals, // [lptMinted, lptSupply]
+          poolBals: bals, // [A, B]
+          protoInfo: [bigint, bigint, bigint, string, number], // [protoId, protoFee, protoLpFee, protoAddr, locked]
+          protoBals: bals, // [protoA, protoB]
+          tokB: bigint, // tokB
+          tokA: bigint // tokA
+        ];
+      }
+    | {
+        success: false;
+        error: any;
+      }
+  >;
+
+  export function swap<T extends boolean>(
+    contractInstance: Contract,
+    amount: bigint,
+    ol: bigint,
+    swapAForB: boolean,
+    simulate: T,
+    waitForConfirmation: boolean
+  ): Promise<
+    | (T extends true
+        ? { success: true; returnValue: bals; txns: string[] }
+        : { success: true; txId: string })
+    | { success: false; error: any }
+  >;
+
+  export function withdrawReserve<T extends boolean>(
+    contractInstance: Contract,
+    amount: bigint,
+    isA: boolean,
+    simulate: T,
+    waitForConfirmation: boolean
+  ): Promise<
+    | (T extends true
+        ? { success: true; returnValue: bigint; txns: string[] }
+        : { success: true; txId: string })
+    | { success: false; error: any }
+  >;
+
+  export function depositReserve<T extends boolean>(
+    contractInstance: Contract,
+    amount: bigint,
+    isA: boolean,
+    simulate: T,
+    waitForConfirmation: boolean
+  ): Promise<
+    | (T extends true
+        ? { success: true; returnValue: bigint; txns: string[] }
+        : { success: true; txId: string })
+    | { success: false; error: any }
+  >;
+
+  export function depositLiquidity<T extends boolean>(
+    contractInstance: Contract,
+    inBals: bals,
+    lpl: bigint,
+    simulate: T,
+    waitForConfirmation: boolean
+  ): Promise<
+    | (T extends true
+        ? { success: true; returnValue: bigint; txns: string[] }
+        : { success: true; txId: string })
+    | { success: false; error: any }
+  >;
+
+  export function withdrawLiquidity<T extends boolean>(
+    contractInstance: Contract,
+    lp: bigint,
+    outsl: bals,
+    simulate: T,
+    waitForConfirmation: boolean
+  ): Promise<
+    | (T extends true
+        ? { success: true; returnValue: bals; txns: string[] }
+        : { success: true; txId: string })
+    | { success: false; error: any }
+  >;
 }

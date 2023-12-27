@@ -3,11 +3,19 @@ declare module "arc200js" {
     string, // Transaction ID
     number, // Round
     number, // Timestamp
+  ];
+  type TransferEvent = [
+    ...ContractEvent,
     string, // From
     string, // To
     bigint, // Amount
-  ];
-
+  ]
+  type ApprovalEvent = [
+    ...ContractEvent,
+    string, // Owner
+    string, // Spender
+    bigint, // Amount
+  ]
   class Contract {
     constructor(
       contractId: number,
@@ -84,14 +92,14 @@ declare module "arc200js" {
       address?: string;
       round?: number;
       txid?: string;
-    }): Promise<ContractEvent[]>;
+    }): Promise<TransferEvent[]>;
     arc200_Approval(query?: {
       minRound?: number;
       maxRound?: number;
       address?: string;
       round?: number;
       txid?: string;
-    }): Promise<ContractEvent[]>;
+    }): Promise<ApprovalEvent[]>;
     getEvents(query: {
       minRound?: number;
       maxRound?: number;
@@ -104,13 +112,13 @@ declare module "arc200js" {
           name: "arc200_Transfer";
           signature: string;
           selector: string;
-          events: ContractEvent[];
+          events: TransferEvent[];
         },
         {
           name: "arc200_Approval";
           signature: string;
           selector: string;
-          events: ContractEvent[];
+          events: ApprovalEvent[];
         },
       ]
     >;

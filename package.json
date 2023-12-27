@@ -11,7 +11,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/temptemp3/arc200js.git"
+    "url": "git+ssh://git@github.com/temptemp3/hsv2js.git"
   },
   "bugs": {
     "url": "https://github.com/temptemp3/arc200js/issues"

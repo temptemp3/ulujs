@@ -1,6 +1,6 @@
 {
   "name": "hsv2js",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "HumbleSwap V2 js library",
   "main": "index.js",
   "scripts": {

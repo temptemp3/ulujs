@@ -34,6 +34,8 @@ class Contract {
     this.opts = opts;
   }
   getEvents = async (query) => await this.contractInstance.getEvents(query);
+  Provider_deposit = async (arg0, arg1) =>
+    await this.contractInstance.Provider_deposit(arg0, arg1);
 }
 
 export default Contract;

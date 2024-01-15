@@ -3,4 +3,5 @@ import net2tok from "./impl/hsv2/net2tok.js";
 
 export default {
   ann,
+  net2tok,
 };

@@ -1,6 +1,6 @@
 import CONTRACT, { oneAddress } from "arccjs";
 
-import HSV2ANN from "../../abi/other/hsv2/ann.json" assert { type: "json" }; // hsv2 announcer
+import HSV2ANN from "../../abi/other/hsv2/ann.js";
 
 /*
  * decodeSymbol

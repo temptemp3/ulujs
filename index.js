@@ -1,7 +1,7 @@
 import ann from "./impl/hsv2/ann.js";
-import net2tok from "./impl/hsv2/net2tok.js";
+import netTok from "./impl/hsv2/netTok.js";
 
 export default {
   ann,
-  net2tok,
+  netTok,
 };

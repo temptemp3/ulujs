@@ -1,6 +1,6 @@
 import CONTRACT, { oneAddress } from "arccjs";
 
-import HSV2NET2TOK from "../../abi/other/hsv2/net_tok.json" assert { type: "json" };
+import HSV2NET2TOK from "../../abi/other/hsv2/netTok.js";
 
 /*
  * Contract class

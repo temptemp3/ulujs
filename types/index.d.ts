@@ -247,4 +247,9 @@ declare module "arc200js" {
   export default Contract;
 }
 
-declare module "hsv2js";
+declare module "hsv2js" {
+  export default {
+    ann: any,
+    netTok: any,
+  }
+}

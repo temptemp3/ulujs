@@ -2,20 +2,20 @@ declare module "arc200js" {
   type ContractEvent = [
     string, // Transaction ID
     number, // Round
-    number, // Timestamp
+    number // Timestamp
   ];
   type TransferEvent = [
     ...ContractEvent,
     string, // From
     string, // To
-    bigint, // Amount
-  ]
+    bigint // Amount
+  ];
   type ApprovalEvent = [
     ...ContractEvent,
     string, // Owner
     string, // Spender
-    bigint, // Amount
-  ]
+    bigint // Amount
+  ];
   class Contract {
     constructor(
       contractId: number,
@@ -119,7 +119,7 @@ declare module "arc200js" {
           signature: string;
           selector: string;
           events: ApprovalEvent[];
-        },
+        }
       ]
     >;
     hasBalance(
@@ -246,3 +246,5 @@ declare module "arc200js" {
 
   export default Contract;
 }
+
+declare module "hsv2" {}

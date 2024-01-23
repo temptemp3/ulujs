@@ -1,0 +1,11 @@
+{
+  "name": "hsv2",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "license": "MIT",
+  "dependencies": {
+    "@reach-sh/stdlib": "0.1.10-rc.6c",
+    "arccjs": "^2.4.10",
+    "ctc2abi": "^1.0.10"
+  }
+}

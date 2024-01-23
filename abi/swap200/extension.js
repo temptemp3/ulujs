@@ -1,4 +1,4 @@
-{
+const swap200Schema = {
   "name": "SWAP-200",
   "desc": "ARC200 Based AMM Interface",
   "methods": [
@@ -121,3 +121,4 @@
     }
   ]
 }
+export default swap200Schema;

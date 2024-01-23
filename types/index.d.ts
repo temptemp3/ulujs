@@ -81,15 +81,43 @@ declare module "swap200js" {
     ): Promise<
       { success: true; returnValue: bigint } | { success: false; error: any }
     >;
-    arc200_allowance(
-      addrFrom: string,
-      addrSpender: string
+    arc72_getApproved(
+      tokenId: bigint
+    ): Promise<
+      { success: true; returnValue: string } | { success: false; error: any }
+    >;
+    arc72_isApprovedForAll(
+      addrOwner: string,
+      addrOperator: string
+    ): Promise<
+      { success: true; returnValue: boolean } | { success: false; error: any }
+    >;
+    arc72_ownerOf(
+      tokenId: bigint
+    ): Promise<
+      { success: true; returnValue: string } | { success: false; error: any }
+    >;
+    arc72_tokenByIndex(
+      index: bigint
     ): Promise<
       { success: true; returnValue: bigint } | { success: false; error: any }
     >;
-    arc200_transfer<T extends boolean>(
-      addrTo: string,
-      amt: bigint,
+    arcc72_totalSupply(): Promise<
+      { success: true; returnValue: bigint } | { success: false; error: any }
+    >;
+    arc72_tokenURI(
+      tokenId: bigint
+    ): Promise<
+      { success: true; returnValue: string } | { success: false; error: any }
+    >;
+    supportsInterface(
+      interfaceId: string
+    ): Promise<
+      { success: true; returnValue: boolean } | { success: false; error: any }
+    >;
+    arc72_approve<T extends boolean>(
+      addrSpender: string,
+      tokenId: bigint,
       simulate: T,
       waitForConfirmation: boolean
     ): Promise<
@@ -98,10 +126,21 @@ declare module "swap200js" {
           : { success: true; txId: string })
       | { success: false; error: any }
     >;
-    arc200_transferFrom<T extends boolean>(
+    arc72_setApprovalForAll<T extends boolean>(
+      addrOperator: string,
+      approved: boolean,
+      simulate: T,
+      waitForConfirmation: boolean
+    ): Promise<
+      | (T extends true
+          ? { success: true; txns: string[] }
+          : { success: true; txId: string })
+      | { success: false; error: any }
+    >;
+    arc72_transferFrom<T extends boolean>(
       addrFrom: string,
       addrTo: string,
-      amt: bigint,
+      tokenId: bigint,
       simulate: T,
       waitForConfirmation: boolean
     ): Promise<
@@ -110,25 +149,7 @@ declare module "swap200js" {
           : { success: true; txId: string })
       | { success: false; error: any }
     >;
-    arc200_approve<T extends boolean>(
-      addrSpender: string,
-      amt: bigint,
-      simulate: T,
-      waitForConfirmation: boolean
-    ): Promise<
-      | (T extends true
-          ? { success: true; txns: string[] }
-          : { success: true; txId: string })
-      | { success: false; error: any }
-    >;
-    arc200_Transfer(query?: {
-      minRound?: number;
-      maxRound?: number;
-      address?: string;
-      round?: number;
-      txid?: string;
-    }): Promise<TransferEvent[]>;
-    arc200_Approval(query?: {
+    arc72_Approval(query?: {
       minRound?: number;
       maxRound?: number;
       address?: string;
@@ -172,13 +193,7 @@ declare module "swap200js" {
     }): Promise<
       [
         {
-          name: "arc200_Transfer";
-          signature: string;
-          selector: string;
-          events: TransferEvent[];
-        },
-        {
-          name: "arc200_Approval";
+          name: "arc72_Approval";
           signature: string;
           selector: string;
           events: ApprovalEvent[];
@@ -579,4 +594,11 @@ declare module "swap200js" {
         : { success: true; txId: string })
     | { success: false; error: any }
   >;
+}
+
+declare module "hsv2js" {
+  export default {
+    ann: any,
+    netTok: any,
+  }
 }

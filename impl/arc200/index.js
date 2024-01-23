@@ -1,7 +1,9 @@
 import CONTRACT from "arccjs";
 
-import arc200Schema from "../../abi/arc200/index.js";
-import swap200Extension from "../../abi/swap200/extension.js";
+import schema from "../../abi/arc200/index.js";
+
+const BalanceBoxCost = 28500;
+const AllowanceBoxCost = 28100;
 
 /*
  * oneAddress is the address of the account that holds more
@@ -40,18 +42,6 @@ const handleResponse = (name, res) => {
   */
   return res;
 };
-
-// :::'###::::'########:::'######:::'#######::::'#####:::::'#####:::
-// ::'## ##::: ##.... ##:'##... ##:'##.... ##::'##.. ##:::'##.. ##::
-// :'##:. ##:: ##:::: ##: ##:::..::..::::: ##:'##:::: ##:'##:::: ##:
-// '##:::. ##: ########:: ##::::::::'#######:: ##:::: ##: ##:::: ##:
-//  #########: ##.. ##::: ##:::::::'##:::::::: ##:::: ##: ##:::: ##:
-//  ##.... ##: ##::. ##:: ##::: ##: ##::::::::. ##:: ##::. ##:: ##::
-//  ##:::: ##: ##:::. ##:. ######:: #########::. #####::::. #####:::
-// ..:::::..::..:::::..:::......:::.........::::.....::::::.....::::
-
-const BalanceBoxCost = 28500;
-const AllowanceBoxCost = 28100;
 
 /*
  * arc200_name
@@ -269,12 +259,7 @@ export const safe_arc200_approve = async (
       formatBytes: true,
       waitForConfirmation,
     };
-    const ARC200 = new Contract(
-      ci.getContractId(),
-      ci.algodClient,
-      ci.indexerClient,
-      opts
-    );
+    const ARC200 = new Contract(ci.getContractId(), ci.algodClient, ci.indexerClient, opts);
     const addrFrom = ARC200.contractInstance.getSender();
     const all = await ci.arc200_allowance(addrFrom, addrSpender);
     const addPayment = !all.success || (all.success && all.returnValue === 0n);
@@ -285,217 +270,6 @@ export const safe_arc200_approve = async (
       `Approval from: ${addrFrom} spender: ${addrSpender} amount: ${amt}`
     );
     return await ARC200.contractInstance.arc200_approve(addrSpender, amt);
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-// :'######::'##:::::'##::::'###::::'########:::'#######::::'#####:::::'#####:::
-// '##... ##: ##:'##: ##:::'## ##::: ##.... ##:'##.... ##::'##.. ##:::'##.. ##::
-//  ##:::..:: ##: ##: ##::'##:. ##:: ##:::: ##:..::::: ##:'##:::: ##:'##:::: ##:
-// . ######:: ##: ##: ##:'##:::. ##: ########:::'#######:: ##:::: ##: ##:::: ##:
-// :..... ##: ##: ##: ##: #########: ##.....:::'##:::::::: ##:::: ##: ##:::: ##:
-// '##::: ##: ##: ##: ##: ##.... ##: ##:::::::: ##::::::::. ##:: ##::. ##:: ##::
-// . ######::. ###. ###:: ##:::: ##: ##:::::::: #########::. #####::::. #####:::
-// :......::::...::...:::..:::::..::..:::::::::.........::::.....::::::.....::::
-
-/*
- * reserve
- * - return amount to redeam or add to liquidity
- * @param contractInstance: contract instance
- * @param addr: address
- * @returns: bigint
- */
-export const reserve = async (contractInstance, addr) =>
-  handleResponse(`Reserve ${addr}`, await contractInstance.reserve(addr));
-
-export const Info = async (contractInstance) =>
-  handleResponse(`Info`, await contractInstance.Info());
-
-/*
- * swap
- * - swap tokens
- * @param ci: contract instance
- * @param amount: amount to swap
- * @param ol: output liquidity
- * @param swapAForB: swap A for B
- * @param simulate: boolean
- * @param waitForConfirmation: boolean
- * @returns: if simulate: true  { success: bool, txns: string[] }
- *          if simulate: false { success: bool, txId: string }
- * @note: swapAForB: true  => swap A for B
- *                false => swap B for A
- * @note: ol: output liquidity
- * @note: amount: amount to swap
- */
-const swap = async (
-  ci,
-  amount,
-  ol,
-  swapAForB,
-  simulate,
-  waitForConfirmation
-) => {
-  try {
-    const opts = {
-      acc: { addr: ci.getSender(), sk: ci.getSk() },
-      simulate,
-      formatBytes: true,
-      waitForConfirmation,
-    };
-    const SWAP200 = new Contract(
-      ci.getContractId(),
-      ci.algodClient,
-      ci.indexerClient,
-      opts
-    );
-    SWAP200.contractInstance.setFee(5000);
-    SWAP200.contractInstance.setPaymentAmount(28500 * 2);
-    const res = swapAForB
-      ? await SWAP200.contractInstance.Trader_swapAForB(amount, ol)
-      : await SWAP200.contractInstance.Trader_swapBForA(amount, ol);
-    if (!res.success) throw new Error("Trader_swap failed");
-    return res;
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-/*
- * withdraw
- * - withdraw tokens from reserve or liquidity
- * @param ci: contract instance
- * @param amount: amount to withdraw
- * @param isA: withdraw A
- * @param simulate: boolean
- * @param waitForConfirmation: boolean
- * @returns: if simulate: true  { success: bool, txns: string[] }
- *         if simulate: false { success: bool, txId: string }
- * @note: isA: true  => withdraw A
- *           false => withdraw B
- */
-const withdrawReserve = async (
-  ci,
-  amount,
-  isA,
-  simulate,
-  waitForConfirmation
-) => {
-  try {
-    const opts = {
-      acc: { addr: ci.getSender(), sk: ci.getSk() },
-      simulate,
-      formatBytes: true,
-      waitForConfirmation,
-    };
-    const SWAP200 = new Contract(
-      ci.getContractId(),
-      ci.algodClient,
-      ci.indexerClient,
-      opts
-    );
-    SWAP200.contractInstance.setFee(3000);
-    SWAP200.contractInstance.setPaymentAmount(28500 * 2);
-    let res = isA
-      ? await SWAP200.contractInstance.Provider_withdrawA(amount)
-      : await SWAP200.contractInstance.Provider_withdrawB(amount);
-    if (!res.success) throw new Error("Trader_withdraw failed");
-    return res;
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-/*
- * depositReserve
- * - deposits tokens to reserve from balance
- * @param ci: contract instance
- * @param amount: amount to deposit
- * @param isA: deposit A
- * @param simulate: boolean
- * @param waitForConfirmation: boolean
- */
-const depositReserve = async (
-  ci,
-  amount,
-  isA,
-  simulate,
-  waitForConfirmation
-) => {
-  try {
-    const opts = {
-      acc: { addr: ci.getSender(), sk: ci.getSk() },
-      simulate,
-      formatBytes: true,
-      waitForConfirmation,
-    };
-    const SWAP200 = new Contract(
-      ci.getContractId(),
-      ci.algodClient,
-      ci.indexerClient,
-      opts
-    );
-    SWAP200.contractInstance.setFee(3000);
-    SWAP200.contractInstance.setPaymentAmount(28500 * 2);
-    let res = isA
-      ? await SWAP200.contractInstance.Provider_depositA(amount)
-      : await SWAP200.contractInstance.Provider_depositB(amount);
-    if (!res.success) throw new Error("Provider_deposit failed");
-    return res;
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-const depositLiquidity = async (ci, lp, ol, simulate, waitForConfirmation) => {
-  try {
-    const opts = {
-      acc: { addr: ci.getSender(), sk: ci.getSk() },
-      simulate,
-      formatBytes: true,
-      waitForConfirmation,
-    };
-    const SWAP200 = new Contract(
-      ci.getContractId(),
-      ci.algodClient,
-      ci.indexerClient,
-      opts
-    );
-    SWAP200.contractInstance.setFee(2000);
-    SWAP200.contractInstance.setPaymentAmount(28500);
-    let res = await SWAP200.contractInstance.Provider_deposit(lp, ol);
-    if (!res.success) throw new Error("Provider_deposit failed");
-    return res;
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-const withdrawLiquidity = async (
-  ci,
-  lp,
-  outls,
-  simulate,
-  waitForConfirmation
-) => {
-  try {
-    const opts = {
-      acc: { addr: ci.getSender(), sk: ci.getSk() },
-      simulate,
-      formatBytes: true,
-      waitForConfirmation,
-    };
-    const SWAP200 = new Contract(
-      ci.getContractId(),
-      ci.algodClient,
-      ci.indexerClient,
-      opts
-    );
-    SWAP200.contractInstance.setFee(2000);
-    SWAP200.contractInstance.setPaymentAmount(28500);
-    let res = await SWAP200.contractInstance.Provider_withdraw(lp, outls);
-    if (!res.success) throw new Error("Provider_withdraw failed");
-    return res;
   } catch (e) {
     console.log(e);
   }
@@ -521,25 +295,14 @@ class Contract {
       contractId,
       algodClient,
       indexerClient,
-      {
-        ...arc200Schema,
-        methods: [
-          ...arc200Schema.methods,
-          ...swap200Extension.methods,
-        ], 
-        events: [
-          ...arc200Schema.events,
-          ...swap200Extension.events,
-        ], 
-      },
+      schema,
       opts.acc,
       opts.simulate,
       opts.waitForConfirmation
     );
     this.opts = opts;
   }
-  // arc200 methods
-  //  standard methods
+  // standard methods
   arc200_name = async () => {
     const res = await arc200_name(this.contractInstance);
     if (!res.success) return res;
@@ -602,13 +365,44 @@ class Contract {
     await this.contractInstance.arc200_Transfer(query);
   arc200_Approval = async (query) =>
     await this.contractInstance.arc200_Approval(query);
-  //  non-standard methods
+  // non-standard methods
   getEvents = async (query) => await this.contractInstance.getEvents(query);
   hasBalance = async (addr) => await hasBalance(this.contractInstance, addr);
   hasAllowance = async (addrFrom, addrSpender) =>
     await hasAllowance(this.contractInstance, addrFrom, addrSpender);
-  //   arc200 state methood not supported swap200
-  //  helper methods
+  state = async () => {
+    const stateR = await this.contractInstance.state();
+    if (!stateR.success) {
+      return {
+        success: false,
+        error: "Failed to get state",
+      };
+    }
+    const [
+      name,
+      symbol,
+      decimals,
+      totalSupply,
+      zeroAddress,
+      manager,
+      enableZeroAddressBurn,
+      closed,
+    ] = stateR.returnValue;
+    return {
+      success: true,
+      returnValue: {
+        name: prepareString(name),
+        symbol: prepareString(symbol),
+        decimals,
+        totalSupply,
+        zeroAddress,
+        manager,
+        enableZeroAddressBurn,
+        closed,
+      },
+    };
+  };
+  // helper methods
   getMetadata = async () => {
     const [name, symbol, totalSupply, decimals] = await Promise.all([
       this.arc200_name(),
@@ -637,118 +431,6 @@ class Contract {
       },
     };
   };
-  // swap200 methods
-  //  standard methods
-  reserve = async (addr) => await reserve(this.contractInstance, addr);
-  Info = async () => await Info(this.contractInstance);
-  Trader_swapAForB = async (amount, ol, simulate, waitForConfirmation) =>
-    await swap(
-      this.contractInstance,
-      amount,
-      ol,
-      true,
-      simulate,
-      waitForConfirmation
-    );
-  Trader_swapBForA = async (amount, ol, simulate, waitForConfirmation) =>
-    await swap(
-      this.contractInstance,
-      amount,
-      ol,
-      false,
-      simulate,
-      waitForConfirmation
-    );
-  Provider_withdrawA = async (amount, simulate, waitForConfirmation) =>
-    await withdrawReserve(
-      this.contractInstance,
-      amount,
-      true,
-      simulate,
-      waitForConfirmation
-    );
-  Provider_withdrawB = async (amount, simulate, waitForConfirmation) =>
-    await withdrawReserve(
-      this.contractInstance,
-      amount,
-      false,
-      simulate,
-      waitForConfirmation
-    );
-  Provider_depositA = async (amount, simulate, waitForConfirmation) =>
-    await depositReserve(
-      this.contractInstance,
-      amount,
-      true,
-      simulate,
-      waitForConfirmation
-    );
-  Provider_depositB = async (amount, simulate, waitForConfirmation) =>
-    await depositReserve(
-      this.contractInstance,
-      amount,
-      false,
-      simulate,
-      waitForConfirmation
-    );
-  Provider_deposit = async (lp, ol, simulate, waitForConfirmation) =>
-    await depositLiquidity(
-      this.contractInstance,
-      lp,
-      ol,
-      simulate,
-      waitForConfirmation
-    );
-  Provider_withdraw = async (lp, outls, simulate, waitForConfirmation) =>
-    await withdrawLiquidity(
-      this.contractInstance,
-      lp,
-      outls,
-      simulate,
-      waitForConfirmation
-    );
-  //  helper methods
-  swap = async (amount, ol, swapAForB, simulate, waitForConfirmation) =>
-    await swap(
-      this.contractInstance,
-      amount,
-      ol,
-      swapAForB,
-      simulate,
-      waitForConfirmation
-    );
-  withdrawReserve = async (amount, isA, simulate, waitForConfirmation) =>
-    await withdrawReserve(
-      this.contractInstance,
-      amount,
-      isA,
-      simulate,
-      waitForConfirmation
-    );
-  depositReserve = async (amount, isA, simulate, waitForConfirmation) =>
-    await depositReserve(
-      this.contractInstance,
-      amount,
-      isA,
-      simulate,
-      waitForConfirmation
-    );
-  depositLiquidity = async (lp, ol, simulate, waitForConfirmation) =>
-    await depositLiquidity(
-      this.contractInstance,
-      lp,
-      ol,
-      simulate,
-      waitForConfirmation
-    );
-  withdrawLiquidity = async (lp, outls, simulate, waitForConfirmation) =>
-    await withdrawLiquidity(
-      this.contractInstance,
-      lp,
-      outls,
-      simulate,
-      waitForConfirmation
-    );
 }
 
 export default Contract;

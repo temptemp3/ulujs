@@ -1,33 +1,36 @@
-# ulujs
+# HumbleSwap V2 Protocol library (hsv2)
 
-`ulujs` is a JavaScript library for interacting with smart contracts on the AVM blockchains. It provides a convenient interface for interacting with the smart contract tokens, nfts, and dexes.
+`hsv2` is a JavaScript library for interacting with HumbleSwapV2 tokens on the AVM blockchains. It provides a convenient interface for interacting with the HumbleSwapV2 AMM.
 
 ## Features
 
-- Interaction with smart contract tokens (arc200, arc72)
-- Comprehensive methods for performing swaps and liquidity provision (swap200)
+- Interaction with HumbleSwapV2 AMM.
+- Comprehensive methods for performing swaps and liquidity provision.
 
 ## Installation
 
-Install `ulujs` in your project with:
+Install `hsv2` in your project with:
 
 ```bash
-npm install ulujs
+npm install hsv2
 ```
 
 ## Implementations
 
-- `hsv2` - HumbleSwap Protocol (v2)
-- `arc200` - ARC200 Smart Contract Token
-- `arc72` - ARC72 Smart Contract NFT
-  
+`hsv2` is spit into multiple implementations for each class of smart contract making up the HumbleSwapV2 AMM. The following implementations are available:
+
+- `ann` - HumbleSwapV2 Announcer for staking pools
+- `netTok` - HumbleSwapV2 Network-Token liquidity pool
+- `tokTok` - HumbleSwapV2 Token-Token liquidity pool
+- `tri` - HumbleSwapV2 Announcer for liquidity pools
+
 ## Usage
 
-Import and initialize the `ulujs` library in your project:
+Import and initialize the `hsv2` library in your project:
 
 ```javascript
 import algosdk from "algosdk";
-import { arc200 as Contract } from "hsv2js";
+import { CONTRACT, abi } from "hsv2";
 
 // Initialize Algod client
 const algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
@@ -37,9 +40,9 @@ const indexerClient = new algosdk.Indexer(
   indexerPort
 );
 
-// Initialize ARC200 Contract instance
-const tokenId = 123456; // Replace with your token ID
-const contract = new Contract.netTok(tokenId, algodClient, indexerClient);
+// Initialize hsv2 Contract instance
+const HMBLPALGOGALGO = 1234123; // Replace with your pool id
+const ci = new CONTRACT(HMBLPALGOGALGO, algodClient, indexerClient, abi.hsv2.swap)
 ```
 
 ### Event queries
@@ -59,7 +62,7 @@ The following events are available for extended ARC200 token functionalities:
 Retrieve all events of the ARC200 token.
 
 ```javascript
-await contract.getEvents();
+await ci.getEvents();
 //{
 //   arc200_Transfer: {
 //     name: "arc200_Transfer",
@@ -100,16 +103,40 @@ await contract.getEvents();
 
 The following methods are available for standard ARC200 token functionalities:
 
+
+### deposit liquidity
+
+```javascript
+ci.setFee(2000);
+ci.setPaymentAmount(1000); // 0.001 Algo
+ci.setAssetTransfers([[1000, GALGO]]); // 0.001 gAlgo
+const Provider_depositR = await ci.Provider_deposit([1000, 1000]); // 0.000967
+//if (!Provider_depositR.success) ...
+await signSendAndConfirm(Provider_depositR.txns, sk);
+```
+
+### withdraw liquidity
+
+### swapAForB
+
+### swapBForA
+
 ## API Reference
 
-Each method provided by `ulujs` offers specific functionalities:
+Each method provided by `hsv2` offers specific functionalities:
 
-- `getEvents()`: Retrieves all events of the smart contract.
+- `getEvents()`: Retrieves all events of the ARC200 token.
 
 ## Contributing
 
-Contributions to `ulujs` are welcome. Please adhere to the existing code style and ensure all tests pass.
+Contributions to `hsv2` are welcome. Please adhere to the existing code style and ensure all tests pass.
+
+## todo 
+
+- [ ] complete impl safe function non-read-only methods
+- [ ] add events
+- [ ] correct abi args
 
 ## License
 
-`ulujs` is [MIT licensed](./LICENSE).
+`hsv2` is [MIT licensed](./LICENSE).

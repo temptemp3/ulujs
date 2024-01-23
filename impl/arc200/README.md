@@ -1,6 +1,6 @@
 # arc200js
 
-`arc200js` is a JavaScript library for interacting with ARC200 tokens on the AVM blockchains. It provides a convenient interface for both standard and extended ARC200 token functionalities.
+`arc200` is a JavaScript library for interacting with ARC200 tokens on the AVM blockchains. It provides a convenient interface for both standard and extended ARC200 token functionalities.
 
 ## Features
 
@@ -10,19 +10,19 @@
 
 ## Installation
 
-Install `arc200js` in your project with:
+Install `ulujs` in your project with:
 
 ```bash
-npm install arc200js
+npm install ulujs
 ```
 
 ## Usage
 
-Import and initialize the `arc200js` library in your project:
+Import and initialize the `arc200` library in your project:
 
 ```javascript
 import algosdk from "algosdk";
-import Contract from "arc200js";
+import { arc200 as Contract } from "ulujs";
 
 // Initialize Algod client
 const algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);

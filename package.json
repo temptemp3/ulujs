@@ -1,7 +1,7 @@
 {
-  "name": "hsv2js",
-  "version": "0.2.13",
-  "description": "HumbleSwap V2 js library",
+  "name": "ulu",
+  "version": "0.0.0",
+  "description": "Ulu AVM Smart Contract Library",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\""
@@ -11,12 +11,12 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/temptemp3/hsv2js.git"
+    "url": "git+ssh://git@github.com/temptemp3/ulu.git"
   },
   "bugs": {
-    "url": "https://github.com/temptemp3/arc200js/issues"
+    "url": "https://github.com/temptemp3/arc72js/issues"
   },
-  "homepage": "https://github.com/temptemp3/arc200js#readme",
+  "homepage": "https://github.com/temptemp3/arc72js#readme",
   "engines": {
     "npm": ">=10.2.0",
     "node": ">=20.9.0"

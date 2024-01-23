@@ -100,7 +100,7 @@ const arc72_tokenByIndex = async (contractInstance, tid) =>
  * @returns: total supply (Int)
  */
 const arc72_totalSupply = async (contractInstance) =>
-  handleResponse("Total Supply", await contractInstance.arc200_totalSupply());
+  handleResponse("Total Supply", await contractInstance.arc72_totalSupply());
 
 /*
  * arc72_tokenURI
@@ -288,9 +288,9 @@ class Contract {
       algodClient,
       indexerClient,
       {
-        ...arc72Schema,
-        methods: [...arc72Schema.methods],
-        events: [...arc72Schema.events],
+        ...schema,
+        methods: [...schema.methods],
+        events: [...schema.events],
       },
       opts.acc,
       opts.simulate,

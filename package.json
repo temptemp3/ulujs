@@ -1,6 +1,6 @@
 {
   "name": "ulujs",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Ulu AVM Smart Contract Library",
   "main": "index.js",
   "scripts": {

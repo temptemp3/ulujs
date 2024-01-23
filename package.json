@@ -1,7 +1,13 @@
 {
+<<<<<<< HEAD
+  "name": "swap200js",
+  "version": "0.0.14",
+  "description": "arc200 swap js library",
+=======
   "name": "ulujs",
   "version": "0.0.1",
   "description": "Ulu AVM Smart Contract Library",
+>>>>>>> origin/main
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\""
@@ -11,12 +17,21 @@
   "type": "module",
   "repository": {
     "type": "git",
+<<<<<<< HEAD
+    "url": "git@github.com:temptemp3/swap200js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/temptemp3/swap200js/issues"
+  },
+  "homepage": "https://github.com/temptemp3/swap200js#readme",
+=======
     "url": "git+ssh://git@github.com/temptemp3/ulujs.git"
   },
   "bugs": {
     "url": "https://github.com/temptemp3/ulujs/issues"
   },
   "homepage": "https://github.com/temptemp3/ulujs#readme",
+>>>>>>> origin/main
   "engines": {
     "npm": ">=10.2.0",
     "node": ">=20.9.0"

@@ -5,6 +5,8 @@ import arc72 from "./impl/arc72/index.js";
 export { default as arc72 } from "./impl/arc72/index.js";
 import arc200 from "./impl/arc200/index.js";
 export { default as arc200 } from "./impl/arc200/index.js";
+import swap200 from "./impl/swap200/index.js";
+export { default as swap200 } from "./impl/swap200/index.js";
 import abi from "./abi/index.js";
 export { default as abi } from "./abi/index.js";
 export default {
@@ -12,5 +14,6 @@ export default {
   hsv2,
   arc72,
   arc200,
+  swap200,
   abi,
 };

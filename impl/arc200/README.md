@@ -1,4 +1,4 @@
-# arc200js
+# arc200
 
 `arc200` is a JavaScript library for interacting with ARC200 tokens on the AVM blockchains. It provides a convenient interface for both standard and extended ARC200 token functionalities.
 

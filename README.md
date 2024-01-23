@@ -1,36 +1,33 @@
-# hs2v2js
+# ulujs
 
-`hsv2js` is a JavaScript library for interacting with HumbleSwapV2 tokens on the AVM blockchains. It provides a convenient interface for interacting with the HumbleSwapV2 AMM.
+`ulujs` is a JavaScript library for interacting with smart contracts on the AVM blockchains. It provides a convenient interface for interacting with the smart contract tokens, nfts, and dexes.
 
 ## Features
 
-- Interaction with HumbleSwapV2 AMM.
-- Comprehensive methods for performing swaps and liquidity provision.
+- Interaction with smart contract tokens (arc200, arc72)
+- Comprehensive methods for performing swaps and liquidity provision (swap200)
 
 ## Installation
 
-Install `hsv2js` in your project with:
+Install `ulujs` in your project with:
 
 ```bash
-npm install hsv2js
+npm install ulujs
 ```
 
 ## Implementations
 
-`hsv2js` is spit into multiple implementations for each class of smart contract making up the HumbleSwapV2 AMM. The following implementations are available:
-
-- `ann` - HumbleSwapV2 Announcer for staking pools
-- `netTok` - HumbleSwapV2 Network-Token liquidity pool
-- `tokTok` - HumbleSwapV2 Token-Token liquidity pool
-- `tri` - HumbleSwapV2 Announcer for liquidity pools
-
+- `hsv2` - HumbleSwap Protocol (v2)
+- `arc200` - ARC200 Smart Contract Token
+- `arc72` - ARC72 Smart Contract NFT
+  
 ## Usage
 
-Import and initialize the `hsv2js` library in your project:
+Import and initialize the `ulujs` library in your project:
 
 ```javascript
 import algosdk from "algosdk";
-import Contract from "hsv2js";
+import { arc200 as Contract } from "hsv2js";
 
 // Initialize Algod client
 const algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
@@ -105,14 +102,14 @@ The following methods are available for standard ARC200 token functionalities:
 
 ## API Reference
 
-Each method provided by `arc200js` offers specific functionalities:
+Each method provided by `ulujs` offers specific functionalities:
 
-- `getEvents()`: Retrieves all events of the ARC200 token.
+- `getEvents()`: Retrieves all events of the smart contract.
 
 ## Contributing
 
-Contributions to `hsv2js` are welcome. Please adhere to the existing code style and ensure all tests pass.
+Contributions to `ulujs` are welcome. Please adhere to the existing code style and ensure all tests pass.
 
 ## License
 
-`hsv2js` is [MIT licensed](./LICENSE).
+`ulujs` is [MIT licensed](./LICENSE).

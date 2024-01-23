@@ -1,10 +1,6 @@
 import CONTRACT from "arccjs";
-//import dotenv from "dotenv";
 
-import ARC200Spec from "../../abi/arc200/contract.json" assert { type: "json" }; // spec
-import ARC200Extension from "../../abi/arc200/extension.json" assert { type: "json" }; // extension (non-standard methods)
-
-//dotenv.config();
+import schema from "../../abi/arc200/index.js";
 
 const BalanceBoxCost = 28500;
 const AllowanceBoxCost = 28100;
@@ -299,11 +295,7 @@ class Contract {
       contractId,
       algodClient,
       indexerClient,
-      {
-        ...ARC200Spec,
-        methods: [...ARC200Spec.methods, ...ARC200Extension.methods], // mixin non-standard methods
-        events: [...ARC200Spec.events, ...ARC200Extension.events], // mixin non-standard events
-      },
+      schema,
       opts.acc,
       opts.simulate,
       opts.waitForConfirmation

@@ -1,4 +1,4 @@
-{
+const arc200ExtensionSchema = {
   "name": "ARC-200",
   "desc": "Smart Contract Token Nonstandard Interface",
   "methods": [
@@ -44,3 +44,4 @@
   ],
   "events": []
 }
+export default arc200ExtensionSchema;

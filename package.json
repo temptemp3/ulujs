@@ -1,7 +1,7 @@
 {
-  "name": "arc200js",
-  "version": "2.3.3",
-  "description": "arc200 js library",
+  "name": "ulujs",
+  "version": "0.0.1",
+  "description": "Ulu AVM Smart Contract Library",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\""
@@ -11,18 +11,18 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/temptemp3/arc200js.git"
+    "url": "git+ssh://git@github.com/temptemp3/ulujs.git"
   },
   "bugs": {
-    "url": "https://github.com/temptemp3/arc200js/issues"
+    "url": "https://github.com/temptemp3/ulujs/issues"
   },
-  "homepage": "https://github.com/temptemp3/arc200js#readme",
+  "homepage": "https://github.com/temptemp3/ulujs#readme",
   "engines": {
     "npm": ">=10.2.0",
     "node": ">=20.9.0"
   },
   "types": "./types/index.d.ts",
   "dependencies": {
-    "arccjs": "^2.3.3"
+    "arccjs": "^2.4.10"
   }
 }

@@ -21,8 +21,8 @@ const netTokSchema = {
     },
     {
       name: "Provider_deposit",
-      args: [{ type: "uint64" }, { type: "uint64" }],
-      returns: { type: "uint64" },
+      args: [{ type: "(uint64,uint64)", name: "inBals" }],
+      returns: { type: "uint64", name: "outLpt" },
     },
     {
       name: "Provider_withdraw",

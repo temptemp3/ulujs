@@ -1,4 +1,4 @@
-export const arc72Schema = {
+const arc72Schema = {
   name: "ARC-72",
   description: "Smart Contract NFT Interface",
   methods: [
@@ -81,3 +81,4 @@ export const arc72Schema = {
     },
   ],
 };
+export default arc72Schema;

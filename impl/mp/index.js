@@ -76,14 +76,14 @@ const safe_buyNet = async (ci, listId, feeBi, simulate, waitForConfirmation) => 
       formatBytes: false,
       waitForConfirmation,
     };
-    const ci = new Contract(
-      ci.getContractId(),
-      ci.algodClient,
-      ci.indexerClient,
+    const mp = new Contract(
+      mp.getContractId(),
+      mp.algodClient,
+      mp.indexerClient,
       opts,
     );
-    ci.contractInstance.setFee(BuyFee);
-    ci.contractInstance.setPaymentAmount(buyNetPaymentAmount(lPrc, feeBi));
+    mp.contractInstance.setFee(BuyFee);
+    mp.contractInstance.setPaymentAmount(buyNetPaymentAmount(lPrc, feeBi));
     let res = await ci.contractInstance.buyNet(listId);
     if (!res.success) throw new Error("buyNet failed");
     return res;

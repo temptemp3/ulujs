@@ -35,6 +35,9 @@ const indexerClient = new algosdk.Indexer(
 // Initialize ARC200 Contract instance
 const tokenId = 123456; // Replace with your token ID
 const contract = new Contract(tokenId, algodClient, indexerClient);
+const tokenURIR = await contract.arc72_tokenURI(tokenId);
+// if(!tokenURIR.success) ...
+const tokenURI = tokenURIR.returnValue
 ```
 
 ### Event queries

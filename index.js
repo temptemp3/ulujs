@@ -1,6 +1,4 @@
-export { ann, swap, tri } from "./impl";
+export { hsv2 } from "./impl/hsv2/index.js";
 export default {
-  ann,
-  swap,
-  tri,
+  hsv2,
 };

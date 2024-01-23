@@ -1,5 +1,5 @@
 import CONTRACT, { oneAddress } from "arccjs";
-import schema from "../../abi/other/hsv2/swap.js";
+import schema from "../../abi/hsv2/swap.js";
 
 /*
  * Contract class

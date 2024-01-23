@@ -1,5 +1,5 @@
 import CONTRACT, { oneAddress } from "arccjs";
-import schema from "../../abi/other/hsv2/ann.js";
+import schema from "../../abi/hsv2/ann.js";
 
 /*
  * decodeSymbol

@@ -1,5 +1,5 @@
 {
-  "name": "ulu",
+  "name": "ulujs",
   "version": "0.0.0",
   "description": "Ulu AVM Smart Contract Library",
   "main": "index.js",
@@ -11,12 +11,12 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/temptemp3/ulu.git"
+    "url": "git+ssh://git@github.com/temptemp3/ulujs.git"
   },
   "bugs": {
-    "url": "https://github.com/temptemp3/arc72js/issues"
+    "url": "https://github.com/temptemp3/ulujs/issues"
   },
-  "homepage": "https://github.com/temptemp3/arc72js#readme",
+  "homepage": "https://github.com/temptemp3/ulujs#readme",
   "engines": {
     "npm": ">=10.2.0",
     "node": ">=20.9.0"

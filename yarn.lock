@@ -22,10 +22,10 @@ algosdk@^2.7.0:
     tweetnacl "^1.0.3"
     vlq "^2.0.4"
 
-arccjs@^2.4.10:
-  version "2.4.10"
-  resolved "https://registry.yarnpkg.com/arccjs/-/arccjs-2.4.10.tgz#469954df5fadfff0dce8ad39142ca867daa25a6e"
-  integrity sha512-UFetlrcGMLPy2pncxrM8lyINYb3tDIEGPP2RAe6RzQDChS5M05Q5X+BBwtlJ+7CyisI6LG3bHmiv7xoNV6K9IA==
+arccjs@^2.4.11:
+  version "2.4.11"
+  resolved "https://registry.yarnpkg.com/arccjs/-/arccjs-2.4.11.tgz#11482439d74eae259b099fec1abb69d0b5d498c8"
+  integrity sha512-6ZMvGtmb/vXLblS68JkB6aI7llFh58U1PwtVIN4US/LLIzf6+3uPBQlj19h3Ky02R7skEBvKsBqipVparXFUjg==
   dependencies:
     algosdk "^2.7.0"
     buffer "^6.0.3"

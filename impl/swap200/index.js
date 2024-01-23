@@ -1,7 +1,7 @@
 import CONTRACT from "arccjs";
 
 import arc200Schema from "../../abi/arc200/index.js";
-import swap200Extension from "../../abi/swap200/extension.js";
+import swap200Extension from "../../abi/swap200/index.js";
 
 /*
  * oneAddress is the address of the account that holds more

@@ -149,8 +149,9 @@ const safe_arc72_transferFrom = async (
   waitForConfirmation
 ) => {
   try {
+    const addrSpender = ci.getSender();
     const opts = {
-      acc: { addr: ci.getSender(), sk: ci.getSk() },
+      acc: { addr: addrSpender, sk: ci.getSk() },
       simulate,
       formatBytes: true,
       waitForConfirmation,
@@ -326,7 +327,7 @@ class Contract {
     waitForConfirmation
   ) =>
     await safe_arc72_transferFrom(
-      this,
+      this.contractInstance,
       addrFrom,
       addrTo,
       amt,
@@ -335,7 +336,7 @@ class Contract {
     );
   arc72_approve = async (addr, tid, simulate, waitForConfirmation) => 
       await safe_arc72_approve(
-        this,
+        this.contractInstance,
         addr,
         tid,
         simulate,
@@ -346,7 +347,7 @@ class Contract {
     approve,
     simulate,
     waitForConfirmation
-  ) => await safe_arc72_setApprovalForAll(this, addr, approve, simulate, waitForConfirmation);
+  ) => await safe_arc72_setApprovalForAll(this.contractInstance, addr, approve, simulate, waitForConfirmation);
   // events
   arc72_Approval = async (query) =>
     await this.contractInstance.arc72_Approval(query);

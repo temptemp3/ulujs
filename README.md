@@ -20,6 +20,7 @@ npm install ulujs
 - `hsv2` - HumbleSwap Protocol (v2)
 - `arc200` - ARC200 Smart Contract Token
 - `arc72` - ARC72 Smart Contract NFT
+- `swap200` - ARC200 Bases Liqudity Pool (AMM)
   
 ## Usage
 

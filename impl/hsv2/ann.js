@@ -1,6 +1,5 @@
 import CONTRACT, { oneAddress } from "arccjs";
-
-import HSV2ANN from "../../abi/other/hsv2/ann.js";
+import schema from "../../abi/other/hsv2/ann.js";
 
 /*
  * decodeSymbol
@@ -92,9 +91,9 @@ class Contract {
       algodClient,
       indexerClient,
       {
-        ...HSV2ANN,
-        methods: [],
-        events: [...HSV2ANN.events],
+        ...schema,
+        methods: [...schema.methods],
+        events: [...schema.events],
       },
       opts.acc,
       opts.simulate,

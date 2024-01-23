@@ -1,6 +1,5 @@
 import CONTRACT, { oneAddress } from "arccjs";
-
-import HSV2NET2TOK from "../../abi/other/hsv2/netTok.js";
+import schema from "../../abi/other/hsv2/netTok.js";
 
 /*
  * Contract class
@@ -23,9 +22,9 @@ class Contract {
       algodClient,
       indexerClient,
       {
-        ...HSV2NET2TOK,
-        methods: [...HSV2NET2TOK.methods],
-        events: [],
+        ...schema,
+        methods: [...schema.methods],
+        events: [...schema.events],
       },
       opts.acc,
       opts.simulate,

@@ -1,0 +1,34 @@
+{
+  "name": "Tri",
+  "desc": "Announcer for Liquidity Pools (Triumvirate)",
+  "methods": [
+    {
+      "name": "Info",
+      "args": [],
+      "returns": {
+        "type": "(address[3],(byte,byte[96])[3],(uint64,uint64,uint64,address,byte))"
+      },
+      "readonly": true
+    },
+    {
+      "name": "Triumvir_propose",
+      "args": [{ "type": "byte" }, { "type": "byte[96]" }],
+      "returns": { "type": "byte[0]" }
+    },
+    {
+      "name": "Triumvir_support",
+      "args": [{ "type": "uint64" }, { "type": "(byte,byte[96])" }],
+      "returns": { "type": "byte[0]" }
+    },
+    {
+      "name": "register",
+      "args": [
+        { "type": "uint64" },
+        { "type": "(byte,byte[8])" },
+        { "type": "uint64" }
+      ],
+      "returns": { "type": "(uint64,uint64,uint64,address,byte)" }
+    }
+  ],
+  "events": []
+}

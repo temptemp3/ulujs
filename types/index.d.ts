@@ -20,7 +20,13 @@ declare module "arc72js" {
     ...ContractEvent,
     string, // From
     string, // To
-    bigint // TokenId
+    bigint // Amount
+  ];
+  type ApprovalEvent = [
+    ...ContractEvent,
+    string, // Owner
+    string, // Spender
+    bigint // Amount
   ];
   class Contract {
     constructor(
@@ -158,4 +164,11 @@ declare module "arc72js" {
     >;
   }
   export default Contract;
+}
+
+declare module "hsv2js" {
+  export default {
+    ann: any,
+    netTok: any,
+  }
 }

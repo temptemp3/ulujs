@@ -1,7 +1,7 @@
 {
-  "name": "arc72js",
-  "version": "0.1.1",
-  "description": "arc72 js library",
+  "name": "ulu",
+  "version": "0.0.0",
+  "description": "Ulu AVM Smart Contract Library",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\""
@@ -11,7 +11,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/temptemp3/arc72js.git"
+    "url": "git+ssh://git@github.com/temptemp3/ulu.git"
   },
   "bugs": {
     "url": "https://github.com/temptemp3/arc72js/issues"
@@ -23,6 +23,6 @@
   },
   "types": "./types/index.d.ts",
   "dependencies": {
-    "arccjs": "^2.3.3"
+    "arccjs": "^2.4.10"
   }
 }

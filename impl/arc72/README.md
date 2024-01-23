@@ -18,7 +18,7 @@ npm install ulujs
 
 ## Usage
 
-Import and initialize the `arc200` library in your project:
+Import and initialize the `arc72` library in your project:
 
 ```javascript
 import algosdk from "algosdk";

@@ -38,7 +38,7 @@ const handleResponse = (name, res) => {
 /* read-only methods */
 
 /*
- * arc200_balanceOf
+ * arc72_balanceOf
  * - get balance of addr
  * @param contractInstance: contract instance
  * @param addr: address
@@ -48,7 +48,7 @@ const arc72_balanceOf = async (contractInstance, addr) =>
   handleResponse("Balance", await contractInstance.arc72_balanceOf(addr));
 
 /*
- * arc200_getApproved
+ * arc72_getApproved
  * - get approved address
  * @param contractInstance: contract instance
  * @param tid: token id
@@ -58,7 +58,7 @@ const arc72_getApproved = async (contractInstance, tid) =>
   handleResponse("GetApproved", await contractInstance.arc72_getApproved(tid));
 
 /*
- * arc200_isApprovedForAll
+ * arc72_isApprovedForAll
  * - check if spender is approved for all
  * @param contractInstance: contract instance
  * @param addr: address
@@ -71,7 +71,7 @@ const arc72_isApprovedForAll = async (contractInstance, addr, addr2) =>
   );
 
 /*
- * arc200_ownerOf
+ * arc72_ownerOf
  * - get owner of
  * @param contractInstance: contract instance
  * @param tid: token id
@@ -81,7 +81,7 @@ const arc72_ownerOf = async (contractInstance, tid) =>
   handleResponse("OwnerOf", await contractInstance.arc72_ownerOf(tid));
 
 /*
- * arc200_tokenByIndex
+ * arc72_tokenByIndex
  * - get token by index
  * @param contractInstance: contract instance
  * @param tid: token id
@@ -126,7 +126,7 @@ const supportsInterface = async (contractInstance, sel) =>
   );
 
 /*
- * safe_arc200_transfer
+ * safe_arc72_transfer
  * - send
  * @param ci: contract instance
  * @param addrTo: to address
@@ -136,7 +136,7 @@ const supportsInterface = async (contractInstance, sel) =>
  * @returns: if simulate: true  { success: bool, txns: string[] }
  *           if simulate: false { success: bool, txId: string }
  */
-// export const safe_arc200_transfer = async (
+// export const safe_arc72_transfer = async (
 //   ci,
 //   addrTo,
 //   amt,
@@ -150,27 +150,27 @@ const supportsInterface = async (contractInstance, sel) =>
 //       formatBytes: true,
 //       waitForConfirmation,
 //     };
-//     const ARC200 = new Contract(
+//     const ARC72 = new Contract(
 //       ci.getContractId(),
 //       ci.algodClient,
 //       ci.indexerClient,
 //       opts
 //     );
-//     const bal = await ci.arc200_balanceOf(addrTo);
+//     const bal = await ci.arc72_balanceOf(addrTo);
 //     const addPayment = !bal.success || (bal.success && bal.returnValue === 0n);
 //     if (addPayment) {
-//       ARC200.contractInstance.setPaymentAmount(BalanceBoxCost);
+//       ARC72.contractInstance.setPaymentAmount(BalanceBoxCost);
 //     }
-//     const addrFrom = ARC200.contractInstance.getSender();
+//     const addrFrom = ARC72.contractInstance.getSender();
 //     console.log(`Transfer from: ${addrFrom} to: ${addrTo} amount: ${amt}`);
-//     return await ARC200.contractInstance.arc200_transfer(addrTo, amt);
+//     return await ARC72.contractInstance.arc72_transfer(addrTo, amt);
 //   } catch (e) {
 //     console.log(e);
 //   }
 // };
 
 /*
- * safe_arc200_transferFrom
+ * safe_arc72_transferFrom
  * - spend
  * @param ci: contract instance
  * @param addrFrom: from address
@@ -181,7 +181,7 @@ const supportsInterface = async (contractInstance, sel) =>
  * @returns: if simulate: true  { success: bool, txns: string[] }
  *           if simulate: false { success: bool, txId: string }
  */
-// export const safe_arc200_transferFrom = async (
+// export const safe_arc72_transferFrom = async (
 //   ci,
 //   addrFrom,
 //   addrTo,
@@ -196,22 +196,22 @@ const supportsInterface = async (contractInstance, sel) =>
 //       formatBytes: true,
 //       waitForConfirmation,
 //     };
-//     const ARC200 = new Contract(
+//     const ARC72 = new Contract(
 //       ci.getContractId(),
 //       ci.algodClient,
 //       ci.indexerClient,
 //       opts
 //     );
-//     const bal = await ci.arc200_balanceOf(addrTo);
+//     const bal = await ci.arc72_balanceOf(addrTo);
 //     const addPayment = !bal.success || (bal.success && bal.returnValue === 0n);
 //     if (addPayment) {
-//       ARC200.contractInstance.setPaymentAmount(BalanceBoxCost);
+//       ARC72.contractInstance.setPaymentAmount(BalanceBoxCost);
 //     }
-//     const addrSpender = ARC200.contractInstance.getSender();
+//     const addrSpender = ARC72.contractInstance.getSender();
 //     console.log(
 //       `TransferFrom spender: ${addrSpender} from: ${addrFrom} to: ${addrTo} amount: ${amt}`
 //     );
-//     return await ARC200.contractInstance.arc200_transferFrom(
+//     return await ARC72.contractInstance.arc72_transferFrom(
 //       addrFrom,
 //       addrTo,
 //       amt
@@ -222,7 +222,7 @@ const supportsInterface = async (contractInstance, sel) =>
 // };
 
 /*
- * safe_arc200_approve
+ * safe_arc72_approve
  * - approve spending
  * @param ci: contract instance
  * @param addrSpender: spender address
@@ -232,7 +232,7 @@ const supportsInterface = async (contractInstance, sel) =>
  * @returns: if simulate: true  { success: bool, txns: string[] }
  *           if simulate: false { success: bool, txId: string }
  */
-// export const safe_arc200_approve = async (
+// export const safe_arc72_approve = async (
 //   ci,
 //   addrSpender,
 //   amt,
@@ -246,22 +246,22 @@ const supportsInterface = async (contractInstance, sel) =>
 //       formatBytes: true,
 //       waitForConfirmation,
 //     };
-//     const ARC200 = new Contract(
+//     const ARC72 = new Contract(
 //       ci.getContractId(),
 //       ci.algodClient,
 //       ci.indexerClient,
 //       opts
 //     );
-//     const addrFrom = ARC200.contractInstance.getSender();
-//     const all = await ci.arc200_allowance(addrFrom, addrSpender);
+//     const addrFrom = ARC72.contractInstance.getSender();
+//     const all = await ci.arc72_allowance(addrFrom, addrSpender);
 //     const addPayment = !all.success || (all.success && all.returnValue === 0n);
 //     if (addPayment) {
-//       ARC200.contractInstance.setPaymentAmount(AllowanceBoxCost);
+//       ARC72.contractInstance.setPaymentAmount(AllowanceBoxCost);
 //     }
 //     console.log(
 //       `Approval from: ${addrFrom} spender: ${addrSpender} amount: ${amt}`
 //     );
-//     return await ARC200.contractInstance.arc200_approve(addrSpender, amt);
+//     return await ARC72.contractInstance.arc72_approve(addrSpender, amt);
 //   } catch (e) {
 //     console.log(e);
 //   }

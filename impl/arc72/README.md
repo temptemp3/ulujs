@@ -32,7 +32,7 @@ const indexerClient = new algosdk.Indexer(
   indexerPort
 );
 
-// Initialize ARC200 Contract instance
+// Initialize ARC72 Contract instance
 const tokenId = 123456; // Replace with your token ID
 const contract = new Contract(tokenId, algodClient, indexerClient);
 const tokenURIR = await contract.arc72_tokenURI(tokenId);
@@ -52,14 +52,14 @@ const { minRound, maxRound, address, round, txid } = query || {};
 
 ### Standard events
 
-The following events are available for standard ARC200 token functionalities:
+The following events are available for standard ARC72 token functionalities:
 
-### arc200_Transfer
+### arc72_Transfer
 
 Triggered when tokens are transferred from one account to another.
 
 ```javascript
-await contract.arc200_Transfer();
+await contract.arc72_Transfer();
 //[
 //   [
 //         "WR4C7PMYKZ45ZWFWHTQRWHL424VDYXKYH4X2BX4J6KZ7BD3IQD4Q",
@@ -76,18 +76,18 @@ await contract.arc200_Transfer();
 Additionally, the `query` argument may be used to retrieve matching events:
 
 ```javascript
-await contract.arc200_Transfer(query);
+await contract.arc72_Transfer(query);
 // returns events matching query
-await contract.arc200_Transfer({minRound: 1699029707});
+await contract.arc72_Transfer({minRound: 1699029707});
 // returns events with round >= 1699029707
 ```
 
-### arc200_Approval
+### arc72_Approval
 
 Triggered when a spender is approved to withdraw from an owner's account.
 
 ```javascript
-await contract.arc200_Approval();
+await contract.arc72_Approval();
 //[
 //   [
 //         "WR4C7PMYKZ45ZWFWHTQRWHL424VDYXKYH4X2BX4J6KZ7BD3IQD4Q",
@@ -104,25 +104,25 @@ await contract.arc200_Approval();
 Additionally, the `query` argument may be used to retrieve matching events:
 
 ```javascript
-await contract.arc200_Transfer(query);
+await contract.arc72_Transfer(query);
 // returns events matching query
-await contract.arc200_Approval({minRound: 1699029707});
+await contract.arc72_Approval({minRound: 1699029707});
 // returns events with round >= 1699029707
 ```
 
 ### Non-standard events
 
-The following events are available for extended ARC200 token functionalities:
+The following events are available for extended ARC72 token functionalities:
 
 ### getEvents
 
-Retrieve all events of the ARC200 token.
+Retrieve all events of the ARC72 token.
 
 ```javascript
 await contract.getEvents();
 //{
-//   arc200_Transfer: {
-//     name: "arc200_Transfer",
+//   arc72_Transfer: {
+//     name: "arc72_Transfer",
 //     signature: "...",
 //     selector: "...",
 //     events: [
@@ -137,8 +137,8 @@ await contract.getEvents();
 //       ...
 //     ]
 //   },
-//   arc200_Approval: {
-//     name: "arc200_Approval",
+//   arc72_Approval: {
+//     name: "arc72_Approval",
 //     signature: "...",
 //     selector: "...",
 //     events: [
@@ -159,62 +159,62 @@ await contract.getEvents();
 
 ### standard methods
 
-The following methods are available for standard ARC200 token functionalities:
+The following methods are available for standard ARC72 token functionalities:
 
-### arc200_approve
+### arc72_approve
 
 Approve a spender to withdraw from your account, multiple times, up to the specified amount.
 
 ```javascript
 // Simulate transaction
-await contract.arc200_approve(spenderAddress, amount);
+await contract.arc72_approve(spenderAddress, amount);
 // Send transaction and wait for confirmation
-await contract.arc200_approve(spenderAddress, amount, false, true);
+await contract.arc72_approve(spenderAddress, amount, false, true);
 ```
 
-### arc200_transferFrom
+### arc72_transferFrom
 
 Perform a transfer of tokens from one account to another by an approved spender.
 
 ```javascript
 // Simulate transaction
-await contract.arc200_transferFrom(fromAddress, toAddress, amount);
+await contract.arc72_transferFrom(fromAddress, toAddress, amount);
 // Send transaction and wait for confirmation
-await contract.arc200_transferFrom(fromAddress, toAddress, amount, false, true);
+await contract.arc72_transferFrom(fromAddress, toAddress, amount, false, true);
 ```
 
-### arc200_transfer
+### arc72_transfer
 
 Transfer tokens to a specified address.
 
 ```javascript
 // Simulate transaction
-await contract.arc200_transfer(toAddress, amount);
+await contract.arc72_transfer(toAddress, amount);
 // Send transaction and wait for confirmation
-await contract.arc200_transfer(toAddress, amount, false, true);
+await contract.arc72_transfer(toAddress, amount, false, true);
 ```
 
-### arc200_allowance
+### arc72_allowance
 
 Check the amount that a spender is still allowed to withdraw from an owner.
 
 ```javascript
-const allowance = await contract.arc200_allowance(ownerAddress, spenderAddress);
+const allowance = await contract.arc72_allowance(ownerAddress, spenderAddress);
 console.log("Allowance:", allowance.returnValue);
 ```
 
-### arc200_balanceOf
+### arc72_balanceOf
 
-Fetch the balance of the ARC200 token for a specific address.
+Fetch the balance of the ARC72 token for a specific address.
 
 ```javascript
-const balance = await contract.arc200_balanceOf(address);
+const balance = await contract.arc72_balanceOf(address);
 console.log("Balance:", balance.returnValue);
 ```
 
 ### non-standard methods
 
-The following methods are available for extended ARC200 token functionalities:
+The following methods are available for extended ARC72 token functionalities:
 
 ### getMetadata
 
@@ -227,7 +227,7 @@ console.log(metadata);
 
 ### hasBalance
 
-Check if an address has any balance of the ARC200 token.
+Check if an address has any balance of the ARC72 token.
 
 ```javascript
 const hasBalance = await contract.hasBalance(address);
@@ -245,24 +245,24 @@ console.log("Has allowance:", hasAllowance);
 
 ## API Reference
 
-Each method provided by `arc200js` offers specific functionalities:
+Each method provided by `arc72js` offers specific functionalities:
 
-- `getMetadata()`: Retrieves essential metadata of the ARC200 token.
+- `getMetadata()`: Retrieves essential metadata of the ARC72 token.
 - `hasBalance(address)`: Checks if the given address has a balance of the token.
 - `hasAllowance(owner, spender)`: Determines if the spender is authorized to spend from the owner's account.
-- `arc200_approve(spender, amount)`: Approves a spender to withdraw up to a certain amount from the caller's account.
-- `arc200_transferFrom(from, to, amount)`: Allows a spender to transfer tokens from one account to another.
-- `arc200_transfer(to, amount)`: Enables direct transfer of tokens to a specified address.
-- `arc200_allowance(owner, spender)`: Returns the remaining amount a spender is allowed to withdraw from an owner.
-- `arc200_balanceOf(address)`: Provides the token balance of a given address.
-- `arc200_Transfer(query)`: Retrieves all `arc200_Transfer` events of the ARC200 token.
-- `arc200_Approval(query)`: Retrieves all `arc200_Approval` events of the ARC200 token.
-- `getEvents()`: Retrieves all events of the ARC200 token.
+- `arc72_approve(spender, amount)`: Approves a spender to withdraw up to a certain amount from the caller's account.
+- `arc72_transferFrom(from, to, amount)`: Allows a spender to transfer tokens from one account to another.
+- `arc72_transfer(to, amount)`: Enables direct transfer of tokens to a specified address.
+- `arc72_allowance(owner, spender)`: Returns the remaining amount a spender is allowed to withdraw from an owner.
+- `arc72_balanceOf(address)`: Provides the token balance of a given address.
+- `arc72_Transfer(query)`: Retrieves all `arc72_Transfer` events of the ARC72 token.
+- `arc72_Approval(query)`: Retrieves all `arc72_Approval` events of the ARC72 token.
+- `getEvents()`: Retrieves all events of the ARC72 token.
 
 ## Contributing
 
-Contributions to `arc200js` are welcome. Please adhere to the existing code style and ensure all tests pass.
+Contributions to `arc72js` are welcome. Please adhere to the existing code style and ensure all tests pass.
 
 ## License
 
-`arc200js` is [MIT licensed](./LICENSE).
+`arc72js` is [MIT licensed](./LICENSE).

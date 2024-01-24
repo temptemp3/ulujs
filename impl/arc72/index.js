@@ -209,9 +209,9 @@ const safe_arc72_approve = async (
     );
     const addrSelf = ARC72.contractInstance.getSender();
     console.log(
-      `Approval from: ${addrSelf} controller: ${addrController} token: ${tid}`
+      `Approval from: ${addrSelf} controller: ${addr} token: ${tid}`
     );
-    return await ARC72.contractInstance.arc72_approve(addrSpender, tid);
+    return await ARC72.contractInstance.arc72_approve(addr, tid);
   } catch (e) {
     console.log(e);
   }

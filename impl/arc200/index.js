@@ -208,7 +208,11 @@ export const safe_arc200_transferFrom = async (
       formatBytes: true,
       waitForConfirmation,
     };
-    const ARC200RO = new Contract(ci.getContractId(), ci.algodClient, ci.indexerClient);
+    const ARC200RO = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient
+    );
     const ARC200 = new Contract(
       ci.getContractId(),
       ci.algodClient,
@@ -217,8 +221,12 @@ export const safe_arc200_transferFrom = async (
     );
     const balTo = await ARC200RO.contractInstance.arc200_balanceOf(addrTo);
     const balFrom = await ARC200RO.contractInstance.arc200_balanceOf(addrFrom);
-    const allowance = await ARC200RO.contractInstance.arc200_allowance(addrFrom, addrTo);
-    if(!balTo.success || !balFrom.success || !allowance.success) throw new Error("Failed to get balance or allowance");
+    const allowance = await ARC200RO.contractInstance.arc200_allowance(
+      addrFrom,
+      addrTo
+    );
+    if (!balTo.success || !balFrom.success || !allowance.success)
+      throw new Error("Failed to get balance or allowance");
     let BoxCost = 0n;
     if (balTo.returnValue === 0n) BoxCost += BigInt(BalanceBoxCost);
     if (balFrom.returnValue === 0n) BoxCost += BigInt(BalanceBoxCost);
@@ -266,7 +274,12 @@ export const safe_arc200_approve = async (
       formatBytes: true,
       waitForConfirmation,
     };
-    const ARC200 = new Contract(ci.getContractId(), ci.algodClient, ci.indexerClient, opts);
+    const ARC200 = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient,
+      opts
+    );
     const addrFrom = ARC200.contractInstance.getSender();
     const all = await ci.arc200_allowance(addrFrom, addrSpender);
     const addPayment = !all.success || (all.success && all.returnValue === 0n);
@@ -280,6 +293,40 @@ export const safe_arc200_approve = async (
   } catch (e) {
     console.log(e);
   }
+};
+
+/*
+ * getEvents
+ * - get events
+ * @param ci: contract instance
+ */
+export const getMetadata = async (ci) => {
+  const [name, symbol, totalSupply, decimals] = await Promise.all([
+    ci.arc200_name(),
+    ci.arc200_symbol(),
+    ci.arc200_totalSupply(),
+    ci.arc200_decimals(),
+  ]);
+  if (
+    !name.success ||
+    !symbol.success ||
+    !totalSupply.success ||
+    !decimals.success
+  ) {
+    return {
+      success: false,
+      error: "Failed to get metadata",
+    };
+  }
+  return {
+    success: true,
+    returnValue: {
+      name: name.returnValue,
+      symbol: symbol.returnValue,
+      totalSupply: totalSupply.returnValue,
+      decimals: decimals.returnValue,
+    },
+  };
 };
 
 /*
@@ -410,34 +457,7 @@ class Contract {
     };
   };
   // helper methods
-  getMetadata = async () => {
-    const [name, symbol, totalSupply, decimals] = await Promise.all([
-      this.arc200_name(),
-      this.arc200_symbol(),
-      this.arc200_totalSupply(),
-      this.arc200_decimals(),
-    ]);
-    if (
-      !name.success ||
-      !symbol.success ||
-      !totalSupply.success ||
-      !decimals.success
-    ) {
-      return {
-        success: false,
-        error: "Failed to get metadata",
-      };
-    }
-    return {
-      success: true,
-      returnValue: {
-        name: name.returnValue,
-        symbol: symbol.returnValue,
-        totalSupply: totalSupply.returnValue,
-        decimals: decimals.returnValue,
-      },
-    };
-  };
+  getMetadata = async () => await getMetadata(this.contractInstance);
 }
 
 export default Contract;

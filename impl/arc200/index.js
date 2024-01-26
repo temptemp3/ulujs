@@ -2,8 +2,8 @@ import CONTRACT from "arccjs";
 
 import schema from "../../abi/arc200/index.js";
 
-const BalanceBoxCost = 28500;
-const AllowanceBoxCost = 28100;
+export const BalanceBoxCost = 28500;
+export const AllowanceBoxCost = 28100;
 
 /*
  * oneAddress is the address of the account that holds more
@@ -156,8 +156,9 @@ export const safe_arc200_transfer = async (
   waitForConfirmation
 ) => {
   try {
+    const addrFrom = ci.getSender();
     const opts = {
-      acc: { addr: ci.getSender(), sk: ci.getSk() },
+      acc: { addr: addrFrom, sk: ci.getSk() },
       simulate,
       formatBytes: true,
       waitForConfirmation,
@@ -168,12 +169,20 @@ export const safe_arc200_transfer = async (
       ci.indexerClient,
       opts
     );
-    const bal = await ci.arc200_balanceOf(addrTo);
-    const addPayment = !bal.success || (bal.success && bal.returnValue === 0n);
-    if (addPayment) {
-      ARC200.contractInstance.setPaymentAmount(BalanceBoxCost);
+    const ARC200RO = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient
+    );
+    const balTo = await ARC200RO.contractInstance.arc200_balanceOf(addrTo);
+    const balFrom = await ARC200RO.contractInstance.arc200_balanceOf(addrFrom);
+    if (!balTo.success || !balFrom.success) throw new Error("Failed to get balance or allowance");
+    let BoxCost = 0n;
+    if (balTo.returnValue === 0n) BoxCost += BigInt(BalanceBoxCost);
+    if (balFrom.returnValue === 0n) BoxCost += BigInt(BalanceBoxCost);
+    if (BoxCost > 0n) {
+      ARC200.contractInstance.setPaymentAmount(BoxCost);
     }
-    const addrFrom = ARC200.contractInstance.getSender();
     console.log(`Transfer from: ${addrFrom} to: ${addrTo} amount: ${amt}`);
     return await ARC200.contractInstance.arc200_transfer(addrTo, amt);
   } catch (e) {

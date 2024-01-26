@@ -15,7 +15,9 @@ import {
   hasAllowance,
   hasBalance,
   getMetadata,
+  BalanceBoxCost
 } from "../arc200/index.js";
+import algosdk from "algosdk";
 
 /*
  * prepareString
@@ -31,6 +33,134 @@ const prepareString = (str) => {
     return str;
   }
 };
+
+export const safe_deposit = async (
+  ci,
+  amt, // bigint
+  simulate,
+  waitForConfirmation
+) => {
+  try {
+    const addrFrom = ci.getSender();
+    const opts = {
+      acc: { addr: addrFrom, sk: ci.getSk() },
+      simulate,
+      formatBytes: true,
+      waitForConfirmation,
+    };
+    const NT200 = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient,
+      opts
+    );
+    const ARC200RO = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient
+    );
+    const balFrom = await ARC200RO.contractInstance.arc200_balanceOf(addrFrom);
+    if (!balFrom.success) throw new Error("Failed to get balance or allowance");
+    let BoxCost = 0n;
+    if (balFrom.returnValue === 0n) BoxCost += BigInt(BalanceBoxCost);
+    NT200.contractInstance.setPaymentAmount(BoxCost + amt);
+    console.log(`Deposit from: ${addrFrom} amount: ${amt.toString()}`);
+    return await NT200.contractInstance.deposit(amt);
+  } catch (e) {
+    return { success: false, error: e };
+  }
+}
+
+const safe_withdraw = async (
+  ci,
+  amt, // bigint
+  simulate,
+  waitForConfirmation
+) => {
+  try {
+    const addrFrom = ci.getSender();
+    const opts = {
+      acc: { addr: addrFrom, sk: ci.getSk() },
+      simulate,
+      formatBytes: true,
+      waitForConfirmation,
+    };
+    const NT200 = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient,
+      opts
+    );
+    const ARC200RO = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient
+    );
+    const addrTo = algosdk.getApplicationAddress(ci.getContractId());
+    const approvalR = await ARC200RO.contractInstance.arc200_allowance(
+      addrFrom,
+      addrTo
+    );
+    if (!approvalR.success) throw new Error("Failed to get balance or allowance");
+    const approval = approvalR.returnValue;
+    if (approval < amt) throw new Error("Insufficient approval");
+    const balTo = await ARC200RO.contractInstance.arc200_balanceOf(addrTo);
+    const balFrom = await ARC200RO.contractInstance.arc200_balanceOf(addrFrom);
+    if (!balFrom.success || !balTo.success) throw new Error("Failed to get balance or allowance");
+    let BoxCost = 0n;
+    if (balFrom.returnValue === 0n) BoxCost += BigInt(BalanceBoxCost);
+    if (balTo.returnValue === 0n) BoxCost += BigInt(BalanceBoxCost);
+    if(BoxCost > 0n) NT200.contractInstance.setPaymentAmount(BoxCost);
+    NT200.contractInstance.setFee(2000);
+    console.log(`Deposit from: ${addrFrom} amount: ${amt.toString()}`);
+    return await NT200.contractInstance.withdraw(amt);
+  } catch (e) {
+    return { success: false, error: e };
+  }
+}
+    
+
+const safe_createBalanceBox = async (
+  ci,
+  addr,
+  simulate,
+  waitForConfirmation
+) => {
+  try {
+    const addrFrom = ci.getSender();
+    const opts = {
+      acc: { addr: addrFrom, sk: ci.getSk() },
+      simulate,
+      formatBytes: true,
+      waitForConfirmation,
+    };
+    const NT200 = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient,
+      opts
+    );
+    const ARC200RO = new Contract(
+      ci.getContractId(),
+      ci.algodClient,
+      ci.indexerClient
+    );
+    const balTo = await ARC200RO.contractInstance.arc200_balanceOf(addr);
+    if (!balTo.success) throw new Error("Failed to get balance or allowance");
+    let BoxCost = 0n;
+    if (balTo.returnValue === 0n) BoxCost += BigInt(BalanceBoxCost);
+    if(BoxCost > 0n) {
+      NT200.contractInstance.setPaymentAmount(BoxCost);
+    }
+    console.log("BoxCost", BoxCost.toString());
+    console.log(`Create balance box addr: ${addr}`);
+    return await NT200.contractInstance.createBalanceBox(addr);
+  } catch (e) {
+    return { success: false, error: e };
+  }
+}
+
+
 
 /*
  * Contract class
@@ -161,6 +291,23 @@ class Contract {
   };
   // helper methods
   getMetadata = async () => await getMetadata(this.contractInstance);
+  // nt200 methods
+  deposit = async (amt, simulate, waitForConfirmation) =>
+    await safe_deposit(
+      this.contractInstance,
+      amt,
+      simulate,
+      waitForConfirmation
+    );
+  withdraw = async (amt, simulate, waitForConfirmation) =>
+    await safe_withdraw(
+      this.contractInstance,
+      amt,
+      simulate,
+      waitForConfirmation
+    );
+  createBalanceBox = async (addr, simulate, waitForConfirmation) =>
+    await safe_createBalanceBox(this.contractInstance, addr, simulate, waitForConfirmation);
 }
 
 export default Contract;

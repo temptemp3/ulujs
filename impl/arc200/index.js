@@ -208,16 +208,23 @@ export const safe_arc200_transferFrom = async (
       formatBytes: true,
       waitForConfirmation,
     };
+    const ARC200RO = new Contract(ci.getContractId(), ci.algodClient, ci.indexerClient);
     const ARC200 = new Contract(
       ci.getContractId(),
       ci.algodClient,
       ci.indexerClient,
       opts
     );
-    const bal = await ci.arc200_balanceOf(addrTo);
-    const addPayment = !bal.success || (bal.success && bal.returnValue === 0n);
-    if (addPayment) {
-      ARC200.contractInstance.setPaymentAmount(BalanceBoxCost);
+    const balTo = await ARC200RO.contractInstance.arc200_balanceOf(addrTo);
+    const balFrom = await ARC200RO.contractInstance.arc200_balanceOf(addrFrom);
+    const allowance = await ARC200RO.contractInstance.arc200_allowance(addrFrom, addrTo);
+    if(!balTo.success || !balFrom.success || !allowance.success) throw new Error("Failed to get balance or allowance");
+    let BoxCost = 0n;
+    if (balTo.returnValue === 0n) BoxCost += BigInt(BalanceBoxCost);
+    if (balFrom.returnValue === 0n) BoxCost += BigInt(BalanceBoxCost);
+    if (allowance.returnValue === 0n) BoxCost += BigInt(AllowanceBoxCost);
+    if (BoxCost > 0n) {
+      ARC200.contractInstance.setPaymentAmount(BoxCost);
     }
     const addrSpender = ARC200.contractInstance.getSender();
     console.log(

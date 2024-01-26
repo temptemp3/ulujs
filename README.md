@@ -17,11 +17,12 @@ npm install ulujs
 
 ## Implementations
 
-- `hsv2` - HumbleSwap Protocol (v2)
 - `arc200` - ARC200 Smart Contract Token
 - `arc72` - ARC72 Smart Contract NFT
+- `hsv2` - HumbleSwap Protocol (v2)
 - `swap200` - ARC200 Bases Liqudity Pool (AMM)
-  
+- `nt200` - ARC200 Wrapped Network Token (wVOI)
+
 ## Usage
 
 Import and initialize the `ulujs` library in your project:

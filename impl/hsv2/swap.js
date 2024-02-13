@@ -22,7 +22,7 @@ const ObjectFromInfo = (info) => {
     },
     protoBals: protoBals.map((x) => x.toString()),
     tokB: tokB.toString(),
-    tokA: tokA[0] === 0 ? "0" : tokA[1].toString(),
+    tokA: tokA[0] === 0 ? "0" : `${Number("0x" + Buffer.from(tokA[1]).toString("hex"))}`
   };
 };
 

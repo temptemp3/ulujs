@@ -40,6 +40,19 @@ const netTokSchema = {
       returns: { type: "(uint64,uint64)" },
     },
   ],
-  events: [],
+  // const N = Events({
+  //   Harvest: [ ProtocolInfo ],
+  //   Withdraw: [ Address, UInt, Bals, Bals, Bals ],
+  //   Deposit: [ Address, Bals, UInt, Bals, Bals ],
+  //   Swap: [ Address, Bals, Bals, Bals ],
+  // });
+  events: [
+    {
+      name: "Swap",
+      readonly: "true",
+      args: [{ type: "address" }, { type: "(uint64,uint64)" }, { type: "(uint64,uint64)" }, { type: "(uint64,uint64)" }],
+      
+    }
+  ],
 };
 export default netTokSchema;

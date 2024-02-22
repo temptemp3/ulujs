@@ -1,5 +1,5 @@
 import algosdk from "algosdk";
-import CONTRACT, { oneAddress, algosdk } from "arccjs";
+import CONTRACT, { oneAddress } from "arccjs";
 
 import schema from "../../abi/arc72/index.js";
 

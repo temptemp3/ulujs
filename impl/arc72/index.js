@@ -164,7 +164,7 @@ const safe_arc72_transferFrom = async (
     );
     // Aust arc72 pays for the box cost if the ctcAddr balance - minBalance < box cost
     // Add payment if necessary
-    const accInfo = await algodClient
+    const accInfo = await ci.algodClient
     .accountInformation(algosdk.getApplicationAddress(ci.getContractId()))
     .do();
     const availableBalance = accInfo.amount - accInfo["min-balance"];

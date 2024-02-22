@@ -1,4 +1,5 @@
-import CONTRACT, { oneAddress } from "arccjs";
+import algosdk from "algosdk";
+import CONTRACT, { oneAddress, algosdk } from "arccjs";
 
 import schema from "../../abi/arc72/index.js";
 
@@ -165,11 +166,13 @@ const safe_arc72_transferFrom = async (
     // Aust arc72 pays for the box cost if the ctcAddr balance - minBalance < box cost
     // Add payment if necessary
     const accInfo = await ci.algodClient
-    .accountInformation(algosdk.getApplicationAddress(ci.getContractId()))
-    .do();
+      .accountInformation(algosdk.getApplicationAddress(ci.getContractId()))
+      .do();
     const availableBalance = accInfo.amount - accInfo["min-balance"];
     if (availableBalance < BalanceBoxCost) {
-      ARC72.contractInstance.setPaymentAmount(BalanceBoxCost - availableBalance);
+      ARC72.contractInstance.setPaymentAmount(
+        BalanceBoxCost - availableBalance
+      );
     }
     console.log(
       `TransferFrom spender: ${addrSpender} from: ${addrFrom} to: ${addrTo} token: ${tid}`
@@ -217,9 +220,7 @@ const safe_arc72_approve = async (
       opts
     );
     const addrSelf = ARC72.contractInstance.getSender();
-    console.log(
-      `Approval from: ${addrSelf} controller: ${addr} token: ${tid}`
-    );
+    console.log(`Approval from: ${addrSelf} controller: ${addr} token: ${tid}`);
     return await ARC72.contractInstance.arc72_approve(addr, tid);
   } catch (e) {
     console.log(e);
@@ -258,7 +259,10 @@ const safe_arc72_setApprovalForAll = async (
       opts
     );
     const addrSelf = ARC72.contractInstance.getSender();
-    const all = await ARC72.contractInstance.arc72_isApprovedForAll(addrFrom, addrSpender);
+    const all = await ARC72.contractInstance.arc72_isApprovedForAll(
+      addrFrom,
+      addrSpender
+    );
     const addPayment = !all.success || (all.success && all.returnValue === 0n);
     if (addPayment) {
       ARC72.contractInstance.setPaymentAmount(AllowanceBoxCost);
@@ -343,20 +347,27 @@ class Contract {
       simulate,
       waitForConfirmation
     );
-  arc72_approve = async (addr, tid, simulate, waitForConfirmation) => 
-      await safe_arc72_approve(
-        this.contractInstance,
-        addr,
-        tid,
-        simulate,
-        waitForConfirmation
-      );
+  arc72_approve = async (addr, tid, simulate, waitForConfirmation) =>
+    await safe_arc72_approve(
+      this.contractInstance,
+      addr,
+      tid,
+      simulate,
+      waitForConfirmation
+    );
   arc72_setApprovalForAll = async (
     addr,
     approve,
     simulate,
     waitForConfirmation
-  ) => await safe_arc72_setApprovalForAll(this.contractInstance, addr, approve, simulate, waitForConfirmation);
+  ) =>
+    await safe_arc72_setApprovalForAll(
+      this.contractInstance,
+      addr,
+      approve,
+      simulate,
+      waitForConfirmation
+    );
   // events
   arc72_Approval = async (query) =>
     await this.contractInstance.arc72_Approval(query);

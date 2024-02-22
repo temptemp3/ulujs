@@ -48,11 +48,34 @@ const netTokSchema = {
   // });
   events: [
     {
+      name: "Withdraw",
+      args: [
+        { type: "address" },
+        { type: "uint64" },
+        { type: "(uint64,uint64)" },
+        { type: "(uint64,uint64)" },
+        { type: "(uint64,uint64)" },
+      ],
+    },
+    {
+      name: "Deposit",
+      args: [
+        { type: "address" },
+        { type: "(uint64,uint64)" },
+        { type: "uint64" },
+        { type: "(uint64,uint64)" },
+        { type: "(uint64,uint64)" },
+      ],
+    },
+    {
       name: "Swap",
-      readonly: "true",
-      args: [{ type: "address" }, { type: "(uint64,uint64)" }, { type: "(uint64,uint64)" }, { type: "(uint64,uint64)" }],
-      
-    }
+      args: [
+        { type: "address" },
+        { type: "(uint64,uint64)" },
+        { type: "(uint64,uint64)" },
+        { type: "(uint64,uint64)" },
+      ],
+    },
   ],
 };
 export default netTokSchema;

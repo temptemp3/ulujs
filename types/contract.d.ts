@@ -9,4 +9,25 @@ export class CONTRACT {
     waitForConfirmation?: boolean,
     objectOnly?: boolean
   );
+  setExtraTxns(extraTxns: any): void;
+  setPaymentAmount(amount: number): void;
+  setFee(fee: number): void;
+  custom: () => any;
+  setTransfers(transfers: any[]): void;
+  getEvents(opts: { minRound: number }): any;
+  setAccounts: any;
+  setEnableGroupResourceSharing: any
+  // ARC72
+  arc72_approve: any;
+  // MP206
+  v_sale_listingByIndex: any;
+  a_sale_listNet: any;
+  a_sale_buyNet: any;
+  a_sale_listSC: any;
+  a_sale_buySC: any;
+  a_sale_claimSC: any;
+  a_sale_deleteListing: any;
+  // arc200
+  arc200_approve: any;
+  arc200_transfer: any;
 }

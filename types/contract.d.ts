@@ -16,7 +16,8 @@ export class CONTRACT {
   setTransfers(transfers: any[]): void;
   getEvents(opts: { minRound: number }): any;
   setAccounts: any;
-  setEnableGroupResourceSharing: any
+  setEnableGroupResourceSharing: any;
+  setBeaconId: any;
   // ARC72
   arc72_approve: any;
   // MP206

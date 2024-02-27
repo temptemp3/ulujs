@@ -18,6 +18,7 @@ export class CONTRACT {
   setAccounts: any;
   setEnableGroupResourceSharing: any;
   setBeaconId: any;
+  setBeaconSelector: any;
   // ARC72
   arc72_approve: any;
   // MP206

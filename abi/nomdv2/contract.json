@@ -1,0 +1,667 @@
+{
+  "name": "AlgoArc200PoolV02",
+  "desc": "",
+  "methods": [
+    {
+      "name": "createApplication",
+      "args": [
+        {
+          "name": "manager",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "updateApplication",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "setManager",
+      "args": [
+        {
+          "name": "manager",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "bool"
+      }
+    },
+    {
+      "name": "initialize",
+      "desc": "Initialize ARC200",
+      "args": [
+        {
+          "name": "name",
+          "type": "byte[32]",
+          "desc": "token name"
+        },
+        {
+          "name": "symbol",
+          "type": "byte[8]",
+          "desc": "token symbol"
+        },
+        {
+          "name": "decimals",
+          "type": "uint8",
+          "desc": "number of decimals"
+        },
+        {
+          "name": "totalSupply",
+          "type": "uint256",
+          "desc": "total supply of tokens"
+        },
+        {
+          "name": "mintTo",
+          "type": "address",
+          "desc": "initial mint to"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "arc200_name",
+      "desc": "The name of the token",
+      "readonly": true,
+      "args": [],
+      "returns": {
+        "type": "byte[32]",
+        "desc": "The name of the token"
+      }
+    },
+    {
+      "name": "arc200_symbol",
+      "desc": "Returns the symbol of the token",
+      "readonly": true,
+      "args": [],
+      "returns": {
+        "type": "byte[8]",
+        "desc": "The symbol of the token"
+      }
+    },
+    {
+      "name": "arc200_decimals",
+      "desc": "Returns the decimals of the token",
+      "readonly": true,
+      "args": [],
+      "returns": {
+        "type": "uint8",
+        "desc": "The decimals of the token"
+      }
+    },
+    {
+      "name": "arc200_totalSupply",
+      "desc": "Returns the total supply of the token",
+      "readonly": true,
+      "args": [],
+      "returns": {
+        "type": "uint256",
+        "desc": "The total supply of the token"
+      }
+    },
+    {
+      "name": "arc200_balanceOf",
+      "desc": "Returns the current balance of the owner of the token",
+      "readonly": true,
+      "args": [
+        {
+          "name": "owner",
+          "type": "address",
+          "desc": "The address of the owner of the token"
+        }
+      ],
+      "returns": {
+        "type": "uint256",
+        "desc": "The current balance of the holder of the token"
+      }
+    },
+    {
+      "name": "hasBalance",
+      "desc": "Check if balance box exists",
+      "readonly": true,
+      "args": [
+        {
+          "name": "owner",
+          "type": "address",
+          "desc": "The address of the owner"
+        }
+      ],
+      "returns": {
+        "type": "bool",
+        "desc": "`true`if balance box exists"
+      }
+    },
+    {
+      "name": "hasAllowance",
+      "desc": "Check if allowance box exists",
+      "readonly": true,
+      "args": [
+        {
+          "name": "owner",
+          "type": "address",
+          "desc": "The address of the owner"
+        },
+        {
+          "name": "spender",
+          "type": "address",
+          "desc": "The address of the spender"
+        }
+      ],
+      "returns": {
+        "type": "bool",
+        "desc": "`true`if allowance box exists"
+      }
+    },
+    {
+      "name": "arc200_allowance",
+      "desc": "Returns the current allowance of the spender of the tokens of the owner",
+      "readonly": true,
+      "args": [
+        {
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "uint256",
+        "desc": "The remaining allowance"
+      }
+    },
+    {
+      "name": "arc200_transfer",
+      "desc": "Transfers tokens",
+      "args": [
+        {
+          "name": "to",
+          "type": "address",
+          "desc": "The destination of the transfer"
+        },
+        {
+          "name": "value",
+          "type": "uint256",
+          "desc": "Amount of tokens to transfer"
+        }
+      ],
+      "returns": {
+        "type": "bool",
+        "desc": "Success"
+      }
+    },
+    {
+      "name": "arc200_approve",
+      "desc": "Approve spender for a token",
+      "args": [
+        {
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "returns": {
+        "type": "bool",
+        "desc": "Success"
+      }
+    },
+    {
+      "name": "arc200_transferFrom",
+      "desc": "Transfers tokens from source to destination as approved spender",
+      "args": [
+        {
+          "name": "from",
+          "type": "address",
+          "desc": "The source  of the transfer"
+        },
+        {
+          "name": "to",
+          "type": "address",
+          "desc": "The destination of the transfer"
+        },
+        {
+          "name": "value",
+          "type": "uint256",
+          "desc": "Amount of tokens to transfer"
+        }
+      ],
+      "returns": {
+        "type": "bool",
+        "desc": "Success"
+      },
+      "events": [
+        {
+          "name": "arc200_Transfer",
+          "args": [
+            {
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "name": "value",
+              "type": "uint256"
+            }
+          ],
+          "desc": "Transfer of tokens"
+        }
+      ]
+    },
+    {
+      "name": "deleteApplication",
+      "desc": "Delete the app if balance total supply has been burned",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "poolInitialize",
+      "desc": "Initialize the pool",
+      "args": [
+        {
+          "name": "name",
+          "type": "byte[32]",
+          "desc": "name of the lp token"
+        },
+        {
+          "name": "symbol",
+          "type": "byte[8]",
+          "desc": "symbol of the lp token"
+        },
+        {
+          "name": "tokenYAppId",
+          "type": "application",
+          "desc": "appid (or id) of the y-token"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "setFeeController",
+      "desc": "Update fee-controller address",
+      "args": [
+        {
+          "name": "feeController",
+          "type": "address",
+          "desc": "new fee-controller address"
+        }
+      ],
+      "returns": {
+        "type": "bool",
+        "desc": "`true`if success"
+      }
+    },
+    {
+      "name": "setFees",
+      "desc": "Update the swap-fee of the pool",
+      "args": [
+        {
+          "name": "fee",
+          "type": "uint256",
+          "desc": "updated swap-fee"
+        }
+      ],
+      "returns": {
+        "type": "bool",
+        "desc": "`true`if success"
+      }
+    },
+    {
+      "name": "setPlatformFees",
+      "desc": "Update the platform-fee of the pool",
+      "args": [
+        {
+          "name": "fee",
+          "type": "uint256",
+          "desc": "updated platform-fee"
+        }
+      ],
+      "returns": {
+        "type": "bool",
+        "desc": "`true`if success"
+      }
+    },
+    {
+      "name": "registerOnline",
+      "desc": "Bring the pool account online for consensus participation",
+      "args": [
+        {
+          "name": "selectionPk",
+          "type": "byte[]"
+        },
+        {
+          "name": "stateProofPk",
+          "type": "byte[]"
+        },
+        {
+          "name": "votePk",
+          "type": "byte[]"
+        },
+        {
+          "name": "voteFirst",
+          "type": "uint64"
+        },
+        {
+          "name": "voteLast",
+          "type": "uint64"
+        },
+        {
+          "name": "voteKeyDilution",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "registerOffline",
+      "desc": "Bring the pool account offline i.e. stop consensus participation",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "getRatio",
+      "readonly": true,
+      "args": [],
+      "returns": {
+        "type": "uint256"
+      }
+    },
+    {
+      "name": "addLiquidity",
+      "desc": "Add liquidity to the pool",
+      "args": [
+        {
+          "name": "payTxnX",
+          "type": "pay",
+          "desc": "x-token txn"
+        },
+        {
+          "name": "amountY",
+          "type": "uint256",
+          "desc": "amount of y-token approved to the pool"
+        }
+      ],
+      "returns": {
+        "type": "bool",
+        "desc": "`true`if success"
+      },
+      "events": [
+        {
+          "name": "Deposit",
+          "args": [
+            {
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "name": "inAmts",
+              "type": "(uint256,uint256)"
+            },
+            {
+              "name": "outLpt",
+              "type": "uint256"
+            },
+            {
+              "name": "poolBals",
+              "type": "(uint256,uint256)"
+            }
+          ],
+          "desc": "Deposit event logged when user adds liquidity"
+        }
+      ]
+    },
+    {
+      "name": "removeLiquidity",
+      "desc": "Remove liquidity from the pool",
+      "args": [
+        {
+          "name": "lptAmount",
+          "type": "uint256",
+          "desc": "amount of lp-token to burn"
+        }
+      ],
+      "returns": {
+        "type": "bool",
+        "desc": "`true`of success"
+      },
+      "events": [
+        {
+          "name": "Withdraw",
+          "args": [
+            {
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "name": "inLpt",
+              "type": "uint256"
+            },
+            {
+              "name": "outAmts",
+              "type": "(uint256,uint256)"
+            },
+            {
+              "name": "poolBals",
+              "type": "(uint256,uint256)"
+            }
+          ],
+          "desc": "Withdraw event logged when user removes liquidity"
+        }
+      ]
+    },
+    {
+      "name": "swapXtoY",
+      "desc": "Swap x-token for y-token",
+      "args": [
+        {
+          "name": "payTxnX",
+          "type": "pay",
+          "desc": "x-token pay txn"
+        },
+        {
+          "name": "minAmountY",
+          "type": "uint256",
+          "desc": "minimum amount of y-token required for this txn to be successful"
+        }
+      ],
+      "returns": {
+        "type": "uint256",
+        "desc": "amount of y-token given out in exchange for x-token"
+      },
+      "events": [
+        {
+          "name": "Swap",
+          "args": [
+            {
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "name": "inAmts",
+              "type": "(uint256,uint256)"
+            },
+            {
+              "name": "outAmts",
+              "type": "(uint256,uint256)"
+            },
+            {
+              "name": "poolBals",
+              "type": "(uint256,uint256)"
+            }
+          ],
+          "desc": "Swap event logged on swap"
+        }
+      ]
+    },
+    {
+      "name": "swapYtoX",
+      "desc": "Swap y-token for x-token",
+      "args": [
+        {
+          "name": "amountY",
+          "type": "uint256",
+          "desc": "amount of y-token approved for swap"
+        },
+        {
+          "name": "minAmountX",
+          "type": "uint256",
+          "desc": "minimum amount of x-token required for this txn to be successful"
+        }
+      ],
+      "returns": {
+        "type": "uint256",
+        "desc": "amount of x-token given out in exchange for x-token"
+      },
+      "events": [
+        {
+          "name": "Swap",
+          "args": [
+            {
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "name": "inAmts",
+              "type": "(uint256,uint256)"
+            },
+            {
+              "name": "outAmts",
+              "type": "(uint256,uint256)"
+            },
+            {
+              "name": "poolBals",
+              "type": "(uint256,uint256)"
+            }
+          ],
+          "desc": "Swap event logged on swap"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "arc200_Transfer",
+      "args": [
+        {
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "desc": "Transfer of tokens"
+    },
+    {
+      "name": "arc200_Approval",
+      "args": [
+        {
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "desc": "Approval of tokens"
+    },
+    {
+      "name": "Swap",
+      "args": [
+        {
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "name": "inAmts",
+          "type": "(uint256,uint256)"
+        },
+        {
+          "name": "outAmts",
+          "type": "(uint256,uint256)"
+        },
+        {
+          "name": "poolBals",
+          "type": "(uint256,uint256)"
+        }
+      ],
+      "desc": "Swap event logged on swap"
+    },
+    {
+      "name": "Deposit",
+      "args": [
+        {
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "name": "inAmts",
+          "type": "(uint256,uint256)"
+        },
+        {
+          "name": "outLpt",
+          "type": "uint256"
+        },
+        {
+          "name": "poolBals",
+          "type": "(uint256,uint256)"
+        }
+      ],
+      "desc": "Deposit event logged when user adds liquidity"
+    },
+    {
+      "name": "Withdraw",
+      "args": [
+        {
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "name": "inLpt",
+          "type": "uint256"
+        },
+        {
+          "name": "outAmts",
+          "type": "(uint256,uint256)"
+        },
+        {
+          "name": "poolBals",
+          "type": "(uint256,uint256)"
+        }
+      ],
+      "desc": "Withdraw event logged when user removes liquidity"
+    }
+  ]
+}

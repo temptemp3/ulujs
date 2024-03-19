@@ -33,4 +33,5 @@ export class CONTRACT {
   // arc200
   arc200_approve: any;
   arc200_transfer: any;
+  hasBalance: any;
 }

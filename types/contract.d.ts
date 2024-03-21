@@ -22,7 +22,7 @@ export class CONTRACT {
   setOptins: any;
   // ARC72
   arc72_approve: any;
-  // MP206
+  // mp205
   v_sale_listingByIndex: any;
   a_sale_listNet: any;
   a_sale_buyNet: any;
@@ -30,6 +30,7 @@ export class CONTRACT {
   a_sale_buySC: any;
   a_sale_claimSC: any;
   a_sale_deleteListing: any;
+  manager: any;
   // arc200
   arc200_approve: any;
   arc200_transfer: any;

@@ -39,4 +39,6 @@ export class CONTRACT {
   Trader_swapBForA: any;
   Provider_withdrawA: any;
   Provider_withdrawB: any;
+  // tri
+  Register: any;
 }

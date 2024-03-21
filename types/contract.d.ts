@@ -35,7 +35,8 @@ export class CONTRACT {
   arc200_transfer: any;
   hasBalance: any;
   // swap
-  Trader_swapAFroB: any;
+  Trader_swapAForB: any;
+  Trader_swapBForA: any;
   Provider_withdrawA: any;
   Provider_withdrawB: any;
 }

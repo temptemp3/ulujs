@@ -1,6 +1,6 @@
 {
-  "name": "YourContractName",
-  "desc": "Description of your contract",
+  "name": "ARC200 Swap V2",
+  "desc": "ARC200 SWap V2 (AMM) Liquidity Pool",
   "methods": [
     {
       "name": "Info",

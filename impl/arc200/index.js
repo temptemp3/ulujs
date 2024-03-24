@@ -1,6 +1,7 @@
 import CONTRACT from "arccjs";
 
 import schema from "../../abi/arc200/index.js";
+import schema2 from "../../abi/arc200nomd/index.js";
 
 export const BalanceBoxCost = 28500;
 export const AllowanceBoxCost = 28100;
@@ -120,8 +121,27 @@ export const arc200_allowance = async (
  * @param addr: address to check
  * @returns: bool
  */
-export const hasBalance = async (contractInstance, addr) =>
+
+export const hasBalance = async (contractInstance, addr) => 
   handleResponse(`HasBalance ${addr}`, await contractInstance.hasBalance(addr));
+
+/*
+ * safe_hasBalance 
+ * - check if addr has balance
+ * @param contractInstance: contract instance
+ * @param contractInstance2: contract instance
+ * @param addr: address to check
+ * @returns: bool
+ */
+export const safe_hasBalance = async (contractInstance, contractInstance2, addr) => {
+  const hasBalanceP = (await Promise.all([contractInstance.hasBalance(addr), contractInstance2.hasBalance(addr)]))
+  const hasBalanceR = hasBalanceP[0].success ? hasBalanceP[0] : hasBalanceP[1]
+  return handleResponse(`HasBalance ${addr}`, 
+  {
+    ...hasBalanceR,
+    returnValue: !!hasBalanceR.returnValue
+  });
+};
 
 /*
  * hasAllowance
@@ -136,6 +156,27 @@ export const hasAllowance = async (contractInstance, addrFrom, addrSpender) =>
     `HasAllowance from: ${addrFrom} spender: ${addrSpender}`,
     await contractInstance.hasAllowance(addrFrom, addrSpender)
   );
+
+/*
+ * safe_hasAllowance
+  * - check if spender is allowed to spend from addrFrom
+  * @param contractInstance: contract instance
+  * @param contractInstance2: contract instance
+  * @param addrFrom: from address
+  * @param addrSpender: spender address
+  * @returns: bool
+  */
+export const safe_hasAllowance = async (contractInstance, contractInstance2, addrFrom, addrSpender) => {
+  const hasAllowanceR2 = await Promise.all([contractInstance.hasAllowance(addrFrom, addrSpender), contractInstance2.hasAllowance(addrFrom, addrSpender)])
+  const hasAllowanceR = hasAllowanceR2[0].success ? hasAllowanceR2[0] : hasAllowanceR2[1]
+  return handleResponse(
+    `HasAllowance from: ${addrFrom} spender: ${addrSpender}`,
+    {
+      ...hasAllowanceR,
+      returnValue: !!hasAllowanceR.returnValue
+    }
+  );
+}
 
 /*
  * safe_arc200_transfer
@@ -176,7 +217,8 @@ export const safe_arc200_transfer = async (
     );
     const balTo = await ARC200RO.contractInstance.arc200_balanceOf(addrTo);
     const balFrom = await ARC200RO.contractInstance.arc200_balanceOf(addrFrom);
-    if (!balTo.success || !balFrom.success) throw new Error("Failed to get balance or allowance");
+    if (!balTo.success || !balFrom.success)
+      throw new Error("Failed to get balance or allowance");
     let BoxCost = 0n;
     if (balTo.returnValue === 0n) BoxCost += BigInt(BalanceBoxCost);
     if (balFrom.returnValue === 0n) BoxCost += BigInt(BalanceBoxCost);
@@ -363,6 +405,15 @@ class Contract {
       opts.simulate,
       opts.waitForConfirmation
     );
+    this.contractInstance2 = new CONTRACT(
+      contractId,
+      algodClient,
+      indexerClient,
+      schema2,
+      opts.acc,
+      opts.simulate,
+      opts.waitForConfirmation
+    );
     this.opts = opts;
   }
   // standard methods
@@ -430,9 +481,9 @@ class Contract {
     await this.contractInstance.arc200_Approval(query);
   // non-standard methods
   getEvents = async (query) => await this.contractInstance.getEvents(query);
-  hasBalance = async (addr) => await hasBalance(this.contractInstance, addr);
+  hasBalance = async (addr) => await safe_hasBalance(this.contractInstance, this.contractInstance2, addr);
   hasAllowance = async (addrFrom, addrSpender) =>
-    await hasAllowance(this.contractInstance, addrFrom, addrSpender);
+    await safe_hasAllowance(this.contractInstance, this.contractInstance2, addrFrom, addrSpender);
   state = async () => {
     const stateR = await this.contractInstance.state();
     if (!stateR.success) {

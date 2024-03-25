@@ -3,9 +3,9 @@
 //   pure: [`listingByIndex(uint256)(uint64,uint256,address,(byte,byte[40]))`, `state()(address,byte,byte,uint256,address,address)`],
 //   sigs: [`_reachp_0((uint64,(address)))void`, `_reachp_2((uint64,(byte,byte[48])))void`, `buyNet(uint256)uint256`, `deleteNetListing(uint256)void`, `grant(address)void`, `listNet(uint64,uint256,uint64)uint256`, `listingByIndex(uint256)(uint64,uint256,address,(byte,byte[40]))`, `lock()void`, `state()(address,byte,byte,uint256,address,address)`, `touch()void`]
 //   }
-const mp200Schema = {
-  name: "mp200",
-  desc: "mp200",
+const mp206Schema = {
+  name: "mp206",
+  desc: "mp206",
   methods: [
     // listNet(uint64,uint256,uint64)uint256
     {
@@ -100,54 +100,60 @@ const mp200Schema = {
   // DeleteNetListingEvent: [UInt256], // ListId
   events: [
     {
-      name: "ListEvent",
-      args: [
+      "name": "ListEvent",
+      "args": [
         {
-          type: "uint256",
+          "type": "uint256",
+          "name": "listingId"
         },
         {
-          type: "uint64",
+          "type": "uint64",
+          "name": "contractId"
         },
         {
-          type: "uint256",
+          "type": "uint256",
+          "name": "tokenId"
         },
         {
-          type: "address",
+          "type": "address",
+          "name": "listAddr"
         },
         {
-          type: "(byte,byte[40])",
+          "type": "(byte,byte[40])",
+          "name": "listPrice"
         },
-      ],
+        {
+          "type": "uint64",
+          "name": "endTime"
+        },
+        {
+          "type": "uint64",
+          "name": "royalty"
+        }
+      ]
     },
     {
-      name: "BuyEvent",
-      args: [
+      "name": "BuyEvent",
+      "args": [
         {
-          type: "uint64",
+          "type": "uint256",
+          "name": "listingId"
         },
         {
-          type: "uint256",
-        },
-        {
-          type: "address",
-        },
-        {
-          type: "(byte,byte[40])",
-        },
-        {
-          type: "address",
-        },
-      ],
+          "type": "address",
+          "name": "buyer"
+        }
+      ]
     },
     {
-      name: "DeleteNetListingEvent",
-      args: [
+      "name": "DeleteNetListingEvent",
+      "args": [
         {
-          name: "listId",
-          type: "uint256",
-        },
-      ],
-    },
+          "type": "uint256",
+          "name": "listingId"
+        }
+      ]
+    }
   ],
 };
-export default mp200Schema;
+export default mp206Schema;

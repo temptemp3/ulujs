@@ -38,6 +38,9 @@ export class CONTRACT {
   hasBalance: any;
   // nt200
   createBalanceBox: any;
+  createAllowanceBox: any;
+  deposit: any;
+  withdraw: any;
   // swap
   Trader_swapAForB: any;
   Trader_swapBForA: any;

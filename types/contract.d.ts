@@ -36,6 +36,8 @@ export class CONTRACT {
   arc200_transfer: any;
   arc200_balanceOf: any;
   hasBalance: any;
+  hasAllowance: any;
+  hasBox: any;
   // nt200
   createBalanceBox: any;
   createAllowanceBox: any;

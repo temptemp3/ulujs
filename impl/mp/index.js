@@ -192,9 +192,9 @@ class Contract {
       waitForConfirmation
     );
   DeleteListingEvent = async (query) =>
-    await this.contractInstance.DeleteListingEvent(query);
-  BuyEvent = async (query) => await this.contractInstance.BuyEvent(query);
-  ListEvent = async (query) => await this.contractInstance.ListEvent(query);
+    await this.contractInstance.e_sale_DeleteListingEvent(query);
+  BuyEvent = async (query) => await this.contractInstance.e_sale_BuyEvent(query);
+  ListEvent = async (query) => await this.contractInstance.e_sale_ListEvent(query);
   getEvents = async (query) => await this.contractInstance.getEvents(query);
 }
 

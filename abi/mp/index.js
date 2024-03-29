@@ -100,7 +100,7 @@ const mp206Schema = {
   // DeleteNetListingEvent: [UInt256], // ListId
   events: [
     {
-      "name": "ListEvent",
+      "name": "e_sale_ListEvent",
       "args": [
         {
           "type": "uint256",
@@ -133,7 +133,7 @@ const mp206Schema = {
       ]
     },
     {
-      "name": "BuyEvent",
+      "name": "e_sale_BuyEvent",
       "args": [
         {
           "type": "uint256",
@@ -146,7 +146,7 @@ const mp206Schema = {
       ]
     },
     {
-      "name": "DeleteListingEvent",
+      "name": "e_sale_DeleteListingEvent",
       "args": [
         {
           "type": "uint256",

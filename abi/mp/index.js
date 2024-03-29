@@ -146,7 +146,7 @@ const mp206Schema = {
       ]
     },
     {
-      "name": "DeleteNetListingEvent",
+      "name": "DeleteListingEvent",
       "args": [
         {
           "type": "uint256",

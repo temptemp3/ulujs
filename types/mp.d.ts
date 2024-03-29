@@ -43,7 +43,7 @@ export class Contract extends arc200 {
   ) => Promise<
     { success: true; returnValue: any } | { success: false; error: any }
   >;
-  DeleteNetListingEvent: (query: EventQuery) => Promise<any>;
+  DeleteListingEvent: (query: EventQuery) => Promise<any>;
   BuyEvent: (query: EventQuery) => Promise<any>;
   ListEvent: (query: EventQuery) => Promise<any>;
   getEvents: (query: EventQuery) => Promise<any>;

@@ -191,8 +191,8 @@ class Contract {
       simulate,
       waitForConfirmation
     );
-  DeleteNetListingEvent = async (query) =>
-    await this.contractInstance.DeleteNetListingEvent(query);
+  DeleteListingEvent = async (query) =>
+    await this.contractInstance.DeleteListingEvent(query);
   BuyEvent = async (query) => await this.contractInstance.BuyEvent(query);
   ListEvent = async (query) => await this.contractInstance.ListEvent(query);
   getEvents = async (query) => await this.contractInstance.getEvents(query);

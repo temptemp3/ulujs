@@ -19,6 +19,7 @@ type EventQuery = {
   minRound?: number;
   maxRound?: number;
   address?: string;
+  sender?: string;
   round?: number;
   txid?: string;
 };

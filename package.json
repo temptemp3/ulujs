@@ -1,6 +1,6 @@
 {
   "name": "ulujs",
-  "version": "0.2.19",
+  "version": "0.2.24",
   "description": "Ulu AVM Smart Contract Library",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,6 @@
   },
   "types": "./types/index.d.ts",
   "dependencies": {
-    "arccjs": "^2.7.2"
+    "arccjs": "^2.7.3"
   }
 }

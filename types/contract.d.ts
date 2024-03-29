@@ -36,6 +36,13 @@ export class CONTRACT {
   arc200_transfer: any;
   arc200_balanceOf: any;
   hasBalance: any;
+  hasAllowance: any;
+  hasBox: any;
+  // nt200
+  createBalanceBox: any;
+  createAllowanceBox: any;
+  deposit: any;
+  withdraw: any;
   // swap
   Trader_swapAForB: any;
   Trader_swapBForA: any;
@@ -45,7 +52,6 @@ export class CONTRACT {
   Provider_depositA: any;
   Provider_depositB: any;
   Provider_deposit: any;
-
   reserve: any;
   // tri
   Register: any;

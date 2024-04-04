@@ -39,7 +39,7 @@
       "name": "Funder_deployPool",
       "args": [
         {
-          "type": "uint64)"
+          "type": "uint64"
         },
         {
           "type": "uint64"
@@ -51,7 +51,7 @@
           "type": "uint64"
         },
         {
-          "type": "uint6"
+          "type": "uint64"
         }
       ],
       "returns": {
@@ -272,25 +272,32 @@
       "name": "Pool",
       "args": [
         {
-          "type": "uint64"
+          "type": "uint64",
+          "name": "poolId"
         },
         {
-          "type": "address"
+          "type": "address",
+          "name": "who"
         },
         {
-          "type": "uint64"
+          "type": "uint64",
+          "name": "stakeToken"
         },
         {
-          "type": "(uint64)"
+          "type": "(uint64)",
+          "name": "rewardsToken"
         },
         {
-          "type": "(uint256)"
+          "type": "(uint256)",
+          "name": "rewards"
         },
         {
-          "type": "uint64"
+          "type": "uint64",
+          "name": "start"
         },
         {
-          "type": "uint64"
+          "type": "uint64",
+          "name": "end"
         }
       ]
     },

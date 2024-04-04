@@ -1,6 +1,6 @@
 const stakr200Schema = {
-  "name": "YourContractName",
-  "desc": "Description of your contract",
+  "name": "STAKR-200",
+  "desc": "ARC200 Staking Pool",
   "methods": [
     {
       "name": "Admin_deletePool",

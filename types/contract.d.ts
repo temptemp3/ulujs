@@ -55,4 +55,15 @@ export class CONTRACT {
   reserve: any;
   // tri
   Register: any;
+  // stakr
+  Pool: any;
+  Stake: any;
+  staked: any;
+  Info: any;
+  rewardsAvailable: any;
+  rewardsAvailableAt: any;
+  Staker_stake: any;
+  Staker_harvest: any;
+  Staker_withdraw: any;
 }
+

@@ -65,5 +65,7 @@ export class CONTRACT {
   Staker_stake: any;
   Staker_harvest: any;
   Staker_withdraw: any;
+  // 
+  manager: any;
 }
 

@@ -35,6 +35,7 @@ export class CONTRACT {
   arc200_approve: any;
   arc200_transfer: any;
   arc200_balanceOf: any;
+  arc200_allowance: any;
   hasBalance: any;
   hasAllowance: any;
   hasBox: any;
@@ -53,6 +54,7 @@ export class CONTRACT {
   Provider_depositB: any;
   Provider_deposit: any;
   reserve: any;
+  SwapEvent: any;
   // tri
   Register: any;
   // stakr
@@ -65,7 +67,7 @@ export class CONTRACT {
   Staker_stake: any;
   Staker_harvest: any;
   Staker_withdraw: any;
-  // 
-  manager: any;
+  Funder_deployPool: any;
+  // reach
+  _reachp_0: any;
 }
-

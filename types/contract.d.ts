@@ -70,5 +70,11 @@ export class CONTRACT {
   Funder_deployPool: any;
   // reach
   _reachp_0: any;
+  // scs
+  setup: any;
+  configure: any;
+  fill: any;
+  participate: any;
+  close: any;
 }
 

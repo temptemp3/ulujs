@@ -20,7 +20,7 @@ export class CONTRACT {
   setBeaconId: any;
   setBeaconSelector: any;
   setOptins: any;
-  setOneComplete: any;
+  setOnComplete: any;
   // ARC72
   arc72_approve: any;
   // mp205

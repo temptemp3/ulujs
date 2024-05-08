@@ -1,4 +1,4 @@
-import mp206 from "./mp206/index.js";
+import mp206 from "./mp206.js";
 export default {
   mp206
 };

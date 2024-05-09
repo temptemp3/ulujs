@@ -77,5 +77,8 @@ export class CONTRACT {
   fill: any;
   participate: any;
   close: any;
+  // channels
+  ChannelCreate: any;
+  a_channeler_useChannel: any;
 }
 

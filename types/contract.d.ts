@@ -9,6 +9,7 @@ export class CONTRACT {
     waitForConfirmation?: boolean,
     objectOnly?: boolean
   );
+  getContractId: () => number;
   setExtraTxns(extraTxns: any): void;
   setPaymentAmount(amount: number): void;
   setFee(fee: number): void;

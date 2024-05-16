@@ -309,8 +309,43 @@ export const safe_arc200_approve = async (
 export const reserve = async (contractInstance, addr) =>
   handleResponse(`Reserve ${addr}`, await contractInstance.reserve(addr));
 
-export const Info = async (contractInstance) =>
-  handleResponse(`Info`, await contractInstance.Info());
+/*
+ * Info
+ * - get info
+ * @param contractInstance: contract instance
+ * @returns: info
+ * @note: info = [lptBals, poolBals, protoInfo, protoBals, tokB, tokA]
+ * @note: protoInfo = [protoFee, lpFee, totFee, protoAddr, locked]
+ * @note: protoBals = [protoA, protoB]
+ * @note: tokB: token B balance
+ * @note: tokA: token A balance
+ * @note: lptBals: liquidity provider token balances
+ * @note: poolBals: pool token balances
+ */
+export const Info = async (contractInstance) => {
+  const infoR = await contractInstance.Info();
+  if (!infoR.success) return infoR;
+  const [lptBals, poolBals, protoInfo, protoBals, tokB, tokA] =
+    infoR.returnValue;
+  const [protoFee, lpFee, totFee, protoAddr, locked] = protoInfo;
+  return {
+    success: true,
+    returnValue: {
+      lptBals,
+      poolBals,
+      protoInfo: {
+        protoFee: Number(protoFee),
+        lpFee: Number(lpFee),
+        totFee: Number(totFee),
+        protoAddr,
+        locked,
+      },
+      protoBals: protoBals.map(String),
+      tokB: Number(tokB),
+      tokA: Number(tokA),
+    },
+  };
+};
 
 /*
  * swap
@@ -523,14 +558,8 @@ class Contract {
       indexerClient,
       {
         ...arc200Schema,
-        methods: [
-          ...arc200Schema.methods,
-          ...swap200Extension.methods,
-        ], 
-        events: [
-          ...arc200Schema.events,
-          ...swap200Extension.events,
-        ], 
+        methods: [...arc200Schema.methods, ...swap200Extension.methods],
+        events: [...arc200Schema.events, ...swap200Extension.events],
       },
       opts.acc,
       opts.simulate,

@@ -8,10 +8,8 @@ import mp from "./mp/index.js";
 import nt200 from "./nt200/index.js";
 import stakr200 from "./stakr200/index.js";
 import nautilus from "./nautilus/index.js";
-import hsv3 from "./hsv3/index.js";
 export default {
   hsv2,
-  hsv3,
   arc72,
   arc200,
   swap200,

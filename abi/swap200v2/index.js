@@ -436,3 +436,4 @@ const swap200Schema = {
     },
   ],
 };
+export default swap200Schema;

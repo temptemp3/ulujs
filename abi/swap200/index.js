@@ -38,7 +38,7 @@ const swap200Schema = {
           type: "uint256",
         },
         {
-          type: "uint256)",
+          type: "uint256",
         },
         {
           type: "uint25",

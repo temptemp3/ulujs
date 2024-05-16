@@ -22,7 +22,7 @@ export default {
   arc72,
   arc200,
   swap200,
-  asdf,
+  swap200v2,
   mp,
   nt200,
   abi,

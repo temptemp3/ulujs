@@ -331,8 +331,8 @@ export const Info = async (contractInstance) => {
   return {
     success: true,
     returnValue: {
-      lptBals,
-      poolBals,
+      lptBals: (([lpHeld,lpMinted]) => ({ lpHeld, lpMinted }))(lptBals.map(String)),
+      poolBals: (([A,B]) => ({ A, B }))(poolBals.map(String)),
       protoInfo: {
         protoFee: Number(protoFee),
         lpFee: Number(lpFee),
@@ -340,7 +340,7 @@ export const Info = async (contractInstance) => {
         protoAddr,
         locked,
       },
-      protoBals: protoBals.map(String),
+      protoBals: (([A,B]) => ({ A, B }))(protoBals.map(String)),
       tokB: Number(tokB),
       tokA: Number(tokA),
     },

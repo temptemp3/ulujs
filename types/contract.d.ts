@@ -38,6 +38,7 @@ export class CONTRACT {
   arc200_transfer: any;
   arc200_balanceOf: any;
   arc200_allowance: any;
+  arc200_decimals: any;
   hasBalance: any;
   hasAllowance: any;
   hasBox: any;
@@ -82,4 +83,3 @@ export class CONTRACT {
   ChannelCreate: any;
   a_channeler_useChannel: any;
 }
-

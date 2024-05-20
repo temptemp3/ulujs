@@ -12,15 +12,18 @@ import mp from "./impl/mp/index.js";
 export { default as mp } from "./impl/mp/index.js";
 import nt200 from "./impl/nt200/index.js";
 export { default as nt200 } from "./impl/nt200/index.js";
+import swap from "./impl/swap/index.js";
+export { default as swap } from "./impl/swap/index.js";
 import abi from "./abi/index.js";
 export { default as abi } from "./abi/index.js";
 export default {
   CONTRACT,
+  abi,
   hsv2,
   arc72,
   arc200,
   swap200,
   mp,
   nt200,
-  abi,
+  swap,
 };

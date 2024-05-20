@@ -33,11 +33,9 @@ const prepareString = (str) => {
  * @returns: response
  */
 const handleResponse = (name, res) => {
-  /*
   if (process.env.DEBUG === "1") {
     console.log(`${name}: ${res.returnValue}`);
   }
-  */
   return res;
 };
 
@@ -331,8 +329,10 @@ export const Info = async (contractInstance) => {
   return {
     success: true,
     returnValue: {
-      lptBals: (([lpHeld,lpMinted]) => ({ lpHeld, lpMinted }))(lptBals.map(String)),
-      poolBals: (([A,B]) => ({ A, B }))(poolBals.map(String)),
+      lptBals: (([lpHeld, lpMinted]) => ({ lpHeld, lpMinted }))(
+        lptBals.map(String)
+      ),
+      poolBals: (([A, B]) => ({ A, B }))(poolBals.map(String)),
       protoInfo: {
         protoFee: Number(protoFee),
         lpFee: Number(lpFee),
@@ -340,7 +340,7 @@ export const Info = async (contractInstance) => {
         protoAddr,
         locked,
       },
-      protoBals: (([A,B]) => ({ A, B }))(protoBals.map(String)),
+      protoBals: (([A, B]) => ({ A, B }))(protoBals.map(String)),
       tokB: Number(tokB),
       tokA: Number(tokA),
     },

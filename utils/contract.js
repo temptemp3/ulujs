@@ -1,3 +1,4 @@
+import CONTRACT from "arccjs";
 export const makeConstructor = (contractId, abi) => {
   return new CONTRACT(
     contractId,

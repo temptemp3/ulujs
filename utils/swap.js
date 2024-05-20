@@ -1,4 +1,4 @@
-import { CONTRACT, abi } from "../index.js";
+import { abi } from "../index.js";
 import { makeConstructor, makeCtc } from "./contract.js";
 
 /*

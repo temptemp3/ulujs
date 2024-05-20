@@ -58,7 +58,7 @@ export const swap = async (contractInstance, addr, poolId, A, B) => {
       tokB: { contractId: B.contractId, abi: abi.arc200 },
       pool: { contractId: poolId, abi: abi.swap },
     };
-    const builder = makeBuilder(contracts);
+    const builder = makeBuilder(contractInstance, contracts);
     const [ciTokA, ciTokB, ciPool, ci] = [
       [A.contractId, abi.arc200],
       [B.contractId, abi.arc200],
@@ -336,6 +336,7 @@ export const swap = async (contractInstance, addr, poolId, A, B) => {
     }
     throw new Error("custom failed end");
   } catch (e) {
+    console.log(e);
     return {
       success: false,
       error: e.message,

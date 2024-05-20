@@ -16,7 +16,7 @@ export const makeCtc = (contractInstance, acc, contractId, abi) => {
   const { algodClient, indexerClient } = contractInstance;
   return new CONTRACT(contractId, algodClient, indexerClient, abi, acc);
 };
-export const makeBuilder = (contracts) => {
+export const makeBuilder = (contractInstance, contracts) => {
   return Object.fromEntries(
     Object.entries(contracts).map(([key, { contractId, abi }]) => [
       key,

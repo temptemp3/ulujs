@@ -69,8 +69,8 @@ if (!swapR.success) {
 
 ## Contributing
 
-Contributions to `arc200js` are welcome. Please adhere to the existing code style and ensure all tests pass.
+Contributions to `ulujs` are welcome. Please adhere to the existing code style and ensure all tests pass.
 
 ## License
 
-`arc200js` is [MIT licensed](./LICENSE).
+`ulujs` is [MIT licensed](./LICENSE).

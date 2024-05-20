@@ -1,5 +1,5 @@
 import CONTRACT from "arccjs";
-export const makeConstructor = (contractInstance, contractId, abi) => {
+export const makeConstructor = (contractInstance, acc, contractId, abi) => {
   const { algodClient, indexerClient } = contractInstance;
   return new CONTRACT(
     contractId,
@@ -12,7 +12,15 @@ export const makeConstructor = (contractInstance, contractId, abi) => {
     true
   );
 };
-export const makeCtc = (contractInstance, contractId, abi) => {
+export const makeCtc = (contractInstance, acc, contractId, abi) => {
   const { algodClient, indexerClient } = contractInstance;
   return new CONTRACT(contractId, algodClient, indexerClient, abi, acc);
+};
+export const makeBuilder = (contracts) => {
+  return Object.fromEntries(
+    Object.entries(contracts).map(([key, { contractId, abi }]) => [
+      key,
+      makeConstructor(contractInstance, acc, contractId, abi),
+    ])
+  );
 };

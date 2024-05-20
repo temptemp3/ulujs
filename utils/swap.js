@@ -1,5 +1,5 @@
 import { abi } from "../index.js";
-import { makeConstructor, makeCtc } from "./contract.js";
+import { makeBuilder, makeCtc } from "./contract.js";
 
 /*
  * Info
@@ -53,15 +53,20 @@ export const swap = async (contractInstance, addr, poolId, A, B) => {
       addr,
       sk: new Uint8Array(0),
     };
-    const builder = {
-      tokA: makeConstructor(contractInstance, A.contractId, abi.arc200),
-      tokB: makeConstructor(contractInstance, B.contractId, abi.arc200),
-      pool: makeConstructor(contractInstance, poolId, abi.swap),
+    const contracts = {
+      tokA: { contractId: A.contractId, abi: abi.arc200 },
+      tokB: { contractId: B.contractId, abi: abi.arc200 },
+      pool: { contractId: poolId, abi: abi.swap },
     };
-    const ciTokA = makeCtc(contractInstance, A.contractId, abi.arc200);
-    const ciTokB = makeCtc(contractInstance, B.contractId, abi.arc200);
-    const ciPool = makeCtc(contractInstance, poolId, abi.swap);
-    const ci = makeCtc(contractInstance, poolId, abi.custom);
+    const builder = makeBuilder(contracts);
+    const [ciTokA, ciTokB, ciPool, ci] = [
+      [A.contractId, abi.arc200],
+      [B.contractId, abi.arc200],
+      [poolId, abi.swap],
+      [poolId, abi.custom],
+    ].map(([contractId, abi]) =>
+      makeCtc(contractInstance, acc, contractId, abi)
+    );
     const infoR = await Info(contractInstance);
     if (!infoR.success) {
       throw new Error("Info failed");

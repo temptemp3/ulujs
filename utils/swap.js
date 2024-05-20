@@ -58,7 +58,7 @@ export const swap = async (contractInstance, addr, poolId, A, B) => {
       tokB: { contractId: B.contractId, abi: abi.arc200 },
       pool: { contractId: poolId, abi: abi.swap },
     };
-    const builder = makeBuilder(contractInstance, contracts);
+    const builder = makeBuilder(contractInstance, acc, contracts);
     const [ciTokA, ciTokB, ciPool, ci] = [
       [A.contractId, abi.arc200],
       [B.contractId, abi.arc200],

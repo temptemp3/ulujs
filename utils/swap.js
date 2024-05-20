@@ -49,20 +49,19 @@ export const swap = async (contractInstance, addr, poolId, A, B) => {
     };
   }
   try {
-    const { algodClient, indexerClient } = contractInstance;
     const acc = {
       addr,
       sk: new Uint8Array(0),
     };
     const builder = {
-      tokA: makeConstructor(A.contractId, abi.arc200),
-      tokB: makeConstructor(B.contractId, abi.arc200),
-      pool: makeConstructor(poolId, abi.swap),
+      tokA: makeConstructor(contractInstance, A.contractId, abi.arc200),
+      tokB: makeConstructor(contractInstance, B.contractId, abi.arc200),
+      pool: makeConstructor(contractInstance, poolId, abi.swap),
     };
-    const ciTokA = makeCtc(A.contractId, abi.arc200);
-    const ciTokB = makeCtc(B.contractId, abi.arc200);
-    const ciPool = makeCtc(poolId, abi.swap);
-    const ci = makeCtc(poolId, abi.custom);
+    const ciTokA = makeCtc(contractInstance, A.contractId, abi.arc200);
+    const ciTokB = makeCtc(contractInstance, B.contractId, abi.arc200);
+    const ciPool = makeCtc(contractInstance, poolId, abi.swap);
+    const ci = makeCtc(contractInstance, poolId, abi.custom);
     const infoR = await Info(contractInstance);
     if (!infoR.success) {
       throw new Error("Info failed");

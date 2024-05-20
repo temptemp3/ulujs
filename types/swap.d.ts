@@ -24,8 +24,24 @@ interface InfoI {
   tokA: number;
 }
 
+interface Asset {
+  contractId: number;
+  tokenId?: string | null;
+  amount?: string;
+  symbol?: string;
+  decimals?: string;
+}
+
 export class Contract extends arc200 {
   Info: () => Promise<
+    { success: true; returnValue: any } | { success: false; error: any }
+  >;
+  swap: (
+    addr: string,
+    poolId: number,
+    A: Asset,
+    B: Asset
+  ) => Promise<
     { success: true; returnValue: any } | { success: false; error: any }
   >;
 }

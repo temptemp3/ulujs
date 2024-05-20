@@ -158,6 +158,8 @@ class Contract {
   };
   // swap200 methods
   Info = async () => await Info(this.contractInstance);
+  swap = async (addr, poolId, A, B) =>
+    await swap(this.contractInstance, addr, poolId, A, B);
 }
 
 export default Contract;

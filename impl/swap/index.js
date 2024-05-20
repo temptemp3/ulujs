@@ -12,7 +12,7 @@ import {
   safe_arc200_transferFrom,
   safe_arc200_approve,
 } from "../../utils/arc200.js";
-import { Info } from "../../utils/swap.js";
+import { Info, swap } from "../../utils/swap.js";
 import { combineABI } from "../../utils/abi.js";
 import arc200Schema from "../../abi/arc200/index.js";
 import swap200Extension from "../../abi/swap/index.js";

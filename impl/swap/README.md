@@ -23,7 +23,7 @@ Import and initialize the `swap` library in your project:
 
 ```javascript
 import algosdk from "algosdk";
-import { arc200 as Contract } from "ulujs";
+import { swap as Contract } from "ulujs";
 
 // Initialize Algod client
 const algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);

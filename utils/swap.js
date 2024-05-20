@@ -1,3 +1,5 @@
+import algosdk from "algosdk";
+import BigNumber from "bignumber.js";
 import { abi } from "../index.js";
 import { makeBuilder, makeCtc } from "./contract.js";
 
@@ -54,8 +56,8 @@ export const swap = async (contractInstance, addr, poolId, A, B) => {
       sk: new Uint8Array(0),
     };
     const contracts = {
-      tokA: { contractId: A.contractId, abi: abi.arc200 },
-      tokB: { contractId: B.contractId, abi: abi.arc200 },
+      tokA: { contractId: A.contractId, abi: abi.nt200 },
+      tokB: { contractId: B.contractId, abi: abi.nt200 },
       pool: { contractId: poolId, abi: abi.swap },
     };
     const builder = makeBuilder(contractInstance, acc, contracts);
@@ -154,8 +156,7 @@ export const swap = async (contractInstance, addr, poolId, A, B) => {
                   )} from user address ${acc.addr}`
                 ),
               };
-            }
-            buildO.push(txnO);
+            buildO.push(txnO)
           }
           // -------------------------------------------
           // if voi/wvoi in

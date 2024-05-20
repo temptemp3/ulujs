@@ -42,6 +42,7 @@ export class Contract extends arc200 {
     A: Asset,
     B: Asset
   ) => Promise<
-    { success: true; returnValue: any } | { success: false; error: any }
+    | { success: true; txns: string[]; returnValue: any }
+    | { success: false; error: any }
   >;
 }

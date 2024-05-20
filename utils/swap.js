@@ -349,3 +349,16 @@ export const swap = async (contractInstance, addr, poolId, A, B) => {
     };
   }
 };
+
+export const rate = (info) => {
+  const { poolBals } = info;
+  const { A: poolA, B: poolB } = poolBals;
+  const poolASU = new BigNumber(poolA).dividedBy(
+    new BigNumber(10).pow(Number(decA))
+  );
+  const poolBSU = new BigNumber(poolB).dividedBy(
+    new BigNumber(10).pow(Number(decB))
+  );
+  const rate = poolBSU.dividedBy(poolASU).toNumber();
+  return rate;
+};

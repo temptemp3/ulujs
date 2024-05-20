@@ -12,7 +12,7 @@ import {
   safe_arc200_transferFrom,
   safe_arc200_approve,
 } from "../../utils/arc200.js";
-import { Info, swap } from "../../utils/swap.js";
+import { Info, rate, swap } from "../../utils/swap.js";
 import { combineABI } from "../../utils/abi.js";
 import arc200Schema from "../../abi/arc200/index.js";
 import swap200Extension from "../../abi/swap/index.js";
@@ -160,6 +160,7 @@ class Contract {
   Info = async () => await Info(this.contractInstance);
   swap = async (addr, poolId, A, B) =>
     await swap(this.contractInstance, addr, poolId, A, B);
+  static rate = async (info) => rate(info);
 }
 
 export default Contract;

@@ -45,4 +45,5 @@ export class Contract extends arc200 {
     | { success: true; txns: string[]; returnValue: any }
     | { success: false; error: any }
   >;
+  rate: (info: InfoI) => number;
 }

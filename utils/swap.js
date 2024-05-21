@@ -1,7 +1,8 @@
 import algosdk from "algosdk";
 import BigNumber from "bignumber.js";
-import { abi } from "../index.js";
+import { abi, swap as Contract } from "../index.js";
 import { makeBuilder, makeCtc } from "./contract.js";
+import { oneAddress } from "arccjs";
 
 /*
  * Info
@@ -350,9 +351,19 @@ export const swap = async (contractInstance, addr, poolId, A, B) => {
   }
 };
 
-export const rate = (info) => {
-  const { poolBals } = info;
+export const rate = (info, A, B) => {
+  console.log({ info, A, B })
+  const { poolBals, tokA: pTokA, tokB: pTokB } = info;
   const { A: poolA, B: poolB } = poolBals;
+  const decA = A?.decimals || 0;
+  const decB = B?.decimals || 0;
+  const tTokA = A?.tokenId || 0;
+  const tTokB = B?.tokenId || 0;
+  const valid = (pTokA === tTokA && pTokB === tTokB) || (pTokA === tTokB && pTokB === tTokA);
+  if (!valid) {
+    return 0;
+  }
+  const swapAForB = pTokA === tTokA && pTokB === tTokB;
   const poolASU = new BigNumber(poolA).dividedBy(
     new BigNumber(10).pow(Number(decA))
   );
@@ -360,5 +371,67 @@ export const rate = (info) => {
     new BigNumber(10).pow(Number(decB))
   );
   const rate = poolBSU.dividedBy(poolASU).toNumber();
-  return rate;
+  return swapAForB ? rate : 1 / rate;
 };
+
+export const k = (info) => {
+  const { poolBals } = info;
+  const { A: poolA, B: poolB } = poolBals;
+  const poolABN = new BigNumber(poolA);
+  const poolBBN = new BigNumber(poolB);
+  const k = poolABN.times(poolBBN);
+  return k;
+
+}
+
+export const selectPool = async (contractInstance, pools, A, B, method = "rate") => {
+  console.log({ pools, A, B })
+  const {
+    algodClient,
+    indexerClient,
+  } = contractInstance
+  let pool;
+  let maxRate = 0;
+  let maxK = new BigNumber(0);
+  let minRound = Number.MAX_SAFE_INTEGER;
+  for (const p of pools) {
+    const { poolId, round } = p;
+    const ci = new Contract(poolId, algodClient, indexerClient, abi.swap);
+    const infoR = await ci.Info(contractInstance)
+    if (!infoR.success) throw new Error("Failed to get pool info");
+    const info = infoR.returnValue;
+    switch(method) {
+      default:
+      case "rate": {
+        const exchangeRate = rate(
+          info,
+          A,
+          B
+        );
+        console.log({ exchangeRate, rate: exchangeRate });
+        if (maxRate < exchangeRate) {
+          pool = { ...p, rate: exchangeRate };
+          maxRate = exchangeRate;
+        }
+        break;
+      } 
+      case "k": {
+        const cp = k(info)
+        if(maxK.lt(cp)) {
+          pool = { ...p, k: cp.toString() }
+          maxK = cp
+        }
+        break;
+      }
+      case "round": {
+        if(minRound > round) {
+          pool = { ...p, round }
+          minRound = round
+        }
+        break;
+      }
+    }
+  }
+  return pool;
+}
+

@@ -29,7 +29,7 @@ interface Asset {
   tokenId?: string | null;
   amount?: string;
   symbol?: string;
-  decimals?: string;
+  decimals?: number;
 }
 
 export class Contract extends arc200 {
@@ -45,5 +45,6 @@ export class Contract extends arc200 {
     | { success: true; txns: string[]; returnValue: any }
     | { success: false; error: any }
   >;
-  rate: (info: InfoI) => number;
+  static rate: (info: InfoI, A: any, B: any) => number;
+  selectPool: (pools: any[], A: any, B: any, method?: "rate"|"k"|"round") => any;
 }

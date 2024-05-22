@@ -19,9 +19,7 @@ const swapSchemaHumbleOnlyMethods = [
     readonly: true,
   },
 ];
-const swapSchemaMethods = [
-  ...swapSchemaHumbleOnlyMethods,
-];
+const swapSchemaMethods = [...swapSchemaHumbleOnlyMethods];
 const swapSchemaHumbleOnlyEvents = [
   {
     name: "HarvestEvent",
@@ -33,7 +31,7 @@ const swapSchemaHumbleOnlyEvents = [
       },
     ],
   },
-]
+];
 const swapSchemaEvents = [
   ...swapSchemaHumbleOnlyEvents,
   ...["Deposit", "DepositEvent"].map((el) => ({
@@ -87,7 +85,7 @@ const swapSchemaEvents = [
     ],
   })),
   ...["Withdraw", "WithdrawEvent"].map((el) => ({
-    name: "Withdraw",
+    name: el,
     args: [
       {
         type: "address",
@@ -111,17 +109,11 @@ const swapSchemaEvents = [
       },
     ],
   })),
-]
+];
 const swapSchema = {
   name: "Swap ABI",
   desc: "ABI for the HumbleSwap and Nomadex contracts",
-  methods: [
-    ...arc200Schema.methods,
-    ...swapSchemaMethods,   
-  ],
-  events: [
-    ...arc200Schema.events,
-    ...swapSchemaEvents,
-  ],
+  methods: [...arc200Schema.methods, ...swapSchemaMethods],
+  events: [...arc200Schema.events, ...swapSchemaEvents],
 };
 export default swapSchema;

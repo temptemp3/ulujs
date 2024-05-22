@@ -1,26 +1,127 @@
-const swapSchema = {
-  name: "",
-  desc: "",
-  methods: [
-    {
-      name: "Trader_swapAForB",
-      args: [{ type: "byte" }, { type: "uint256" }, { type: "uint256" }],
-      returns: { type: "(uint256,uint256)" },
+import arc200Schema from "../arc200/index.js";
+const swapSchemaHumbleOnlyMethods = [
+  {
+    name: "Trader_swapAForB",
+    args: [{ type: "byte" }, { type: "uint256" }, { type: "uint256" }],
+    returns: { type: "(uint256,uint256)" },
+  },
+  {
+    name: "Trader_swapBForA",
+    args: [{ type: "byte" }, { type: "uint256" }, { type: "uint256" }],
+    returns: { type: "(uint256,uint256)" },
+  },
+  {
+    name: "Info",
+    args: [],
+    returns: {
+      type: "((uint256,uint256),(uint256,uint256),(uint256,uint256,uint256,address,byte),(uint256,uint256),uint64,uint64)",
     },
-    {
-      name: "Trader_swapBForA",
-      args: [{ type: "byte" }, { type: "uint256" }, { type: "uint256" }],
-      returns: { type: "(uint256,uint256)" },
-    },
-    {
-      name: "Info",
-      args: [],
-      returns: {
-        type: "((uint256,uint256),(uint256,uint256),(uint256,uint256,uint256,address,byte),(uint256,uint256),uint64,uint64)",
+    readonly: true,
+  },
+];
+const swapSchemaMethods = [
+  ...swapSchemaHumbleOnlyMethods,
+];
+const swapSchemaHumbleOnlyEvents = [
+  {
+    name: "HarvestEvent",
+    args: [
+      {
+        type: "(uint256,uint256,uint256,address,byte)",
+        name: "protoInfo",
+        desc: "The protocol information (Humble only)",
       },
-      readonly: true,
-    },
+    ],
+  },
+]
+const swapSchemaEvents = [
+  ...swapSchemaHumbleOnlyEvents,
+  ...["Deposit", "DepositEvent"].map((el) => ({
+    name: el,
+    args: [
+      {
+        type: "address",
+        name: "who",
+        desc: "The address of the user who initiated the deposit",
+      },
+      {
+        type: "(uint256,uint256)",
+        name: "inBals",
+        desc: "The input balances of the deposit",
+      },
+      {
+        type: "uint256",
+        name: "lpOut",
+        desc: "The amount of LP tokens minted",
+      },
+      {
+        type: "(uint256,uint256)",
+        name: "poolBals",
+        desc: "The pool balances after the deposit",
+      },
+    ],
+  })),
+  ...["Swap", "SwapEvent"].map((el) => ({
+    name: el,
+    args: [
+      {
+        type: "address",
+        name: "who",
+        desc: "The address of the user who initiated the swap",
+      },
+      {
+        type: "(uint256,uint256)",
+        name: "inBals",
+        desc: "The input balances of the swap",
+      },
+      {
+        type: "(uint256,uint256)",
+        name: "outBals",
+        desc: "The output balances of the swap",
+      },
+      {
+        type: "(uint256,uint256)",
+        name: "poolBals",
+        desc: "The pool balances after the swap",
+      },
+    ],
+  })),
+  ...["Withdraw", "WithdrawEvent"].map((el) => ({
+    name: "Withdraw",
+    args: [
+      {
+        type: "address",
+        name: "who",
+        desc: "The address of the user who initiated the withdrawal",
+      },
+      {
+        type: "uint256",
+        name: "lpIn",
+        desc: "The amount of LP tokens withdrawn",
+      },
+      {
+        type: "(uint256,uint256)",
+        name: "outBals",
+        desc: "The output balances of the withdrawal",
+      },
+      {
+        type: "(uint256,uint256)",
+        name: "poolBals",
+        desc: "The pool balances after the withdrawal",
+      },
+    ],
+  })),
+]
+const swapSchema = {
+  name: "Swap ABI",
+  desc: "ABI for the HumbleSwap and Nomadex contracts",
+  methods: [
+    ...arc200Schema.methods,
+    ...swapSchemaMethods,   
   ],
-  events: [],
+  events: [
+    ...arc200Schema.events,
+    ...swapSchemaEvents,
+  ],
 };
 export default swapSchema;

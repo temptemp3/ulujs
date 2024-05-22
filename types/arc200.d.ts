@@ -1,8 +1,7 @@
-type ContractEvent = [
-  string, // Transaction ID
-  number, // Round
-  number // Timestamp
-];
+import { ContractEvent, EventQuery } from "./event";
+
+// ARC-200 specific events
+
 type TransferEvent = [
   ...ContractEvent,
   string, // From
@@ -15,14 +14,6 @@ type ApprovalEvent = [
   string, // Spender
   bigint // Amount
 ];
-type EventQuery = {
-  minRound?: number;
-  maxRound?: number;
-  address?: string;
-  sender?: string;
-  round?: number;
-  txid?: string;
-};
 
 export class Contract {
   constructor(

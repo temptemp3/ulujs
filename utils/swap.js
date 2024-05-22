@@ -2,7 +2,45 @@ import algosdk from "algosdk";
 import BigNumber from "bignumber.js";
 import { abi, swap as Contract } from "../index.js";
 import { makeBuilder, makeCtc } from "./contract.js";
-import { oneAddress } from "arccjs";
+
+export const decodeSwapEvent = (event) => {
+  const [txId, round, ts, who, inBals, outBals, poolBals] = event;
+  return {
+    txId,
+    round,
+    ts,
+    who,
+    inBals: (([A, B]) => ({ A, B }))(inBals.map(String)),
+    outBals: (([A, B]) => ({ A, B }))(outBals.map(String)),
+    poolBals: (([A, B]) => ({ A, B }))(poolBals.map(String)),
+  };
+};
+
+export const decodeWithdrawEvent = (event) => {
+  const [txId, round, ts, who, lpIn, outBals, poolBals] = event;
+  return {
+    txId,
+    round,
+    ts,
+    who,
+    lpIn: String(lpIn),
+    outBals: (([A, B]) => ({ A, B }))(outBals.map(String)),
+    poolBals: (([A, B]) => ({ A, B }))(poolBals.map(String)),
+  };
+};
+
+export const decodeDepositEvent = (event) => {
+  const [txId, round, ts, who, inBals, lpOut, poolBals] = event;
+  return {
+    txId,
+    round,
+    ts,
+    who,
+    inBals: (([A, B]) => ({ A, B }))(inBals.map(String)),
+    lpOut: String(lpOut),
+    poolBals: (([A, B]) => ({ A, B }))(poolBals.map(String)),
+  };
+};
 
 /*
  * Info
@@ -352,14 +390,16 @@ export const swap = async (contractInstance, addr, poolId, A, B) => {
 };
 
 export const rate = (info, A, B) => {
-  console.log({ info, A, B })
+  console.log({ info, A, B });
   const { poolBals, tokA: pTokA, tokB: pTokB } = info;
   const { A: poolA, B: poolB } = poolBals;
   const decA = A?.decimals || 0;
   const decB = B?.decimals || 0;
   const tTokA = A?.tokenId || 0;
   const tTokB = B?.tokenId || 0;
-  const valid = (pTokA === tTokA && pTokB === tTokB) || (pTokA === tTokB && pTokB === tTokA);
+  const valid =
+    (pTokA === tTokA && pTokB === tTokB) ||
+    (pTokA === tTokB && pTokB === tTokA);
   if (!valid) {
     return 0;
   }
@@ -381,15 +421,17 @@ export const k = (info) => {
   const poolBBN = new BigNumber(poolB);
   const k = poolABN.times(poolBBN);
   return k;
+};
 
-}
-
-export const selectPool = async (contractInstance, pools, A, B, method = "rate") => {
-  console.log({ pools, A, B })
-  const {
-    algodClient,
-    indexerClient,
-  } = contractInstance
+export const selectPool = async (
+  contractInstance,
+  pools,
+  A,
+  B,
+  method = "rate"
+) => {
+  console.log({ pools, A, B });
+  const { algodClient, indexerClient } = contractInstance;
   let pool;
   let maxRate = 0;
   let maxK = new BigNumber(0);
@@ -397,41 +439,36 @@ export const selectPool = async (contractInstance, pools, A, B, method = "rate")
   for (const p of pools) {
     const { poolId, round } = p;
     const ci = new Contract(poolId, algodClient, indexerClient, abi.swap);
-    const infoR = await ci.Info(contractInstance)
+    const infoR = await ci.Info(contractInstance);
     if (!infoR.success) throw new Error("Failed to get pool info");
     const info = infoR.returnValue;
-    switch(method) {
+    switch (method) {
       default:
       case "rate": {
-        const exchangeRate = rate(
-          info,
-          A,
-          B
-        );
+        const exchangeRate = rate(info, A, B);
         console.log({ exchangeRate, rate: exchangeRate });
         if (maxRate < exchangeRate) {
           pool = { ...p, rate: exchangeRate };
           maxRate = exchangeRate;
         }
         break;
-      } 
+      }
       case "k": {
-        const cp = k(info)
-        if(maxK.lt(cp)) {
-          pool = { ...p, k: cp.toString() }
-          maxK = cp
+        const cp = k(info);
+        if (maxK.lt(cp)) {
+          pool = { ...p, k: cp.toString() };
+          maxK = cp;
         }
         break;
       }
       case "round": {
-        if(minRound > round) {
-          pool = { ...p, round }
-          minRound = round
+        if (minRound > round) {
+          pool = { ...p, round };
+          minRound = round;
         }
         break;
       }
     }
   }
   return pool;
-}
-
+};

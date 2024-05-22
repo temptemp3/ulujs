@@ -111,16 +111,20 @@ export class Contract extends arc200 {
     | { success: false; error: any }
   >;
   static rate: (info: InfoI, A: any, B: any) => number;
+  static decodeWithdrawEvent: (event: WithdrawEvent) => WithdrawI;
+  static decodeDepositEvent: (event: DepositEvent) => DepositI;
+  static decodeSwapEvent: (event: SwapEvent) => SwapI;
+  static decodeHarvestEvent: (event: HarvestEvent) => HarvestI;
   selectPool: (
     pools: any[],
     A: any,
     B: any,
     method?: PoolSelectionMethod
   ) => any;
-  Withdraw(query?: EventQuery): Promise<WithdrawEvent[]>;
-  Deposit(query?: EventQuery): Promise<DepositEvent[]>;
-  Swap(query?: EventQuery): Promise<SwapEvent[]>;
-  Harvest(query?: EventQuery): Promise<HarvestEvent[]>;
+  WithdrawEvents(query?: EventQuery): Promise<WithdrawEvent[]>;
+  DepositEvents(query?: EventQuery): Promise<DepositEvent[]>;
+  SwapEvents(query?: EventQuery): Promise<SwapEvent[]>;
+  HarvestEvents(query?: EventQuery): Promise<HarvestEvent[]>;
   getEvents(query: EventQuery): Promise<
     [
       // arc200 events
@@ -142,28 +146,24 @@ export class Contract extends arc200 {
         signature: string;
         selector: string;
         events: WithdrawEvent[];
-        decode: (event: WithdrawEvent) => WithdrawI;
       },
       {
         name: "Deposit";
         signature: string;
         selector: string;
         events: DepositEvent[];
-        decode: (event: DepositEvent) => DepositI;
       },
       {
         name: "Swap";
         signature: string;
         selector: string;
         events: SwapEvent[];
-        decode: (event: SwapEvent) => SwapI;
       },
       {
         name: "Harvest";
         signature: string;
         selector: string;
         events: HarvestEvent[];
-        decode: (event: HarvestEvent) => HarvestI;
       }
     ]
   >;

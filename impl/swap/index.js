@@ -1,21 +1,14 @@
-import CONTRACT, { oneAddress, prepareString } from "arccjs";
+import CONTRACT, { oneAddress } from "arccjs";
 import ARC200Contract from "../arc200/index.js";
 import {
-  arc200_name,
-  arc200_symbol,
-  arc200_totalSupply,
-  arc200_decimals,
-  arc200_balanceOf,
-  arc200_allowance,
-  hasBalance,
-  hasAllowance,
-  safe_arc200_transfer,
-  safe_arc200_transferFrom,
-  safe_arc200_approve,
-} from "../../utils/arc200.js";
-import { Info, rate, selectPool, swap } from "../../utils/swap.js";
-import { combineABI } from "../../utils/abi.js";
-import arc200Schema from "../../abi/arc200/index.js";
+  Info,
+  rate,
+  selectPool,
+  swap,
+  decodeDepositEvent,
+  decodeWithdrawEvent,
+  decodeSwapEvent,
+} from "../../utils/swap.js";
 import swap200Extension from "../../abi/swap/index.js";
 
 // :'######::'##:::::'##::::'###::::'########::
@@ -48,7 +41,7 @@ class Contract extends ARC200Contract {
       contractId,
       algodClient,
       indexerClient,
-      combineABI(swap200Extension),
+      swap200Extension,
       opts.acc,
       opts.simulate,
       opts.waitForConfirmation
@@ -58,6 +51,10 @@ class Contract extends ARC200Contract {
   swap = async (addr, poolId, A, B) =>
     await swap(this.ciSwap, addr, poolId, A, B);
   static rate = (info, A, B) => rate(info, A, B);
+  static decodeDepositEvent = (event) => decodeDepositEvent(event);
+  static decodeWithdrawEvent = (event) => decodeWithdrawEvent(event);
+  static decodeSwapEvent = (event) => decodeSwapEvent(event);
+  // TODO add decodeHarvestEvent
   selectPool = async (pools, A, B, method) =>
     await selectPool(this.ciSwap, pools, A, B, method);
   getEvents = async (query) => {

@@ -20,6 +20,10 @@ import swap200Extension from "../../abi/swap/index.js";
 // . ######::. ###. ###:: ##:::: ##: ##::::::::
 // :......::::...::...:::..:::::..::..:::::::::
 
+const selectEvent = (events, names) =>
+  events.find((e) => names.includes(e.name) && e.events.length > 0)?.events ||
+  [];
+
 /*
  * Contract class
  * - wrapper for CONTRACT class
@@ -60,10 +64,19 @@ class Contract extends ARC200Contract {
   getEvents = async (query) => {
     return await this.ciSwap.getEvents(query);
   };
-  WithdrawEvents = async (query) => await this.ciSwap.WithdrawEvent(query);
-  DepositEvents = async (query) => await this.ciSwap.DepositEvent(query);
-  SwapEvents = async (query) => await this.ciSwap.SwapEvent(query);
-  HarvestEvents = async (query) => await this.ciSwap.HarvestEvent(query);
+  WithdrawEvents = async (query) =>
+    selectEvent(await this.ciSwap.getEvents(query), [
+      "Withdraw",
+      "WithdrawEvent",
+    ]);
+  DepositEvents = async (query) =>
+    selectEvent(await this.ciSwap.getEvents(query), [
+      "Deposit",
+      "DepositEvent",
+    ]);
+  SwapEvents = async (query) =>
+    selectEvent(await this.ciSwap.getEvents(query), ["Swap", "SwapEvent"]);
+  HarvestEvents = async (query) => await this.ciSwap.HarvestEvents(query);
 }
 
 export default Contract;

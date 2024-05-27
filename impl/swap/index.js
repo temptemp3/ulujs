@@ -5,6 +5,7 @@ import {
   rate,
   selectPool,
   swap,
+  deposit,
   decodeDepositEvent,
   decodeWithdrawEvent,
   decodeSwapEvent,

@@ -437,18 +437,18 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
 
     const amtAi = BigInt(
       new BigNumber(A.amount).times(new BigNumber(10).pow(decA)).toFixed(0)
-    
-      );
+    );
+
     const decBR = await ciTokB.arc200_decimals();
     if (!decBR.success) {
       console.log("decB failed");
       return;
     }
     const decB = Number(decBR.returnValue);
-    
+
     const amtBi = BigInt(
       new BigNumber(B.amount).times(new BigNumber(10).pow(decB)).toFixed(0)
-      );
+    );
 
     const balAR = await ciTokA.arc200_balanceOf(acc.addr);
     if (!balAR.success) {
@@ -460,7 +460,7 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
         `Deposit abort insufficient ${A.symbol} balance (${new BigNumber(
           (balA - amtAi).toString()
         )
-          
+
           .dividedBy(new BigNumber(10).pow(Number(decA)))
           .toFixed(Math.min(3, Number(decA)))} ${A.symbol})`
       );
@@ -506,7 +506,6 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
     const simR = await ciPool.Provider_deposit(1, [amtAi, amtBi], 0);
     if (!simR.success) throw new Error("Abort deposit no return");
 
-
     let customR;
     for (const p4 of /*tokA vsa deposit*/ [0, 28500]) {
       for (const p3 of /*tokB vsa deposit */ [0, 28500]) {
@@ -524,9 +523,9 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
               !isNaN(Number(A.tokenId)) &&
               Number(A.tokenId) > 0
             ) {
-              const { obj } = await builder.tokA.deposit(inABi);
+              const { obj } = await builder.tokA.deposit(amtAi);
               const payment = p4;
-              const aamt = inABi;
+              const aamt = amtAi;
               const xaid = Number(A.tokenId);
               const txnO = {
                 ...obj,
@@ -534,7 +533,7 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
                 aamt,
                 payment,
                 note: new TextEncoder().encode(
-                  `Deposit ${new BigNumber(inABn.toString()).dividedBy(
+                  `Deposit ${new BigNumber(amtAi.toString()).dividedBy(
                     new BigNumber(10)
                       .pow(Number(A.decimals))
                       .toFixed(Number(A.decimals))
@@ -553,26 +552,27 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
               !isNaN(Number(B.tokenId)) &&
               Number(B.tokenId) > 0
             ) {
-              const { obj } = await builder.tokB.deposit(inBBi);
+              const { obj } = await builder.tokB.deposit(amtBi);
               const payment = p3;
-              const aamt = inBBi;
+              const aamt = amtBi;
               const xaid = Number(B.tokenId);
+              const note = new TextEncoder().encode(
+                `Deposit ${new BigNumber(amtBi.toString()).dividedBy(
+                  new BigNumber(10)
+                    .pow(Number(B.decimals))
+                    .toFixed(Number(B.decimals))
+                )} ${
+                  B.symbol
+                } to application address ${algosdk.getApplicationAddress(
+                  B.contractId
+                )} from user address ${acc.addr}`
+              );
               const txnO = {
                 ...obj,
                 xaid,
                 aamt,
                 payment,
-                note: new TextEncoder().encode(
-                  `Deposit ${new BigNumber(inBBn.toString()).dividedBy(
-                    new BigNumber(10)
-                      .pow(Number(B.decimals))
-                      .toFixed(Number(B.decimals))
-                  )} ${
-                    B.symbol
-                  } to application address ${algosdk.getApplicationAddress(
-                    B.contractId
-                  )} from user address ${acc.addr}`
-                ),
+                note,
               };
               buildO.push(txnO);
             }
@@ -583,10 +583,10 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
             // -------------------------------------------
             if (A.tokenId === "0") {
               // Add box creation
-              const { obj } = await builder.tokA.deposit(inABi);
-              const payment = inABi;
+              const { obj } = await builder.tokA.deposit(amtAi);
+              const payment = amtAi;
               const note = new TextEncoder().encode(
-                `Deposit ${inABn.dividedBy(
+                `Deposit ${amtAi.dividedBy(
                   new BigNumber(10)
                     .pow(Number(A.decimals))
                     .toFixed(Number(A.decimals))
@@ -605,10 +605,10 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
             }
             if (B.tokenId === "0") {
               // Add box creation
-              const { obj } = await builder.tokB.deposit(inBBi);
-              const payment = inBBi;
+              const { obj } = await builder.tokB.deposit(amtBi);
+              const payment = amtBi;
               const note = new TextEncoder().encode(
-                `Deposit ${inBBn.dividedBy(
+                `Deposit ${amtBi.dividedBy(
                   new BigNumber(10)
                     .pow(Number(B.decimals))
                     .toFixed(Number(B.decimals))
@@ -667,7 +667,7 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
             do {
               const { obj } = await builder.pool.Provider_deposit(
                 0,
-                [inABi, inBBi],
+                [amtAi, amtBi],
                 simR.returnValue
               );
               const note = new TextEncoder().encode("Provider_deposit");
@@ -717,10 +717,6 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
     };
   }
 };
-
-
-
-
 
 export const rate = (info, A, B) => {
   console.log({ info, A, B });

@@ -635,7 +635,15 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
                 newArc200_allowanceA
               );
               const payment = p1;
-              const note = new TextEncoder().encode("arc200_approve");
+              const note = new TextEncoder().encode(`
+              arc200_approve ${new BigNumber(amtAi.toString()).dividedBy(
+                new BigNumber(10).pow(Number(decA)).toFixed(Number(decA))
+              )} ${
+                A.symbol
+              } to application address ${algosdk.getApplicationAddress(
+                poolId
+              )} from user address ${acc.addr}
+              `);
               const txnO = {
                 ...obj,
                 payment,
@@ -653,7 +661,15 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
                 newArc200_allowanceB
               );
               const payment = p2;
-              const note = new TextEncoder().encode("arc200_approve");
+              const note = new TextEncoder().encode(`
+              arc200_approve ${new BigNumber(amtBi.toString()).dividedBy(
+                new BigNumber(10).pow(Number(decB)).toFixed(Number(decB))
+              )} ${
+                B.symbol
+              } to application address ${algosdk.getApplicationAddress(
+                poolId
+              )} from user address ${acc.addr}
+              `);
               const txnO = {
                 ...obj,
                 payment,
@@ -670,7 +686,17 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
                 [amtAi, amtBi],
                 simR.returnValue
               );
-              const note = new TextEncoder().encode("Provider_deposit");
+              const note = new TextEncoder().encode(`
+              Provider_deposit ${new BigNumber(amtAi.toString()).dividedBy(
+                new BigNumber(10).pow(Number(decA)).toFixed(Number(decA))
+              )} ${A.symbol} and ${new BigNumber(amtBi.toString()).dividedBy(
+                new BigNumber(10).pow(Number(decB)).toFixed(Number(decB))
+              )} ${
+                B.symbol
+              } to application address ${algosdk.getApplicationAddress(
+                poolId
+              )} from user address ${acc.addr}
+              `);
               const txnO = {
                 ...obj,
                 note,

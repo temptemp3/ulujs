@@ -10,6 +10,7 @@ import {
   decodeSwapEvent,
 } from "../../utils/swap.js";
 import swap200Extension from "../../abi/swap/index.js";
+import pkg from "../../package.json" assert { type: "json" };
 
 // :'######::'##:::::'##::::'###::::'########::
 // '##... ##: ##:'##: ##:::'## ##::: ##.... ##:
@@ -41,7 +42,7 @@ class Contract extends ARC200Contract {
     }
   ) {
     super(contractId, algodClient, indexerClient, opts);
-    this.ciSwap = new CONTRACT(
+    const ci = new CONTRACT(
       contractId,
       algodClient,
       indexerClient,
@@ -50,6 +51,8 @@ class Contract extends ARC200Contract {
       opts.simulate,
       opts.waitForConfirmation
     );
+    ci.setAgentName(`ulujs-${pkg.version}`);
+    this.ciSwap = ci;
   }
   Info = async () => await Info(this.ciSwap);
   swap = async (addr, poolId, A, B) =>

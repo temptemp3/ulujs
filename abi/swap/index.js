@@ -18,6 +18,15 @@ const swapSchemaHumbleOnlyMethods = [
     },
     readonly: true,
   },
+  {
+    name: "Provider_deposit",
+    args: [
+      { type: "byte" },
+      { type: "(uint256,uint256)" },
+      { type: "uint256" },
+    ],
+    returns: { type: "uint256" },
+  },
 ];
 const swapSchemaMethods = [...swapSchemaHumbleOnlyMethods];
 const swapSchemaHumbleOnlyEvents = [

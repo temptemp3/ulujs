@@ -110,6 +110,15 @@ export class Contract extends arc200 {
     | { success: true; txns: string[]; returnValue: any }
     | { success: false; error: any }
   >;
+  deposit: (
+    addr: string,
+    poolId: number,
+    A: Asset,
+    B: Asset
+  ) => Promise<
+    | { success: true; txns: string[]; returnValue: any }
+    | { success: false; error: any }
+  >;
   static rate: (info: InfoI, A: any, B: any) => number;
   static decodeWithdrawEvent: (event: WithdrawEvent) => WithdrawI;
   static decodeDepositEvent: (event: DepositEvent) => DepositI;

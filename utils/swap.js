@@ -455,34 +455,36 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
       throw new Error("balA failed");
     }
     const balA = balAR.returnValue;
-    if (amtAi > balA) {
-      throw new Error(
-        `Deposit abort insufficient ${A.symbol} balance (${new BigNumber(
-          (balA - amtAi).toString()
-        )
+    // TODO should ignore for wrapped asset
+    // if (A.tokenId !== "0" && amtAi > balA) {
+    //   throw new Error(
+    //     `Deposit abort insufficient ${A.symbol} balance (${new BigNumber(
+    //       (balA - amtAi).toString()
+    //     )
 
-          .dividedBy(new BigNumber(10).pow(Number(decA)))
-          .toFixed(Math.min(3, Number(decA)))} ${A.symbol})`
-      );
-    }
+    //       .dividedBy(new BigNumber(10).pow(Number(decA)))
+    //       .toFixed(Math.min(3, Number(decA)))} ${A.symbol})`
+    //   );
+    // }
     const balBR = await ciTokB.arc200_balanceOf(acc.addr);
     if (!balBR.success) {
       throw new Error("balB failed");
     }
     const balB = balBR.returnValue;
-    if (amtBi > balB) {
-      throw new Error(
-        `Deposit abort insufficient ${B.symbol} balance (${new BigNumber(
-          (balB - amtBi).toString()
-        )
-          .dividedBy(new BigNumber(10).pow(Number(decB)))
-          .toFixed(Math.min(3, Number(decB)))} ${B.symbol})`
-      );
-    }
+    // TODO should ignore for wrapped asset
+    // if (B.tokenId !== "0" && amtBi > balB) {
+    //   throw new Error(
+    //     `Deposit abort insufficient ${B.symbol} balance (${new BigNumber(
+    //       (balB - amtBi).toString()
+    //     )
+    //       .dividedBy(new BigNumber(10).pow(Number(decB)))
+    //       .toFixed(Math.min(3, Number(decB)))} ${B.symbol})`
+    //   );
+    // }
 
     // calculate new allowances
 
-    const arc200_allowanceAR = await ciA.arc200_allowance(
+    const arc200_allowanceAR = await ciTokA.arc200_allowance(
       acc.addr,
       algosdk.getApplicationAddress(poolId)
     );
@@ -491,7 +493,7 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
     const arc200_allowanceA = arc200_allowanceAR.returnValue;
     const newArc200_allowanceA = arc200_allowanceA + amtAi;
 
-    const arc200_allowanceBR = await ciB.arc200_allowance(
+    const arc200_allowanceBR = await ciTokB.arc200_allowance(
       acc.addr,
       algosdk.getApplicationAddress(poolId)
     );
@@ -586,7 +588,7 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
               const { obj } = await builder.tokA.deposit(amtAi);
               const payment = amtAi;
               const note = new TextEncoder().encode(
-                `Deposit ${amtAi.dividedBy(
+                `Deposit ${(new BigNumber(amtAi.toString())).dividedBy(
                   new BigNumber(10)
                     .pow(Number(A.decimals))
                     .toFixed(Number(A.decimals))
@@ -608,7 +610,7 @@ export const deposit = async (contractInstance, addr, poolId, A, B) => {
               const { obj } = await builder.tokB.deposit(amtBi);
               const payment = amtBi;
               const note = new TextEncoder().encode(
-                `Deposit ${amtBi.dividedBy(
+                `Deposit ${(new BigNumber(amtBi.toString())).dividedBy(
                   new BigNumber(10)
                     .pow(Number(B.decimals))
                     .toFixed(Number(B.decimals))

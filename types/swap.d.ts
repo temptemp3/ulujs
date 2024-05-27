@@ -94,7 +94,7 @@ interface Asset {
   tokenId?: string | null;
   amount?: string;
   symbol?: string;
-  decimals?: number;
+  decimals?: string;
 }
 
 export class Contract extends arc200 {

@@ -86,4 +86,5 @@ export class CONTRACT {
   a_swap_execute: any;
   a_swap_list: any;
   e_swap_ListEvent: any;
+  v_swap_listingByIndex: any;
 }

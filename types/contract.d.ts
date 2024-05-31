@@ -82,4 +82,6 @@ export class CONTRACT {
   // channels
   ChannelCreate: any;
   a_channeler_useChannel: any;
+  // mechaswap
+  a_swap_execute: any;
 }

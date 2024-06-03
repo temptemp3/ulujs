@@ -203,13 +203,12 @@ export const swap = async (contractInstance, addr, poolId, A, B) => {
             //   1 deposit x
             // -------------------------------------------
             if (A.tokenId === "0") {
-              // if (p3 > 0) {
-              //   const obj0 = (await builder.tokA.createBalanceBox(acc.addr))
-              //     .obj;
-              //   const payment = p3;
-              //   console.log({ obj0, payment });
-              //   buildO.push({ ...obj0, payment });
-              // }
+              if (p3 > 0) {
+                const obj0 = (await builder.tokA.createBalanceBox(acc.addr))
+                  .obj;
+                const payment = p3;
+                buildO.push({ ...obj0, payment });
+              }
               const { obj } = await builder.tokA.deposit(amtBi);
               const payment = amtBi;
               const note = new TextEncoder().encode(

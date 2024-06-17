@@ -1,7 +1,7 @@
 import { ContractEvent, EventI } from "./event";
 import { ApprovalEvent, TransferEvent, Contract as arc200 } from "./arc200";
 
-type PoolSelectionMethod = "rate" | "k" | "round";
+type PoolSelectionMethod = "rate" | "k" | "round" | "poolId";
 
 interface BalsI {
   A: string;

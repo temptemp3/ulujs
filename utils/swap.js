@@ -822,7 +822,7 @@ export const selectPool = async (
   pools,
   A,
   B,
-  method = "rate"
+  method = "poolId"
 ) => {
   console.log({ pools, A, B });
   const { algodClient, indexerClient } = contractInstance;
@@ -830,6 +830,7 @@ export const selectPool = async (
   let maxRate = 0;
   let maxK = new BigNumber(0);
   let minRound = Number.MAX_SAFE_INTEGER;
+  let minPoolId = Number.MAX_SAFE_INTEGER;
   for (const p of pools) {
     const { poolId, round } = p;
     const ci = new Contract(poolId, algodClient, indexerClient, abi.swap);
@@ -839,6 +840,7 @@ export const selectPool = async (
     switch (method) {
       default:
       case "rate": {
+        // TODO depreciate
         const exchangeRate = rate(info, A, B);
         console.log({ exchangeRate, rate: exchangeRate });
         if (maxRate < exchangeRate) {
@@ -848,6 +850,7 @@ export const selectPool = async (
         break;
       }
       case "k": {
+        // TODO depreciate
         const cp = k(info);
         if (maxK.lt(cp)) {
           pool = { ...p, k: cp.toString() };
@@ -856,11 +859,18 @@ export const selectPool = async (
         break;
       }
       case "round": {
+        // TODO depreciate
         if (minRound > round) {
           pool = { ...p, round };
           minRound = round;
         }
         break;
+      }
+      case "poolId": {
+        if (minPoolId > poolId) {
+          pool = { ...p, poolId };
+          minPoolId = poolId;
+        }
       }
     }
   }

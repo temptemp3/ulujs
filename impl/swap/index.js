@@ -58,8 +58,8 @@ class Contract extends ARC200Contract {
   Info = async () => await Info(this.ciSwap);
   swap = async (addr, poolId, A, B) =>
     await swap(this.ciSwap, addr, poolId, A, B);
-  deposit = async (addr, poolId, A, B) =>
-    await deposit(this.ciSwap, addr, poolId, A, B);
+  deposit = async (addr, poolId, A, B, extraTxns) =>
+    await deposit(this.ciSwap, addr, poolId, A, B, extraTxns);
   static rate = (info, A, B) => rate(info, A, B);
   static decodeDepositEvent = (event) => decodeDepositEvent(event);
   static decodeWithdrawEvent = (event) => decodeWithdrawEvent(event);

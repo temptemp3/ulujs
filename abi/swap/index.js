@@ -1,6 +1,17 @@
 import arc200Schema from "../arc200/index.js";
 const swapSchemaHumbleOnlyMethods = [
   {
+    name: "_reachp_0",
+    args: [
+      {
+        type: "(uint64,((byte[32],byte[8]),(uint64,uint64,uint64),address))",
+      },
+    ],
+    returns: {
+      type: "void",
+    },
+  },
+  {
     name: "Trader_swapAForB",
     args: [{ type: "byte" }, { type: "uint256" }, { type: "uint256" }],
     returns: { type: "(uint256,uint256)" },

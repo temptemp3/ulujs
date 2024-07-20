@@ -16,6 +16,7 @@ export class CONTRACT {
   custom: () => any;
   setTransfers(transfers: any[]): void;
   getEvents(opts: { minRound: number }): any;
+  setStep: any;
   setAccounts: any;
   setEnableGroupResourceSharing: any;
   setBeaconId: any;
@@ -24,6 +25,8 @@ export class CONTRACT {
   setOnComplete: any;
   // ARC72
   arc72_approve: any;
+  arc72_ownerOf: any;
+  arc72_setApprovalForAll: any;
   // mp205
   v_sale_listingByIndex: any;
   a_sale_listNet: any;

@@ -1,3 +1,6 @@
+import abi from "../abi/index.js";
+import { makeAcc } from "./account.js";
+import { makeCtc } from "./contract.js";
 import { handleResponse } from "./debug.js";
 
 // :::'###::::'########:::'######:::'#######::::'#####:::::'#####:::
@@ -107,6 +110,50 @@ export const hasAllowance = async (contractInstance, addrFrom, addrSpender) =>
     `HasAllowance from: ${addrFrom} spender: ${addrSpender}`,
     await contractInstance.hasAllowance(addrFrom, addrSpender)
   );
+
+export const transfer = async (contractInstance, addrFrom, addrTo, amt) => {
+  if (false) {
+    return { success: false, error: "Invalid arguments" };
+  }
+  try {
+    const amtBn = new BigNumber(amt)
+    const acc = makeAcc(addrFrom);
+    const contracts = {
+      tok: { contractId: contractInstance.getContractId(), abi: abi.nt200 },
+    };
+    const builder = makeBuilder(contractInstance, acc, contracts);
+    const [ciTok] = [[contractInstance.getContractId(), abi.nt200]].map(
+      ([contractId, abi]) => makeCtc(contractInstance, acc, contractId, abi)
+    );
+    const decimalsR = await ciTok.arc200_decimals();
+    if (!decimalsR.success) {
+      throw new Error("decimals failed");
+    }
+    const decimals = Number(decimalsR.returnValue);
+    // ignore balance check because the account may aquire before the transaction
+    // const balanceOfR = await ciTok.arc200_balanceOf(addrTo);
+    // if(!balanceOfR.success) {
+    //   throw new Error("balanceOf failed");
+    // }
+    // const balanceOf = balanceOfR.returnValue;
+    // const amtBi = new BigInt(amtBn.multipliedBy(new BigNumber(10).pow(dec)).toFixed(0));
+    // if(balanceOf < amtBi) {
+    //   throw new Error("insufficient balance");
+    // }
+
+    let customR;
+    for(const p1 of /*pay for balance box*/[0, 1]) {
+      const buildN = [];
+    }
+    throw new Error("custom failed end");
+  } catch (e) {
+    console.log(e);
+    return {
+      success: false,
+      error: e.message,
+    };
+  }
+};
 
 /*
  * safe_arc200_transfer

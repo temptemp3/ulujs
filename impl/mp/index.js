@@ -1,6 +1,6 @@
 import CONTRACT, { oneAddress } from "arccjs";
-
 import schema from "../../abi/mp/index.js";
+import { buy } from "../../utils/mp.js";
 
 const ListingBoxCost = 60900;
 const BuyFee = 4000;
@@ -68,7 +68,13 @@ export const state = async (contractInstance) =>
  * @param waitForConfirmation: wait for confirmation
  * @returns: response
  */
-const safe_buyNet = async (ci, listId, feeBi, simulate, waitForConfirmation) => {
+const safe_buyNet = async (
+  ci,
+  listId,
+  feeBi,
+  simulate,
+  waitForConfirmation
+) => {
   try {
     const opts = {
       acc: { addr: ci.getSender(), sk: ci.getSk() },
@@ -80,7 +86,7 @@ const safe_buyNet = async (ci, listId, feeBi, simulate, waitForConfirmation) => 
       mp.getContractId(),
       mp.algodClient,
       mp.indexerClient,
-      opts,
+      opts
     );
     mp.contractInstance.setFee(BuyFee);
     mp.contractInstance.setPaymentAmount(buyNetPaymentAmount(lPrc, feeBi));
@@ -109,7 +115,7 @@ const safe_listNet = async (
   tokenId,
   listPrice,
   simulate,
-  waitForConfirmation,
+  waitForConfirmation
 ) => {
   try {
     const opts = {
@@ -151,8 +157,8 @@ class Contract {
       simulate: true,
       formatBytes: true,
       waitForConfirmation: false,
-      feeBi: 0n
-    },
+      feeBi: 0n,
+    }
   ) {
     this.contractInstance = new CONTRACT(
       contractId,
@@ -191,12 +197,14 @@ class Contract {
       simulate,
       waitForConfirmation
     );
-  static buy = async (addr, listings, currency, opts) => 
+  static buy = async (addr, listings, currency, opts) =>
     await buy(addr, listings, currency, opts);
   DeleteListingEvent = async (query) =>
     await this.contractInstance.e_sale_DeleteListingEvent(query);
-  BuyEvent = async (query) => await this.contractInstance.e_sale_BuyEvent(query);
-  ListEvent = async (query) => await this.contractInstance.e_sale_ListEvent(query);
+  BuyEvent = async (query) =>
+    await this.contractInstance.e_sale_BuyEvent(query);
+  ListEvent = async (query) =>
+    await this.contractInstance.e_sale_ListEvent(query);
   getEvents = async (query) => await this.contractInstance.getEvents(query);
 }
 

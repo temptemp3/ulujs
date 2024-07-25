@@ -144,6 +144,19 @@ const mp206Schema = {
         type: "void",
       },
     },
+     // buyNet(uint256)uint256
+     {
+      name: "a_sale_buyNet",
+      args: [
+        {
+          name: "listId",
+          type: "uint256",
+        },
+      ],
+      returns: {
+        type: "void",
+      },
+    },
     // a_sale_deleteListing(ListingId)
     {
       name: "a_sale_deleteListing",
@@ -177,6 +190,15 @@ const mp206Schema = {
       readonly: true,
       returns: {
         type: "(address,byte,byte,uint256,address,address)",
+      },
+    },
+    // manager()(address)
+    {
+      name: "manager",
+      args: [],
+      readonly: true,
+      returns: {
+        type: "address",
       },
     },
   ],

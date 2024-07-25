@@ -8,6 +8,34 @@ type EventQuery = {
     txid?: string;
   };
 
+
+  export interface NFTIndexerListingI {
+    transactionId: string;
+    mpContractId: number;
+    mpListingId: number;
+    tokenId: number;
+    seller: string;
+    price: number;
+    currency: number;
+    createRound: number;
+    createTimestamp: number;
+    endTimestamp: number | null;
+    royalty: number | null;
+    collectionId: number;
+    token: ListingTokenI;
+    delete?: any;
+    sale?: any;
+  }
+  
+
+  interface SwapBuyOptionsI {
+    paymentTokenId: number;
+    wrappedNetworkTokenId: number;
+    extraTxns: any[];
+    algodClient: any;
+    indexerClient: any;
+  }
+
 export class Contract extends arc200 {
   constructor(
     contractId: number,
@@ -43,6 +71,12 @@ export class Contract extends arc200 {
   ) => Promise<
     { success: true; returnValue: any } | { success: false; error: any }
   >;
+  static buy: (
+    addr: string,
+    listing: NFTIndexerListingI,
+    currency: TokenType,
+    opts: SwapBuyOptionsI,
+   ) => Promise<any>;
   DeleteListingEvent: (query: EventQuery) => Promise<any>;
   BuyEvent: (query: EventQuery) => Promise<any>;
   ListEvent: (query: EventQuery) => Promise<any>;

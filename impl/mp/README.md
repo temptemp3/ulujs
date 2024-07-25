@@ -4,7 +4,7 @@
 
 ## usage
 
-### Buy asset listed on marketplace
+### Buy asset listed on marketplace 
 
 ```javascript
 import { mp } from "ulujs";
@@ -29,4 +29,25 @@ await signTransactions(
     (txn: string) => new Uint8Array(Buffer.from(txn, "base64"))
   )
 ).then(sendTransactions);
+```
+
+Return value 
+
+on **failure**
+
+```javascript
+{
+  success: false;
+  error: string;
+}
+```
+
+on **success**
+
+```
+{
+  success: true;
+  txns: string[]; // base64 encoded txns to sign
+  objs: any[]; // can be used as extra txns to ci cust
+}
 ```

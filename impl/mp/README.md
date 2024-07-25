@@ -31,7 +31,7 @@ await signTransactions(
 ).then(sendTransactions);
 ```
 
-Return value 
+Return value of `mp.buy`
 
 on **failure**
 

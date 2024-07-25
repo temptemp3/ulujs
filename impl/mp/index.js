@@ -191,6 +191,8 @@ class Contract {
       simulate,
       waitForConfirmation
     );
+  static buy = async (addr, listings, currency, opts) => 
+    await buy(addr, listings, currency, opts);
   DeleteListingEvent = async (query) =>
     await this.contractInstance.e_sale_DeleteListingEvent(query);
   BuyEvent = async (query) => await this.contractInstance.e_sale_BuyEvent(query);

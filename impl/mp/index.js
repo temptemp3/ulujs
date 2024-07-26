@@ -1,24 +1,9 @@
 import CONTRACT, { oneAddress } from "arccjs";
 import schema from "../../abi/mp/index.js";
-import { buy } from "../../utils/mp.js";
+import { buy, list } from "../../utils/mp.js";
 
 const ListingBoxCost = 60900;
 const BuyFee = 4000;
-
-/*
- * prepareString
- * - prepare string (strip trailing null bytes)
- * @param str: string to prepare
- * @returns: prepared string
- */
-const prepareString = (str) => {
-  const index = str.indexOf("\x00");
-  if (index > 0) {
-    return str.slice(0, str.indexOf("\x00"));
-  } else {
-    return str;
-  }
-};
 
 /*
  * handleResponse
@@ -197,8 +182,6 @@ class Contract {
       simulate,
       waitForConfirmation
     );
-  static buy = async (addr, listings, currency, opts) =>
-    await buy(addr, listings, currency, opts);
   DeleteListingEvent = async (query) =>
     await this.contractInstance.e_sale_DeleteListingEvent(query);
   BuyEvent = async (query) =>
@@ -206,6 +189,10 @@ class Contract {
   ListEvent = async (query) =>
     await this.contractInstance.e_sale_ListEvent(query);
   getEvents = async (query) => await this.contractInstance.getEvents(query);
+  static buy = async (addr, listings, currency, opts) =>
+    await buy(addr, listings, currency, opts);
+  static list = async (addr, token, price, currency, opts) =>
+    await list(addr, token, price, currency, opts);
 }
 
 export default Contract;

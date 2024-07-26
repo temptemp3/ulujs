@@ -2,7 +2,8 @@ import algosdk from "algosdk";
 import { uluClient } from "../utils/contract.js";
 import abi from "../abi/index.js";
 
-const zeroAddress = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ";
+const zeroAddress =
+  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ";
 
 const decodeRoyalties = (royalties) => {
   const buf = Buffer.from(royalties, "base64");
@@ -12,7 +13,9 @@ const decodeRoyalties = (royalties) => {
   const creator3Points = buf.slice(6, 8).readUInt16BE(0);
   const creator1Address = algosdk.encodeAddress(buf.slice(8, 8 + 32 * 1));
   const creator2Address = algosdk.encodeAddress(buf.slice(8 + 32, 8 + 32 * 2));
-  const creator3Address = algosdk.encodeAddress(buf.slice(8 + 32 * 2, 8 + 32 * 3));
+  const creator3Address = algosdk.encodeAddress(
+    buf.slice(8 + 32 * 2, 8 + 32 * 3)
+  );
   const creatorAddressCount = [
     creator1Address,
     creator2Address,
@@ -33,6 +36,327 @@ const decodeRoyalties = (royalties) => {
 };
 
 /*
+ * ensureBalance
+ * - ensure balance
+ * @param ci: contract instance
+ * @param addr: address
+ * @returns: ensure balance
+ */
+const ensureBalance = async (ci, addr) => {
+  let ensureBalance = false;
+  do {
+    if (listing.currency === 0) break; // abort if VOI
+    const res = await ci.arc200_transfer(addr, 0);
+    if (res.success) break;
+    ci.setPaymentAmount(28500);
+    const res2 = await ci.arc200_transfer(addr, 0);
+    if (res2.success) ensureBalance = true;
+  } while (0);
+  return ensureBalance;
+};
+
+/*
+ * ensureApproval
+ * - ensure approval
+ * @param ci: contract instance
+ * @param spender: spender
+ * @param amount: amount
+ * @returns: ensure approval
+ **/
+const ensureARC200Approval = async (ci, spender, amount) => {
+  let ensureApproval = false;
+  do {
+    if (listing.currency === 0) break; // abort if VOI
+    const res = await ci.arc200_approve(spender, BigInt(amount));
+    if (res.success) break;
+    ciPTok.setPaymentAmount(28100);
+    const res2 = await ci.arc200_approve(spender, BigInt(amount));
+    if (res2.success) {
+      ensureApproval = true;
+    }
+  } while (0);
+  return ensureApproval;
+};
+
+/*
+ * ensureARC72Approval
+ * - ensure arc72 approval
+ * @param ci: contract instance
+ * @param spender: spender
+ * @param tokenId: token id
+ * @returns: ensure arc72 approval
+ */
+const ensureARC72Approval = async (ci, spender, tokenId) => {
+  let ensureApproval = false;
+  do {
+    const res = await ci.arc72_approve(spender, tokenId);
+    if (res.success) break;
+    ci.setPaymentAmount(28500);
+    const res2 = await ci.arc72_approve(spender, tokenId);
+    if (res2.success) {
+      ensureApproval = true;
+    }
+  } while (0);
+  return ensureApproval;
+};
+
+/*
+ * ensureAccountBalance
+ * - ensure account balance
+ * @param algodClient: algod client
+ * @param addr: address
+ * @param minAvailableBalance: min available balance
+ * @returns: ensure account balance
+ */
+const ensureAccountBalance = async (algodClient, addr, minAvailableBalance) => {
+  let ensureAccountBalance = false;
+  do {
+    const accInfo = await algodClient.accountInformation(addr).do();
+    const amount = accInfo.amount;
+    const minBalance = accInfo["min-balance"];
+    const availableBalance = amount - minBalance;
+    if (availableBalance < minAvailableBalance) {
+      ensureAccountBalance = true;
+    }
+  } while (0);
+  return ensureAccountBalance;
+};
+
+/*
+ * list
+ * - list nft on marketplace
+ * @param addr: address
+ * @param token: token
+ * @param price: price
+ * @param currency: currency
+ * @param opts: options
+ */
+export const list = async (addr, token, price, currency, opts) => {
+  try {
+    const minFee = 4000;
+
+    const priceBi = BigInt(priceBn);
+
+    const currencySymbol = currency.symbol;
+
+    const { algodClient, indexerClient } = opts;
+
+    const metadata = JSON.parse(token.metadata || "{}");
+
+    const royalties = metadata?.royalties;
+
+    const royaltyInfo = royalties;
+
+    const createAddr1 = royaltyInfo?.creator1Address || zeroAddress;
+    const createAddr2 = royaltyInfo?.creator2Address || zeroAddress;
+    const createAddr3 = royaltyInfo?.creator3Address || zeroAddress;
+
+    const ctcAddr = algosdk.getApplicationAddress(opts.mpContractId);
+
+    const uc = new uluClient(algodClient, indexerClient, addr);
+
+    const ci = uc.makeCI(opts.mpContractId, abi.custom);
+    const ciPTok = uc.makeCI(opts.paymentTokenId, abi.arc200);
+    const ciWVOI = uc.makeCI(opts.wrappedNetworkTokenId, abi.nt200);
+    const ciNFT = uc.makeCI(Number(token.contractId), abi.arc72);
+    const ciMP = uc.makeCI(opts.mpContractId, abi.mp);
+
+    const managerR = await ciMP.manager();
+    if (!managerR.success) throw new Error("manager failed in simulate");
+    const manager = managerR.returnValue;
+
+    const builder = {
+      tokV: uc.makeConstructor(opts.wrappedNetworkTokenId, abi.nt200),
+      tokP: uc.makeConstructor(opts.paymentTokenId, abi.arc200),
+      nft: uc.makeConstructor(Number(token.contractId), abi.arc72),
+      mp: uc.makeConstructor(opts.mpContractId, abi.mp),
+    };
+
+    const ensureMarketplaceBalance = await ensureBalance(ciPTok, ctcAddr);
+    const ensureManagerBalance = await ensureBalance(ciPTok, manager);
+    const ensureSellerBalance = await ensureBalance(ciPTok, addr);
+    const ensureCreator1Balance = await ensureBalance(ciPTok, createAddr1);
+    const ensureCreator2Balance = await ensureBalance(ciPTok, createAddr2);
+    const ensureCreator3Balance = await ensureBalance(ciPTok, createAddr3);
+    const ensureSellerApproval = await ensureARC72Approval(
+      ciNFT,
+      ctcAddr,
+      token.tokenId
+    );
+
+    // ------------------------------------------
+    // EXTRAS
+    // WVOI
+    //   createBalanceBox for self
+    //   if royalty createBalanceBox for creator1
+    //   if royalty createBalanceBox for creator2
+    //   if royalty createBalanceBox for creator3
+    // CORE
+    //   arc72 approve
+    //   mp206 listSC or listNet
+    // ------------------------------------------
+    let customR;
+    for (const p1 of /* arc72_approval box pmt */ [0, 1]) {
+      // ------------------------------------------
+      // EXTRAS
+      // ------------------------------------------
+      const buildN = opts.extraTxns || [];
+      // ------------------------------------------
+      // WVOI
+      // ------------------------------------------
+      // createBalanceBox for self
+      // if royalty createBalanceBox for creator1
+      if (royaltyInfo?.creator1Address && ensureCreator1Balance) {
+        const res = await builder.tokP.arc200_transfer(createAddr1, 0);
+        buildN.push({
+          ...res.obj,
+          payment: 28500,
+          paymentNote: new TextEncoder().encode(`
+          arc200_transfer ensure creator1 balance
+          `),
+          ignore: true,
+        });
+      }
+      // if royalty createBalanceBox for creator2
+      if (royaltyInfo?.creator2Address) {
+        const res = await builder.tokP.arc200_transfer(createAddr2, 0);
+        buildN.push({
+          ...res.obj,
+          payment: 28500,
+          paymentNote: new TextEncoder().encode(`
+          arc200_transfer ensure creator2 balance
+          `),
+          ignore: true,
+        });
+      }
+      // if royalty createBalanceBox for creator3
+      if (royaltyInfo?.creator3Address) {
+        const res = await builder.tokP.arc200_transfer(createAddr3, 0);
+        buildN.push({
+          ...res.obj,
+          payment: 28500,
+          paymentNote: new TextEncoder().encode(`
+          arc200_transfer ensure creator3 balance
+          `),
+          ignore: true,
+        });
+      }
+      // ------------------------------------------
+      // CORE
+      // ------------------------------------------
+      // arc72 approve
+      const arc72_approveR = await builder.arc72.arc72_approve(
+        algosdk.getApplicationAddress(ctcInfoMp206),
+        token.tokenId
+      );
+      if (!arc72_approveR.success)
+        throw new Error("arc72_approve failed in simulate");
+      buildN.push({
+        ...arc72_approveR.obj,
+        payment: p1 > 0 ? 28500 : 0,
+        note: new TextEncoder().encode(`
+        arc72_approve ${token.tokenId} for ${addr}
+        `),
+      });
+      // mp206 listSC
+      const paymentTokenId = opts.paymentTokenId || 0;
+      const endTime = opts.endTime || Number.MAX_SAFE_INTEGER;
+      const royalties = opts.enforceRoyalties
+        ? Math.min(nft?.royalties?.royaltyPoints || 0, 9500)
+        : 0; // RoyaltyPoints
+      const createPoints1 = opts.enforceRoyalties
+        ? nft?.royalties?.creator1Points || 0
+        : 0; // CreatePoints1
+      const createPoints2 = opts.enforceRoyalties
+        ? nft?.royalties?.creator2Points || 0
+        : 0; // CreatePoints1
+      const createPoints3 = opts.enforceRoyalties
+        ? nft?.royalties?.creator3Points || 0
+        : 0; // CreatePoints1
+      const createAddr1 = opts.enforceRoyalties
+        ? nft?.royalties?.creator1Address || zeroAddress
+        : zeroAddress; // CreatePoints1
+      const createAddr2 = opts.enforceRoyalties
+        ? nft?.royalties?.creator2Address || zeroAddress
+        : zeroAddress; // CreatePoints1
+      const createAddr3 = opts.enforceRoyalties
+        ? nft?.royalties?.creator3Address || zeroAddress
+        : zeroAddress; // CreatePoints1
+      if (paymentTokenId > 0) {
+        const a_sale_listSCR = await builder.mp.a_sale_listSC(
+          token.contractId,
+          token.tokenId,
+          paymentTokenId,
+          priceBi,
+          endTime,
+          royalties,
+          createPoints1,
+          createPoints2,
+          createPoints3,
+          createAddr1,
+          createAddr2,
+          createAddr3
+        );
+        const noteRoyalties = opt.enforceRoyalties
+          ? `royalties: ${(royalties / 10000) * 100}`
+          : "";
+        buildN.push({
+          ...a_sale_listSCR.obj,
+          payment: ListingBoxCost,
+          note: new TextEncoder().encode(`
+          a_sale_listSC contractId: nft: ${
+            nft.metadata.name
+          } listPrice: ${new BigNumber(priceBi.toString()).dividedBy(
+            new BigNumber(10).pow(token.decimals).toFixed(token.decimals)
+          )} ${token.symbol}  ${noteRoyalties}
+          `),
+        });
+      } else {
+        const a_sale_listNetR = await builder.mp.a_sale_listNet(
+          token.contractId,
+          token.tokenId,
+          priceBi,
+          endTime,
+          royalties,
+          createPoints1,
+          createPoints2,
+          createPoints3,
+          createAddr1,
+          createAddr2,
+          createAddr3
+        );
+        const noteRoyalties = opt.enforceRoyalties
+          ? `royalties: ${(royalties / 10000) * 100}`
+          : "";
+        buildN.push({
+          ...a_sale_listNetR.obj,
+          payment: ListingBoxCost,
+          note: new TextEncoder().encode(`
+          a_sale_listNet contractId: nft: ${
+            nft.metadata.name
+          } listPrice: ${new BigNumber(priceBi.toString()).dividedBy(
+            new BigNumber(10).pow(token.decimals).toFixed(token.decimals)
+          )} ${token.symbol} ${noteRoyalties}
+          `),
+        });
+      }
+      ci.setEnableGroupResourceSharing(true);
+      ci.setFee(minFee);
+      ci.setExtraTxns(buildN);
+      customR = {
+        ...(await ci.custom()),
+        objs: buildN,
+      };
+      if (customR.success) break;
+    }
+    console.log({ customR });
+    return customR;
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+};
+
+/*
  * buy
  * - buy nft from marketplace
  * @param addr: address
@@ -40,12 +364,7 @@ const decodeRoyalties = (royalties) => {
  * @param currency: currency
  * @param opts: options
  */
-export const buy = async (
-  addr,
-  listing,
-  currency,
-  opts
-) => {
+export const buy = async (addr, listing, currency, opts) => {
   try {
     const minFee = 8000;
 
@@ -76,7 +395,7 @@ export const buy = async (
     if (!managerR.success) throw new Error("manager failed in simulate");
     const manager = managerR.returnValue;
 
-    const ciWVOI = uc.makeCI(opts.paymentTokenId, abi.nt200);
+    const ciWVOI = uc.makeCI(opts.wrappedNetworkTokenId, abi.nt200);
 
     const wVOIBalanceR = await ciWVOI.arc200_balanceOf(addr);
     if (!wVOIBalanceR.success)
@@ -92,55 +411,6 @@ export const buy = async (
 
     // make pTok
     const ciPTok = uc.makeCI(opts.paymentTokenId, abi.arc200);
-
-    const ensureBalance = async (ci, addr) => {
-      let ensureBalance = false;
-      do {
-        if (listing.currency === 0) break; // abort if VOI
-        const res = await ci.arc200_transfer(addr, 0);
-        if (res.success) break;
-        ci.setPaymentAmount(28500);
-        const res2 = await ci.arc200_transfer(addr, 0);
-        if (res2.success) ensureBalance = true;
-      } while (0);
-      return ensureBalance;
-    };
-
-    const ensureApproval = async (
-      ci,
-      spender,
-      amount
-    ) => {
-      let ensureApproval = false;
-      do {
-        if (listing.currency === 0) break; // abort if VOI
-        const res = await ci.arc200_approve(spender, BigInt(amount));
-        if (res.success) break;
-        ciPTok.setPaymentAmount(28100);
-        const res2 = await ci.arc200_approve(spender, BigInt(amount));
-        if (res2.success) {
-          ensureApproval = true;
-        }
-      } while (0);
-      return ensureApproval;
-    };
-
-    const ensureAccountBalance = async (
-      addr,
-      minAvailableBalance
-    ) => {
-      let ensureAccountBalance = false;
-      do {
-        const accInfo = await algodClient.accountInformation(addr).do();
-        const amount = accInfo.amount;
-        const minBalance = accInfo["min-balance"];
-        const availableBalance = amount - minBalance;
-        if (availableBalance < minAvailableBalance) {
-          ensureAccountBalance = true;
-        }
-      } while (0);
-      return ensureAccountBalance;
-    };
 
     const [
       ensureMarketplaceBalance,
@@ -160,7 +430,7 @@ export const buy = async (
       ].map((addr) => ensureBalance(ciPTok, addr))
     );
 
-    const ensureBuyerApproval = await ensureApproval(
+    const ensureBuyerApproval = await ensureARC200Approval(
       ciPTok,
       ctcAddr,
       Number(listing.price)
@@ -204,7 +474,7 @@ export const buy = async (
 
     let customR;
     for (const p1 of [1]) {
-      const buildN = (opts.extraTxns || []);
+      const buildN = opts.extraTxns || [];
 
       // ensure marketplace balance
       if (ensureMarketplaceBalance) {
@@ -378,10 +648,10 @@ export const buy = async (
       customR = {
         ...(await ci.custom()),
         objs: buildN,
-      }
+      };
       if (customR.success) break;
     }
-    return customR
+    return customR;
   } catch (e) {
     return { success: false, error: e.message };
   }

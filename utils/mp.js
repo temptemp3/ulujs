@@ -2,6 +2,10 @@ import algosdk from "algosdk";
 import { uluClient } from "../utils/contract.js";
 import abi from "../abi/index.js";
 
+const royaltyBase = 10000;
+const fee = 500;
+const ListingBoxCost = 118500;
+
 const zeroAddress =
   "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ";
 
@@ -45,7 +49,6 @@ const decodeRoyalties = (royalties) => {
 const ensureBalance = async (ci, addr) => {
   let ensureBalance = false;
   do {
-    if (listing.currency === 0) break; // abort if VOI
     const res = await ci.arc200_transfer(addr, 0);
     if (res.success) break;
     ci.setPaymentAmount(28500);
@@ -66,10 +69,9 @@ const ensureBalance = async (ci, addr) => {
 const ensureARC200Approval = async (ci, spender, amount) => {
   let ensureApproval = false;
   do {
-    if (listing.currency === 0) break; // abort if VOI
     const res = await ci.arc200_approve(spender, BigInt(amount));
     if (res.success) break;
-    ciPTok.setPaymentAmount(28100);
+    ci.setPaymentAmount(28100);
     const res2 = await ci.arc200_approve(spender, BigInt(amount));
     if (res2.success) {
       ensureApproval = true;
@@ -122,31 +124,19 @@ const ensureAccountBalance = async (algodClient, addr, minAvailableBalance) => {
   return ensureAccountBalance;
 };
 
-/*
- * list
- * - list nft on marketplace
- * @param addr: address
- * @param token: token
- * @param price: price
- * @param currency: currency
- * @param opts: options
- */
-export const list = async (addr, token, price, currency, opts) => {
+export const ensure = async (addr, token, opts) => {
   try {
-    const minFee = 4000;
-
-    const priceBi = BigInt(priceBn);
-
-    const currencySymbol = currency.symbol;
+    const minFee = 1000;
 
     const { algodClient, indexerClient } = opts;
 
     const metadata = JSON.parse(token.metadata || "{}");
 
-    const royalties = metadata?.royalties;
+    const royalties = metadata?.royalties
+      ? decodeRoyalties(metadata?.royalties || "")
+      : null;
 
     const royaltyInfo = royalties;
-
     const createAddr1 = royaltyInfo?.creator1Address || zeroAddress;
     const createAddr2 = royaltyInfo?.creator2Address || zeroAddress;
     const createAddr3 = royaltyInfo?.creator3Address || zeroAddress;
@@ -156,14 +146,12 @@ export const list = async (addr, token, price, currency, opts) => {
     const uc = new uluClient(algodClient, indexerClient, addr);
 
     const ci = uc.makeCI(opts.mpContractId, abi.custom);
+
     const ciPTok = uc.makeCI(opts.paymentTokenId, abi.arc200);
-    const ciWVOI = uc.makeCI(opts.wrappedNetworkTokenId, abi.nt200);
-    const ciNFT = uc.makeCI(Number(token.contractId), abi.arc72);
+
     const ciMP = uc.makeCI(opts.mpContractId, abi.mp);
 
-    const managerR = await ciMP.manager();
-    if (!managerR.success) throw new Error("manager failed in simulate");
-    const manager = managerR.returnValue;
+    const manager = opts.manager || (await ciMP.manager())?.returnValue;
 
     const builder = {
       tokV: uc.makeConstructor(opts.wrappedNetworkTokenId, abi.nt200),
@@ -178,19 +166,188 @@ export const list = async (addr, token, price, currency, opts) => {
     const ensureCreator1Balance = await ensureBalance(ciPTok, createAddr1);
     const ensureCreator2Balance = await ensureBalance(ciPTok, createAddr2);
     const ensureCreator3Balance = await ensureBalance(ciPTok, createAddr3);
-    const ensureSellerApproval = await ensureARC72Approval(
-      ciNFT,
-      ctcAddr,
-      token.tokenId
+    const ensureCollectionBalance = await ensureAccountBalance(
+      algodClient,
+      algosdk.getApplicationAddress(Number(token.contractId)),
+      28500
     );
+
+    let customR;
+    do {
+      const buildN = opts.extraTxns || [];
+      // ensure marketplace balance
+      if (ensureMarketplaceBalance) {
+        const res = await builder.tokP.arc200_transfer(ctcAddr, 0);
+        buildN.push({
+          ...res.obj,
+          payment: 28500,
+          paymentNote: new TextEncoder().encode(`
+          arc200_transfer ensure marketplace balance
+          `),
+        });
+      }
+      // ensure manager balance
+      if (ensureManagerBalance) {
+        const res = await builder.tokP.arc200_transfer(manager, 0);
+        buildN.push({
+          ...res.obj,
+          payment: 28500,
+          paymentNote: new TextEncoder().encode(`
+          arc200_transfer ensure manager balance
+          `),
+        });
+      }
+      // ensure seller balance
+      if (ensureSellerBalance) {
+        const res = await builder.tokP.arc200_transfer(addr, 0);
+        buildN.push({
+          ...res.obj,
+          payment: 28500,
+          paymentNote: new TextEncoder().encode(`
+          arc200_transfer ensure seller balance
+          `),
+        });
+      }
+      // ensure creator1 balance
+      if (ensureCreator1Balance) {
+        const res = await builder.tokP.arc200_transfer(createAddr1, 0);
+        buildN.push({
+          ...res.obj,
+          payment: 28500,
+          paymentNote: new TextEncoder().encode(`
+          arc200_transfer ensure creator1 balance
+          `),
+        });
+      }
+      // ensure creator2 balance
+      if (ensureCreator2Balance) {
+        const res = await builder.tokP.arc200_transfer(createAddr2, 0);
+        buildN.push({
+          ...res.obj,
+          payment: 28500,
+          paymentNote: new TextEncoder().encode(`
+          arc200_transfer ensure creator2 balance
+          `),
+        });
+      }
+      // ensure creator3 balance
+      if (ensureCreator3Balance) {
+        const res = await builder.tokP.arc200_transfer(createAddr3, 0);
+        buildN.push({
+          ...res.obj,
+          payment: 28500,
+          paymentNote: new TextEncoder().encode(`
+          arc200_transfer ensure creator3 balance
+          `),
+        });
+      }
+      // ensure collection balance
+      if (ensureCollectionBalance) {
+        const res = await builder.nft.arc72_setApprovalForAll(
+          zeroAddress,
+          true
+        );
+        buildN.push({
+          ...res.obj,
+          payment: 100000,
+          paymentNote: new TextEncoder().encode(`
+          custom payment for nft collection box
+          `),
+          ignore: true, // to ignore arc72_setApprovalForAll call
+        });
+      } 
+      if(buildN.length === 0) {
+        return { success: true, txns: [], objs: [] };
+      }
+      ci.setFee(minFee);
+      ci.setExtraTxns(buildN);
+      ci.setEnableGroupResourceSharing(true);
+      customR = {
+        ...(await ci.custom()),
+        objs: buildN,
+      };
+    } while (0);
+    if(!customR.success) throw new Error(customR.error);
+    return customR;
+  } catch (e) {
+    console.log(e)
+    return { success: false, error: e.message };
+  }
+}
+
+/*
+ * list
+ * - list nft on marketplace
+ * @param addr: address
+ * @param token: token
+ * @param price: price
+ * @param currency: currency
+ * @param opts: options
+ */
+export const list = async (addr, token, price, currency, opts) => {
+  try {
+    const minFee = 4000;
+
+    const priceBi = BigInt(price);
+
+    const { algodClient, indexerClient } = opts;
+
+    const metadata = JSON.parse(token.metadata || "{}");
+
+    const royalties = metadata?.royalties;
+
+    const royaltyInfo = royalties;
+
+     const createAddr1 = royaltyInfo?.creator1Address || zeroAddress;
+     const createAddr2 = royaltyInfo?.creator2Address || zeroAddress;
+     const createAddr3 = royaltyInfo?.creator3Address || zeroAddress;
+
+    const ctcAddr = algosdk.getApplicationAddress(opts.mpContractId);
+
+    const uc = new uluClient(algodClient, indexerClient, addr);
+
+    const ci = uc.makeCI(opts.mpContractId, abi.custom);
+    const ciPTok = uc.makeCI(opts.paymentTokenId, abi.arc200);
+    const ciWVOI = uc.makeCI(opts.wrappedNetworkTokenId, abi.nt200);
+    const ciNFT = uc.makeCI(Number(token.contractId), abi.arc72);
+    const ciMP = uc.makeCI(opts.mpContractId, abi.mp);
+
+    const manager = opts.manager || (await ciMP.manager())?.returnValue;
+
+    const builder = {
+      tokV: uc.makeConstructor(opts.wrappedNetworkTokenId, abi.nt200),
+      tokP: uc.makeConstructor(opts.paymentTokenId, abi.arc200),
+      nft: uc.makeConstructor(Number(token.contractId), abi.arc72),
+      mp: uc.makeConstructor(opts.mpContractId, abi.mp),
+    };
+
+    const [
+      ensureMarketplaceBalance,
+      ensureManagerBalance,
+      ensureSellerBalance,
+    ] = opts.skipEnsure ? Array(6).fill(false) :
+    await Promise.all(
+      [
+        ctcAddr,
+        manager,
+        addr,
+      ].map((addr) => ensureBalance(ciPTok, addr))
+    );
+    const ensureCreator1Balance = opts.skipEnsure || royaltyInfo.creator1Address === zeroAddress ? false : await ensureBalance(ciPTok, createAddr1);
+    const ensureCreator2Balance = opts.skipEnsure || royaltyInfo.creator2Address === zeroAddress ? false : await ensureBalance(ciPTok, createAddr2);
+    const ensureCreator3Balance = opts.skipEnsure || royaltyInfo.creator3Address === zeroAddress ? false : await ensureBalance(ciPTok, createAddr3);
 
     // ------------------------------------------
     // EXTRAS
-    // WVOI
-    //   createBalanceBox for self
-    //   if royalty createBalanceBox for creator1
-    //   if royalty createBalanceBox for creator2
-    //   if royalty createBalanceBox for creator3
+    //   accept extra txns
+    // ENSURE
+    //   ensure balances
+    //     ensure marketplace balance
+    //     ensure manager balance
+    //     ensure seller balance
+    //     ensure creator1 balance
+    //     ensure creator2 balance
+    //     ensure creator3 balance
     // CORE
     //   arc72 approve
     //   mp206 listSC or listNet
@@ -200,16 +357,49 @@ export const list = async (addr, token, price, currency, opts) => {
       // ------------------------------------------
       // EXTRAS
       // ------------------------------------------
+      // accept extra txns
       const buildN = opts.extraTxns || [];
       // ------------------------------------------
-      // WVOI
+      // ENSURE
       // ------------------------------------------
-      // createBalanceBox for self
-      // if royalty createBalanceBox for creator1
-      if (royaltyInfo?.creator1Address && ensureCreator1Balance) {
-        const res = await builder.tokP.arc200_transfer(createAddr1, 0);
+      // ensure marketplace balance
+      if (ensureMarketplaceBalance) {
+        const res = await builder.tokP.arc200_transfer(ctcAddr, 0);
         buildN.push({
           ...res.obj,
+          payment: 28500,
+          paymentNote: new TextEncoder().encode(`
+          arc200_transfer ensure marketplace balance
+          `),
+          ignore: true,
+        });
+      }
+      // ensure manager balance 
+      if (ensureManagerBalance) {
+        buildN.push({
+          ...(await builder.tokP.arc200_transfer(manager, 0)).obj,
+          payment: 28500,
+          paymentNote: new TextEncoder().encode(`
+          arc200_transfer ensure manager balance
+          `),
+          ignore: true,
+        });
+      }
+      // ensure seller balance
+      if (ensureSellerBalance) {
+        buildN.push({
+          ...(await builder.tokP.arc200_transfer(addr, 0)).obj,
+          payment: 28500,
+          paymentNote: new TextEncoder().encode(`
+          arc200_transfer ensure seller balance
+          `),
+          ignore: true,
+        });
+      }
+      // ensure creator1 balance
+      if (ensureCreator1Balance) {
+        buildN.push({
+          ...(await builder.tokP.arc200_transfer(createAddr1, 0)).obj,
           payment: 28500,
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure creator1 balance
@@ -217,11 +407,10 @@ export const list = async (addr, token, price, currency, opts) => {
           ignore: true,
         });
       }
-      // if royalty createBalanceBox for creator2
-      if (royaltyInfo?.creator2Address) {
-        const res = await builder.tokP.arc200_transfer(createAddr2, 0);
+      // ensure creator2 balance
+      if (ensureCreator2Balance) {
         buildN.push({
-          ...res.obj,
+          ...(await builder.tokP.arc200_transfer(createAddr2, 0)).obj,
           payment: 28500,
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure creator2 balance
@@ -229,11 +418,10 @@ export const list = async (addr, token, price, currency, opts) => {
           ignore: true,
         });
       }
-      // if royalty createBalanceBox for creator3
-      if (royaltyInfo?.creator3Address) {
-        const res = await builder.tokP.arc200_transfer(createAddr3, 0);
+      // ensure creator3 balance
+      if (ensureCreator3Balance) {
         buildN.push({
-          ...res.obj,
+          ...(await builder.tokP.arc200_transfer(createAddr3, 0)).obj,
           payment: 28500,
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure creator3 balance
@@ -245,15 +433,13 @@ export const list = async (addr, token, price, currency, opts) => {
       // CORE
       // ------------------------------------------
       // arc72 approve
-      const arc72_approveR = await builder.arc72.arc72_approve(
-        algosdk.getApplicationAddress(ctcInfoMp206),
+      const arc72_approveR = await builder.nft.arc72_approve(
+        ctcAddr,
         token.tokenId
       );
-      if (!arc72_approveR.success)
-        throw new Error("arc72_approve failed in simulate");
       buildN.push({
         ...arc72_approveR.obj,
-        payment: p1 > 0 ? 28500 : 0,
+        payment: 28500, // TODO consider conditionally setting payment [0,1] * 28500
         note: new TextEncoder().encode(`
         arc72_approve ${token.tokenId} for ${addr}
         `),
@@ -262,7 +448,7 @@ export const list = async (addr, token, price, currency, opts) => {
       const paymentTokenId = opts.paymentTokenId || 0;
       const endTime = opts.endTime || Number.MAX_SAFE_INTEGER;
       const royalties = opts.enforceRoyalties
-        ? Math.min(nft?.royalties?.royaltyPoints || 0, 9500)
+        ? Math.min(nft?.royalties?.royaltyPoints || 0, royaltyBase - fee)
         : 0; // RoyaltyPoints
       const createPoints1 = opts.enforceRoyalties
         ? nft?.royalties?.creator1Points || 0
@@ -282,61 +468,53 @@ export const list = async (addr, token, price, currency, opts) => {
       const createAddr3 = opts.enforceRoyalties
         ? nft?.royalties?.creator3Address || zeroAddress
         : zeroAddress; // CreatePoints1
-      if (paymentTokenId > 0) {
-        const a_sale_listSCR = await builder.mp.a_sale_listSC(
-          token.contractId,
-          token.tokenId,
-          paymentTokenId,
-          priceBi,
-          endTime,
-          royalties,
-          createPoints1,
-          createPoints2,
-          createPoints3,
-          createAddr1,
-          createAddr2,
-          createAddr3
-        );
-        const noteRoyalties = opt.enforceRoyalties
-          ? `royalties: ${(royalties / 10000) * 100}`
-          : "";
+      const noteRoyalties = opts.enforceRoyalties
+        ? `royalties: ${(royalties / 10000) * 100}`
+        : "";
+      const isSaleListSC = paymentTokenId > 0;
+      if (isSaleListSC) { // SaleListSC
         buildN.push({
-          ...a_sale_listSCR.obj,
-          payment: ListingBoxCost,
+          ...(await builder.mp.a_sale_listSC(
+            token.contractId,
+            token.tokenId,
+            paymentTokenId,
+            priceBi,
+            endTime,
+            royalties,
+            createPoints1,
+            createPoints2,
+            createPoints3,
+            createAddr1,
+            createAddr2,
+            createAddr3
+          )).obj,
+          payment: opts.listingBoxPaymentOverride || ListingBoxCost,
           note: new TextEncoder().encode(`
           a_sale_listSC contractId: nft: ${
-            nft.metadata.name
-          } listPrice: ${new BigNumber(priceBi.toString()).dividedBy(
-            new BigNumber(10).pow(token.decimals).toFixed(token.decimals)
-          )} ${token.symbol}  ${noteRoyalties}
+            metadata.name
+          } listPrice: ${price} ${currency.symbol} ${noteRoyalties}
           `),
         });
-      } else {
-        const a_sale_listNetR = await builder.mp.a_sale_listNet(
-          token.contractId,
-          token.tokenId,
-          priceBi,
-          endTime,
-          royalties,
-          createPoints1,
-          createPoints2,
-          createPoints3,
-          createAddr1,
-          createAddr2,
-          createAddr3
-        );
-        const noteRoyalties = opt.enforceRoyalties
-          ? `royalties: ${(royalties / 10000) * 100}`
-          : "";
+      } else { // SaleListNet
         buildN.push({
-          ...a_sale_listNetR.obj,
-          payment: ListingBoxCost,
+          ...(await builder.mp.a_sale_listNet(
+            token.contractId,
+            token.tokenId,
+            priceBi,
+            endTime,
+            royalties,
+            createPoints1,
+            createPoints2,
+            createPoints3,
+            createAddr1,
+            createAddr2,
+            createAddr3
+          )).obj,
+          payment: opts.listingBoxPaymentOverride || ListingBoxCost,
           note: new TextEncoder().encode(`
           a_sale_listNet contractId: nft: ${
-            nft.metadata.name
-          } listPrice: ${new BigNumber(priceBi.toString()).dividedBy(
-            new BigNumber(10).pow(token.decimals).toFixed(token.decimals)
-          )} ${token.symbol} ${noteRoyalties}
+            metadata.name
+          } listPrice: ${price} ${currency.symbol} ${noteRoyalties}
           `),
         });
       }
@@ -352,6 +530,7 @@ export const list = async (addr, token, price, currency, opts) => {
     console.log({ customR });
     return customR;
   } catch (e) {
+    console.log(e);
     return { success: false, error: e.message };
   }
 };
@@ -419,7 +598,8 @@ export const buy = async (addr, listing, currency, opts) => {
       ensureCreator1Balance,
       ensureCreator2Balance,
       ensureCreator3Balance,
-    ] = await Promise.all(
+    ] = opts.skipEnsure ? Array(6).fill(false) :
+    await Promise.all(
       [
         ctcAddr,
         manager,
@@ -430,13 +610,14 @@ export const buy = async (addr, listing, currency, opts) => {
       ].map((addr) => ensureBalance(ciPTok, addr))
     );
 
-    const ensureBuyerApproval = await ensureARC200Approval(
-      ciPTok,
-      ctcAddr,
-      Number(listing.price)
+    const ensureBuyerApproval = opts.skipEnsure ? false : await ensureARC200Approval(
+       ciPTok,
+       ctcAddr,
+       Number(listing.price)
     );
 
-    const ensureCollectionBalance = await ensureAccountBalance(
+    const ensureCollectionBalance = opts.skipEnsure ? false : await ensureAccountBalance(
+      algodClient,
       algosdk.getApplicationAddress(Number(listing.collectionId)),
       28500
     );

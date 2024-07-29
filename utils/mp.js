@@ -255,8 +255,8 @@ export const ensure = async (addr, token, opts) => {
           `),
           ignore: true, // to ignore arc72_setApprovalForAll call
         });
-      } 
-      if(buildN.length === 0) {
+      }
+      if (buildN.length === 0) {
         return { success: true, txns: [], objs: [] };
       }
       ci.setFee(minFee);
@@ -267,13 +267,13 @@ export const ensure = async (addr, token, opts) => {
         objs: buildN,
       };
     } while (0);
-    if(!customR.success) throw new Error(customR.error);
+    if (!customR.success) throw new Error(customR.error);
     return customR;
   } catch (e) {
-    console.log(e)
+    console.log(e);
     return { success: false, error: e.message };
   }
-}
+};
 
 /*
  * list
@@ -298,9 +298,9 @@ export const list = async (addr, token, price, currency, opts) => {
 
     const royaltyInfo = royalties;
 
-     const createAddr1 = royaltyInfo?.creator1Address || zeroAddress;
-     const createAddr2 = royaltyInfo?.creator2Address || zeroAddress;
-     const createAddr3 = royaltyInfo?.creator3Address || zeroAddress;
+    const createAddr1 = royaltyInfo?.creator1Address || zeroAddress;
+    const createAddr2 = royaltyInfo?.creator2Address || zeroAddress;
+    const createAddr3 = royaltyInfo?.creator3Address || zeroAddress;
 
     const ctcAddr = algosdk.getApplicationAddress(opts.mpContractId);
 
@@ -325,17 +325,27 @@ export const list = async (addr, token, price, currency, opts) => {
       ensureMarketplaceBalance,
       ensureManagerBalance,
       ensureSellerBalance,
-    ] = opts.skipEnsure ? Array(6).fill(false) :
-    await Promise.all(
-      [
-        ctcAddr,
-        manager,
-        addr,
-      ].map((addr) => ensureBalance(ciPTok, addr))
-    );
-    const ensureCreator1Balance = opts.skipEnsure || royaltyInfo.creator1Address === zeroAddress ? false : await ensureBalance(ciPTok, createAddr1);
-    const ensureCreator2Balance = opts.skipEnsure || royaltyInfo.creator2Address === zeroAddress ? false : await ensureBalance(ciPTok, createAddr2);
-    const ensureCreator3Balance = opts.skipEnsure || royaltyInfo.creator3Address === zeroAddress ? false : await ensureBalance(ciPTok, createAddr3);
+    ] = opts.skipEnsure
+      ? Array(6).fill(false)
+      : await Promise.all(
+          [ctcAddr, manager, addr].map((addr) => ensureBalance(ciPTok, addr))
+        );
+    const ensureCreator1Balance =
+      opts.skipEnsure || royaltyInfo.creator1Address === zeroAddress
+        ? false
+        : await ensureBalance(ciPTok, createAddr1);
+    const ensureCreator2Balance =
+      opts.skipEnsure || royaltyInfo.creator2Address === zeroAddress
+        ? false
+        : await ensureBalance(ciPTok, createAddr2);
+    const ensureCreator3Balance =
+      opts.skipEnsure || royaltyInfo.creator3Address === zeroAddress
+        ? false
+        : await ensureBalance(ciPTok, createAddr3);
+
+    const ensureARC72Approval = opts.skipEnsure
+      ? false
+      : await ensureARC72Approval(ciNFT, ctcAddr, token.tokenId);
 
     // ------------------------------------------
     // EXTRAS
@@ -353,7 +363,7 @@ export const list = async (addr, token, price, currency, opts) => {
     //   mp206 listSC or listNet
     // ------------------------------------------
     let customR;
-    for (const p1 of /* arc72_approval box pmt */ [0, 1]) {
+    for (const p1 of [0]) {
       // ------------------------------------------
       // EXTRAS
       // ------------------------------------------
@@ -371,10 +381,9 @@ export const list = async (addr, token, price, currency, opts) => {
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure marketplace balance
           `),
-          ignore: true,
         });
       }
-      // ensure manager balance 
+      // ensure manager balance
       if (ensureManagerBalance) {
         buildN.push({
           ...(await builder.tokP.arc200_transfer(manager, 0)).obj,
@@ -382,7 +391,6 @@ export const list = async (addr, token, price, currency, opts) => {
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure manager balance
           `),
-          ignore: true,
         });
       }
       // ensure seller balance
@@ -393,7 +401,6 @@ export const list = async (addr, token, price, currency, opts) => {
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure seller balance
           `),
-          ignore: true,
         });
       }
       // ensure creator1 balance
@@ -404,7 +411,6 @@ export const list = async (addr, token, price, currency, opts) => {
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure creator1 balance
           `),
-          ignore: true,
         });
       }
       // ensure creator2 balance
@@ -415,7 +421,6 @@ export const list = async (addr, token, price, currency, opts) => {
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure creator2 balance
           `),
-          ignore: true,
         });
       }
       // ensure creator3 balance
@@ -426,97 +431,99 @@ export const list = async (addr, token, price, currency, opts) => {
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure creator3 balance
           `),
-          ignore: true,
         });
       }
-      // ------------------------------------------
-      // CORE
-      // ------------------------------------------
-      // arc72 approve
-      const arc72_approveR = await builder.nft.arc72_approve(
-        ctcAddr,
-        token.tokenId
-      );
-      buildN.push({
-        ...arc72_approveR.obj,
-        payment: 28500, // TODO consider conditionally setting payment [0,1] * 28500
-        note: new TextEncoder().encode(`
+      if (!opts.ensureOnly) {
+        // ------------------------------------------
+        // CORE
+        // ------------------------------------------
+        // arc72 approve
+        const arc72_approveR = await builder.nft.arc72_approve(
+          ctcAddr,
+          token.tokenId
+        );
+        buildN.push({
+          ...arc72_approveR.obj,
+          note: new TextEncoder().encode(`
         arc72_approve ${token.tokenId} for ${addr}
         `),
-      });
-      // mp206 listSC
-      const paymentTokenId = opts.paymentTokenId || 0;
-      const endTime = opts.endTime || Number.MAX_SAFE_INTEGER;
-      const royalties = opts.enforceRoyalties
-        ? Math.min(nft?.royalties?.royaltyPoints || 0, royaltyBase - fee)
-        : 0; // RoyaltyPoints
-      const createPoints1 = opts.enforceRoyalties
-        ? nft?.royalties?.creator1Points || 0
-        : 0; // CreatePoints1
-      const createPoints2 = opts.enforceRoyalties
-        ? nft?.royalties?.creator2Points || 0
-        : 0; // CreatePoints1
-      const createPoints3 = opts.enforceRoyalties
-        ? nft?.royalties?.creator3Points || 0
-        : 0; // CreatePoints1
-      const createAddr1 = opts.enforceRoyalties
-        ? nft?.royalties?.creator1Address || zeroAddress
-        : zeroAddress; // CreatePoints1
-      const createAddr2 = opts.enforceRoyalties
-        ? nft?.royalties?.creator2Address || zeroAddress
-        : zeroAddress; // CreatePoints1
-      const createAddr3 = opts.enforceRoyalties
-        ? nft?.royalties?.creator3Address || zeroAddress
-        : zeroAddress; // CreatePoints1
-      const noteRoyalties = opts.enforceRoyalties
-        ? `royalties: ${(royalties / 10000) * 100}`
-        : "";
-      const isSaleListSC = paymentTokenId > 0;
-      if (isSaleListSC) { // SaleListSC
-        buildN.push({
-          ...(await builder.mp.a_sale_listSC(
-            token.contractId,
-            token.tokenId,
-            paymentTokenId,
-            priceBi,
-            endTime,
-            royalties,
-            createPoints1,
-            createPoints2,
-            createPoints3,
-            createAddr1,
-            createAddr2,
-            createAddr3
-          )).obj,
-          payment: opts.listingBoxPaymentOverride || ListingBoxCost,
-          note: new TextEncoder().encode(`
-          a_sale_listSC contractId: nft: ${
-            metadata.name
-          } listPrice: ${price} ${currency.symbol} ${noteRoyalties}
-          `),
         });
-      } else { // SaleListNet
-        buildN.push({
-          ...(await builder.mp.a_sale_listNet(
-            token.contractId,
-            token.tokenId,
-            priceBi,
-            endTime,
-            royalties,
-            createPoints1,
-            createPoints2,
-            createPoints3,
-            createAddr1,
-            createAddr2,
-            createAddr3
-          )).obj,
-          payment: opts.listingBoxPaymentOverride || ListingBoxCost,
-          note: new TextEncoder().encode(`
-          a_sale_listNet contractId: nft: ${
-            metadata.name
-          } listPrice: ${price} ${currency.symbol} ${noteRoyalties}
+        // mp206 listSC
+        const paymentTokenId = opts.paymentTokenId || 0;
+        const endTime = opts.endTime || Number.MAX_SAFE_INTEGER;
+        const royalties = opts.enforceRoyalties
+          ? Math.min(nft?.royalties?.royaltyPoints || 0, royaltyBase - fee)
+          : 0; // RoyaltyPoints
+        const createPoints1 = opts.enforceRoyalties
+          ? nft?.royalties?.creator1Points || 0
+          : 0; // CreatePoints1
+        const createPoints2 = opts.enforceRoyalties
+          ? nft?.royalties?.creator2Points || 0
+          : 0; // CreatePoints1
+        const createPoints3 = opts.enforceRoyalties
+          ? nft?.royalties?.creator3Points || 0
+          : 0; // CreatePoints1
+        const createAddr1 = opts.enforceRoyalties
+          ? nft?.royalties?.creator1Address || zeroAddress
+          : zeroAddress; // CreatePoints1
+        const createAddr2 = opts.enforceRoyalties
+          ? nft?.royalties?.creator2Address || zeroAddress
+          : zeroAddress; // CreatePoints1
+        const createAddr3 = opts.enforceRoyalties
+          ? nft?.royalties?.creator3Address || zeroAddress
+          : zeroAddress; // CreatePoints1
+        const noteRoyalties = opts.enforceRoyalties
+          ? `royalties: ${(royalties / 10000) * 100}`
+          : "";
+        const isSaleListSC = paymentTokenId > 0;
+        if (isSaleListSC) {
+          // SaleListSC
+          buildN.push({
+            ...(
+              await builder.mp.a_sale_listSC(
+                token.contractId,
+                token.tokenId,
+                paymentTokenId,
+                priceBi,
+                endTime,
+                royalties,
+                createPoints1,
+                createPoints2,
+                createPoints3,
+                createAddr1,
+                createAddr2,
+                createAddr3
+              )
+            ).obj,
+            payment: opts.listingBoxPaymentOverride || ListingBoxCost,
+            note: new TextEncoder().encode(`
+          a_sale_listSC contractId: nft: ${metadata.name} listPrice: ${price} ${currency.symbol} ${noteRoyalties}
           `),
-        });
+          });
+        } else {
+          // SaleListNet
+          buildN.push({
+            ...(
+              await builder.mp.a_sale_listNet(
+                token.contractId,
+                token.tokenId,
+                priceBi,
+                endTime,
+                royalties,
+                createPoints1,
+                createPoints2,
+                createPoints3,
+                createAddr1,
+                createAddr2,
+                createAddr3
+              )
+            ).obj,
+            payment: opts.listingBoxPaymentOverride || ListingBoxCost,
+            note: new TextEncoder().encode(`
+          a_sale_listNet contractId: nft: ${metadata.name} listPrice: ${price} ${currency.symbol} ${noteRoyalties}
+          `),
+          });
+        }
       }
       ci.setEnableGroupResourceSharing(true);
       ci.setFee(minFee);
@@ -527,7 +534,6 @@ export const list = async (addr, token, price, currency, opts) => {
       };
       if (customR.success) break;
     }
-    console.log({ customR });
     return customR;
   } catch (e) {
     console.log(e);
@@ -591,36 +597,44 @@ export const buy = async (addr, listing, currency, opts) => {
     // make pTok
     const ciPTok = uc.makeCI(opts.paymentTokenId, abi.arc200);
 
-    const [
-      ensureMarketplaceBalance,
-      ensureManagerBalance,
-      ensureSellerBalance,
-      ensureCreator1Balance,
-      ensureCreator2Balance,
-      ensureCreator3Balance,
-    ] = opts.skipEnsure ? Array(6).fill(false) :
-    await Promise.all(
-      [
-        ctcAddr,
-        manager,
-        listing.seller,
-        createAddr1,
-        createAddr2,
-        createAddr3,
-      ].map((addr) => ensureBalance(ciPTok, addr))
-    );
+    // do not ensure buyer balance
+    //   buyer balance is not ensured because the buyer is expected to have enough balance to buy
 
-    const ensureBuyerApproval = opts.skipEnsure ? false : await ensureARC200Approval(
-       ciPTok,
-       ctcAddr,
-       Number(listing.price)
-    );
+    const ensureMarketplaceBalance = opts.skipEnsure
+      ? false
+      : await ensureBalance(ciPTok, ctcAddr);
 
-    const ensureCollectionBalance = opts.skipEnsure ? false : await ensureAccountBalance(
-      algodClient,
-      algosdk.getApplicationAddress(Number(listing.collectionId)),
-      28500
-    );
+    const ensureManagerBalance = opts.skipEnsure
+      ? false
+      : await ensureBalance(ciPTok, manager);
+
+    const ensureSellerBalance = opts.skipEnsure
+      ? false
+      : await ensureBalance(ciPTok, listing.seller);
+
+    const ensureCreator1Balance = opts.skipEnsure
+      ? false
+      : await ensureBalance(ciPTok, createAddr1);
+
+    const ensureCreator2Balance = opts.skipEnsure
+      ? false
+      : await ensureBalance(ciPTok, createAddr2);
+
+    const ensureCreator3Balance = opts.skipEnsure
+      ? false
+      : await ensureBalance(ciPTok, createAddr3);
+
+    const ensureBuyerApproval = opts.skipEnsure
+      ? false
+      : await ensureARC200Approval(ciPTok, ctcAddr, Number(listing.price));
+
+    const ensureCollectionBalance = opts.skipEnsure
+      ? false
+      : await ensureAccountBalance(
+          algodClient,
+          algosdk.getApplicationAddress(Number(listing.collectionId)),
+          28500
+        );
 
     // -----------------------------------------
     // ensure
@@ -666,7 +680,6 @@ export const buy = async (addr, listing, currency, opts) => {
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure marketplace balance
           `),
-          ignore: true,
         });
       }
 
@@ -679,7 +692,6 @@ export const buy = async (addr, listing, currency, opts) => {
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure manager balance
           `),
-          ignore: true,
         });
       }
 
@@ -692,7 +704,6 @@ export const buy = async (addr, listing, currency, opts) => {
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure seller balance
           `),
-          ignore: true,
         });
       }
 
@@ -705,7 +716,6 @@ export const buy = async (addr, listing, currency, opts) => {
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure creator1 balance
           `),
-          ignore: true,
         });
       }
 
@@ -718,7 +728,6 @@ export const buy = async (addr, listing, currency, opts) => {
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure creator2 balance
           `),
-          ignore: true,
         });
       }
 
@@ -727,11 +736,10 @@ export const buy = async (addr, listing, currency, opts) => {
         const res = await builder.tokP.arc200_transfer(createAddr3, 0);
         buildN.push({
           ...res.obj,
-          payment: 28500,
+          payment: 28505,
           paymentNote: new TextEncoder().encode(`
           arc200_transfer ensure creator3 balance
           `),
-          ignore: true,
         });
       }
 
@@ -747,81 +755,83 @@ export const buy = async (addr, listing, currency, opts) => {
           paymentNote: new TextEncoder().encode(`
           custom payment for nft collection box
           `),
-          ignore: true,
+          ignore: true, // to ignore arc72_setApprovalForAll call
         });
       }
 
-      const priceBi = BigInt(listing.price);
+      if (!opts.ensureOnly) {
+        const priceBi = BigInt(listing.price);
 
-      // if buyNet and bal(wvoi) > 0
-      if (listing.currency === 0 && wVOIBalance > BigInt(0)) {
-        const withdrawAmount = priceBi <= wVOIBalance ? priceBi : wVOIBalance;
-        const withdrawAmountSU = Number(withdrawAmount) / 10 ** 6;
-        const txnO = await builder.tokV.withdraw(withdrawAmount);
-        buildN.push({
-          ...txnO.obj,
-          note: new TextEncoder().encode(`
+        // if buyNet and bal(wvoi) > 0
+        if (listing.currency === 0 && wVOIBalance > BigInt(0)) {
+          const withdrawAmount = priceBi <= wVOIBalance ? priceBi : wVOIBalance;
+          const withdrawAmountSU = Number(withdrawAmount) / 10 ** 6;
+          const txnO = await builder.tokV.withdraw(withdrawAmount);
+          buildN.push({
+            ...txnO.obj,
+            note: new TextEncoder().encode(`
           withdraw
           amount: ${withdrawAmountSU} ${currencySymbol}
         `),
-        });
-      }
+          });
+        }
 
-      // if buySC
-      if (listing.currency > 0) {
-        // if WVOI
-        //   deposit VOI x
-        do {
-          if (currency?.tokenId === "0" && wVOIBalance < priceBi) {
-            const depositAmount = priceBi - wVOIBalance;
-            const txnO = await builder.tokV.deposit(depositAmount);
-            buildN.push({
-              ...txnO.obj,
-              payment: depositAmount,
-            });
-          }
-        } while (0);
+        // if buySC
+        if (listing.currency > 0) {
+          // if WVOI
+          //   deposit VOI x
+          do {
+            if (currency?.tokenId === "0" && wVOIBalance < priceBi) {
+              const depositAmount = priceBi - wVOIBalance;
+              const txnO = await builder.tokV.deposit(depositAmount);
+              buildN.push({
+                ...txnO.obj,
+                payment: depositAmount,
+              });
+            }
+          } while (0);
 
-        // arc200 approve x
-        const txnO = await builder.tokP.arc200_approve(
-          ctcAddr,
-          BigInt(listing.price)
-        );
-        buildN.push({
-          ...txnO.obj,
-          payment: ensureBuyerApproval ? 28100 : 0,
-          note: new TextEncoder().encode(`
+          // arc200 approve x
+          const txnO = await builder.tokP.arc200_approve(
+            ctcAddr,
+            BigInt(listing.price)
+          );
+          buildN.push({
+            ...txnO.obj,
+            payment: 28100,
+            note: new TextEncoder().encode(`
           arc200_approve
           spender: ${ctcAddr}
           amount: ${BigInt(listing.price).toString()} ${currencySymbol}
         `),
-        });
-      }
+          });
+        }
 
-      // call a_sale_buy
-      if (listing.currency === 0) {
-        // mp sale buyNet listId with pmt x
-        const txnO = await builder.mp.a_sale_buyNet(listing.mpListingId);
-        buildN.push({
-          ...txnO.obj,
-          payment: priceBi,
-          note: new TextEncoder().encode(`
+        // call a_sale_buy
+        if (listing.currency === 0) {
+          // mp sale buyNet listId with pmt x
+          const txnO = await builder.mp.a_sale_buyNet(listing.mpListingId);
+          buildN.push({
+            ...txnO.obj,
+            payment: priceBi,
+            note: new TextEncoder().encode(`
           a_sale_buyNet
           nft: ${metadata.name}
           price: ${BigInt(listing.price).toString()} ${currencySymbol}
         `),
-        });
-      } else {
-        // mp sale buySC listId
-        const txnO = await builder.mp.a_sale_buySC(listing.mpListingId);
-        buildN.push({
-          ...txnO.obj,
-          note: new TextEncoder().encode(`
+          });
+        } else {
+          // mp sale buySC listId
+          const txnO = await builder.mp.a_sale_buySC(listing.mpListingId);
+          buildN.push({
+            ...txnO.obj,
+            note: new TextEncoder().encode(`
           a_sale_buySC
           nft: ${metadata.name}
           price: ${BigInt(listing.price).toString()} ${currencySymbol}
         `),
-        });
+          });
+        }
       }
       ci.setFee(minFee);
       ci.setEnableGroupResourceSharing(true);

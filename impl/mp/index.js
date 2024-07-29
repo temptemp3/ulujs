@@ -186,8 +186,9 @@ class Contract {
   deleteListing = async (listId) => {
     this.contractInstance.setFee(2000);
     return await this.contractInstance.a_sale_deleteListing(listId);
-  }
-  DeleteListingEvent = async (query) => await this.contractInstance.e_sale_DeleteListingEvent(query);
+  };
+  DeleteListingEvent = async (query) =>
+    await this.contractInstance.e_sale_DeleteListingEvent(query);
   BuyEvent = async (query) =>
     await this.contractInstance.e_sale_BuyEvent(query);
   ListEvent = async (query) =>
@@ -197,8 +198,6 @@ class Contract {
     await buy(addr, listings, currency, opts);
   static list = async (addr, token, price, currency, opts) =>
     await list(addr, token, price, currency, opts);
-  static ensure = async (addr, token, price, currency, opts) =>
-    await ensure(addr, token, price, currency, opts);
 }
 
 export default Contract;

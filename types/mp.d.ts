@@ -31,7 +31,6 @@ export interface NFTIndexerTokenI {
   ["mint-round"]: number;
 }
 
-
 export interface NFTIndexerListingI {
   transactionId: string;
   mpContractId: number;
@@ -45,7 +44,7 @@ export interface NFTIndexerListingI {
   endTimestamp: number | null;
   royalty: number | null;
   collectionId: number;
-  token: TokenType
+  token: TokenType;
   delete?: any;
   sale?: any;
 }
@@ -57,11 +56,11 @@ interface BaseOptionsI {
   algodClient: any;
   indexerClient: any;
   manager?: string;
+  skipEnsure?: boolean;
+  ensureOnly?: boolean;
 }
 
-interface BuyOptionsI extends BaseOptionsI {
-  skipEnsure?: boolean;
-}
+interface BuyOptionsI extends BaseOptionsI {}
 
 interface ListOptionsI extends BaseOptionsI {
   mpContractId: number;
@@ -130,5 +129,4 @@ export class Contract extends arc200 {
     token: NFTIndexerTokenI,
     opts: EnsureOptionsI
   ) => Promise<any>;
-   
 }

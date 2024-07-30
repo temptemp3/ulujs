@@ -11,7 +11,7 @@ import {
   decodeSwapEvent,
 } from "../../utils/swap.js";
 import swap200Extension from "../../abi/swap/index.js";
-import pkg from "../../package.json" assert { type: "json" };
+import { version } from "../../version.js";
 
 // :'######::'##:::::'##::::'###::::'########::
 // '##... ##: ##:'##: ##:::'## ##::: ##.... ##:
@@ -52,7 +52,7 @@ class Contract extends ARC200Contract {
       opts.simulate,
       opts.waitForConfirmation
     );
-    ci.setAgentName(`ulujs-${pkg.version}`);
+    ci.setAgentName(`ulujs-${version}`);
     this.ciSwap = ci;
   }
   Info = async () => await Info(this.ciSwap);

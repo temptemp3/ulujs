@@ -67,6 +67,7 @@ interface ListOptionsI extends BaseOptionsI {
   endTime?: number;
   enforceRoyalties?: boolean;
   listingBoxPaymentOverride?: number;
+  listingsToDelete?: NFTIndexerListingI[];
 }
 
 interface EnsureOptionsI extends ListOptionsI {}
@@ -123,10 +124,5 @@ export class Contract extends arc200 {
     price: string,
     currency: any,
     opts: ListOptionsI
-  ) => Promise<any>;
-  static ensure: (
-    addr: string,
-    token: NFTIndexerTokenI,
-    opts: EnsureOptionsI
   ) => Promise<any>;
 }

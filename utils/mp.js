@@ -318,7 +318,7 @@ export const list = async (addr, token, price, currency, opts) => {
       tokV: uc.makeConstructor(opts.wrappedNetworkTokenId, abi.nt200),
       tokP: uc.makeConstructor(opts.paymentTokenId, abi.arc200),
       nft: uc.makeConstructor(Number(token.contractId), abi.arc72),
-      mp: uc.makeConstructor(opts.mpContractId, abi.mp),
+      mp: uc.makeConstructor(opts.mpContractId, abi.mp), 
     };
 
     const [
@@ -359,6 +359,7 @@ export const list = async (addr, token, price, currency, opts) => {
     //     ensure creator2 balance
     //     ensure creator3 balance
     // CORE
+    //   mp206 deleteListings
     //   arc72 approve
     //   mp206 listSC or listNet
     // ------------------------------------------
@@ -437,6 +438,19 @@ export const list = async (addr, token, price, currency, opts) => {
         // ------------------------------------------
         // CORE
         // ------------------------------------------
+        // mp206 deleteListings
+        for(const listing of opts.listingsToDelete || []) {
+          const res = await builder.mp.a_sale_deleteListing(listing.mpListingId);
+          console.log(res);
+          buildN.push({
+            ...res.obj,
+            note: new TextEncoder().encode(`
+            a_sale_deleteListing ${listing.mpListingId} ${listing.listId}
+            `),
+            fee: 2000
+          });
+        }
+
         // arc72 approve
         const arc72_approveR = await builder.nft.arc72_approve(
           ctcAddr,

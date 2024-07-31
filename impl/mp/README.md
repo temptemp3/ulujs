@@ -74,6 +74,7 @@ const customR = await mp.list(
     extraTxns: [], // extar transaction to include before listing txn (optional)
     enforceRoyalties: false, // include royalty payout in listing (optional, default=false) 
     listingBoxPaymentOverride: ListingBoxCost + nft.tokenId, // number, n >= ListingBoxCost (optional)
+    listingsToDelete: [] // NFTIndexerListing[] (optional)
   }
 );
 // sign and send txns if using txnlabs/use-wallet

@@ -7,11 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.18] - 2024-07-31
+
+### Changed
+
+- type for CONTRACT getEvent method
+
 ## [0.10.17] - 2024-07-31
 
 ### Added
 
-- Added option to delete listings in mp.list method
+- option to delete listings in mp.list method
 
 ### Removed
 

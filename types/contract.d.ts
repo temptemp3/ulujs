@@ -1,3 +1,12 @@
+export interface GetEventOpts {
+  minRound?: number;
+  maxRound?: number;
+  address?: string;
+  round?: number;
+  txid?: string;
+  sender?: string;
+  limit?: number;
+}
 export class CONTRACT {
   [key: string]: (...args: any[]) => any; // any function
   // specific functions
@@ -17,7 +26,7 @@ export class CONTRACT {
   setFee(fee: number): void;
   custom: () => any;
   setTransfers(transfers: any[]): void;
-  getEvents(opts: { minRound: number }): any;
+  getEvents(opts: GetEventOpts): any;
   setStep: any;
   setAccounts: any;
   setEnableGroupResourceSharing: any;

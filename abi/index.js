@@ -8,6 +8,7 @@ import stakr200 from "./stakr200/index.js";
 import nautilus from "./nautilus/index.js";
 import custom from "./custom/index.js";
 import swap from "./swap/index.js";
+import messenger from "./messenger/index.js";
 export default {
   hsv2,
   arc72,
@@ -19,4 +20,5 @@ export default {
   nautilus,
   custom,
   swap,
+  messenger,
 };

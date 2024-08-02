@@ -14,6 +14,8 @@ import nt200 from "./impl/nt200/index.js";
 export { default as nt200 } from "./impl/nt200/index.js";
 import swap from "./impl/swap/index.js";
 export { default as swap } from "./impl/swap/index.js";
+import messenger from "./impl/messenger/index.js";
+export { default as messenger } from "./impl/messenger/index.js";
 import abi from "./abi/index.js";
 export { default as abi } from "./abi/index.js";
 export default {
@@ -26,4 +28,5 @@ export default {
   mp,
   nt200,
   swap,
+  messenger,
 };

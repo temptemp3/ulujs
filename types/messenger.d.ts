@@ -25,6 +25,17 @@ interface PartKeyInfoI extends EventI {
   sp_key: string;
 }
 
-export class Contract extends Base {
+export class Contract {
+  constructor(
+    contractId: number,
+    algodClient: any,
+    indexerClient: any,
+    opts?: {
+      acc?: { addr: string; sk: Uint8Array };
+      simulate?: boolean;
+      formatBytes?: boolean;
+      waitForConfirmation?: boolean;
+    }
+  );
   PartKeyInfo(query?: EventQuery): Promise<PartKeyInfoI[]>;
 }

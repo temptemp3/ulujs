@@ -6,6 +6,18 @@ import { Contract as swap200 } from "./swap200";
 import { Contract as swap } from "./swap";
 import { Contract as mp } from "./mp";
 import { Contract as nt200 } from "./nt200";
+import { Contract as messenger } from "./messenger";
 import { abi } from "./abi";
 
-export { CONTRACT, hsv2, arc72, arc200, swap200, swap, mp, nt200, abi };
+export {
+  CONTRACT,
+  hsv2,
+  arc72,
+  arc200,
+  swap200,
+  swap,
+  mp,
+  nt200,
+  abi,
+  messenger,
+};

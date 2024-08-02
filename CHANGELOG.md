@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.8] - 2024-08-01
+
+## Added
+
+- method for nt200 abi
+
 ## [0.11.7] - 2024-08-01
 
 ## Fixed

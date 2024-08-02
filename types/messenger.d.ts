@@ -12,9 +12,12 @@ type PartKeyInfo = [
   string
 ];
 
-type PartKeyInfoEvent = [...ContractEvent, PartKeyInfo];
+export type PartKeyInfoEvent = [...ContractEvent, PartKeyInfo];
 
-interface PartKeyInfoI extends EventI {
+export interface PartKeyInfoI extends EventI {
+  txId: string;
+  round: number;
+  ts: number;
   who: string;
   address: string;
   vote_k: string;

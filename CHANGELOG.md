@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2024-08-01
+
+## Added
+
+- messenger abi and impl with PartKeyInfo method
+
 ## [0.10.18] - 2024-07-31
 
 ### Changed

@@ -115,7 +115,10 @@ export class Contract extends arc200 {
     poolId: number,
     A: Asset,
     B: Asset,
-    extraTxns?: any[]
+    extraTxns?: any[],
+    opts?: {
+      debug: boolean;
+    }
   ) => Promise<
     | { success: true; txns: string[]; returnValue: any }
     | { success: false; error: any }

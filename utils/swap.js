@@ -876,22 +876,19 @@ export const deposit = async (
   }
 };
 
-export const rate = (info, A, B) => {
-  console.log({ info, A, B });
+export const rate = (info, mA, mB) => {
   const { poolBals, tokA: pTokA, tokB: pTokB } = info;
   const { A: poolA, B: poolB } = poolBals;
-  const decA = A?.decimals || 0;
-  const decB = B?.decimals || 0;
-  const tTokA = A?.tokenId || 0;
-  const tTokB = B?.tokenId || 0;
+  const mTokA = mA?.tokenId || 0;
+  const mTokB = mB?.tokenId || 0;
   const valid =
-    (pTokA === tTokA && pTokB === tTokB) ||
-    (pTokA === tTokB && pTokB === tTokA);
+    (pTokA === mTokA && pTokB === mTokB) ||
+    (pTokA === mTokB && pTokB === mTokA);
   if (!valid) {
     return 0;
   }
-  console.log({ decA, decB });
-  const swapAForB = pTokA === tTokA && pTokB === tTokB;
+  const swapAForB = pTokA === mTokA && pTokB === mTokB;
+  const [decA, decB] = swapAForB ? [mA?.decimals, mB?.decimals] : [mB?.decimals, mA?.decimals];
   const poolASU = new BigNumber(poolA).dividedBy(
     new BigNumber(10).pow(Number(decA))
   );

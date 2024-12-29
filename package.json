@@ -23,7 +23,6 @@
   },
   "types": "./types/index.d.ts",
   "dependencies": {
-    "arccjs": "^2.10.10",
-    "ulujs": "^0.11.16"
+    "arccjs": "^2.10.11"
   }
 }

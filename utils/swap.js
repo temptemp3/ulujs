@@ -82,7 +82,14 @@ export const Info = async (contractInstance) => {
   };
 };
 
-export const swap = async (contractInstance, addr, poolId, A, B, extraTxns =[]) => {
+export const swap = async (
+  contractInstance,
+  addr,
+  poolId,
+  A,
+  B,
+  extraTxns = []
+) => {
   if (!addr || !poolId || !A.amount || !B.decimals) {
     return {
       success: false,
@@ -354,6 +361,7 @@ export const swap = async (contractInstance, addr, poolId, A, B, extraTxns =[]) 
             ci.setFee(4000); // fee for custom
             ci.setExtraTxns([...buildO, ...extraTxns]);
             ci.setEnableGroupResourceSharing(true);
+            /*
             const accounts = [algosdk.getApplicationAddress(poolId)];
             if (!isNaN(Number(A.tokenId)) && Number(A.tokenId) > 0) {
               accounts.push(algosdk.getApplicationAddress(A.contractId));
@@ -362,6 +370,8 @@ export const swap = async (contractInstance, addr, poolId, A, B, extraTxns =[]) 
               accounts.push(algosdk.getApplicationAddress(B.contractId));
             }
             ci.setAccounts(accounts);
+            */
+            ci.setGroupResourceSharingStrategy("merge");
             customR = await ci.custom();
             if (!customR.success) {
               console.log(`custom failed skipping (${p1},${p2},${p3},${p4})`);
@@ -530,20 +540,20 @@ export const deposit = async (
       throw new Error("Abort deposit no return");
 
     const payments = [];
-    for (const p6 of [1,0]) { 
-    for (const p5 of /*first deplosit*/ [0, 1]) {
-      for (const p4 of /*tokA vsa deposit*/ [0, 28500]) {
-        for (const p3 of /*tokB vsa deposit */ [0, 28501]) {
-          for (const p2 of /*tokB approve payment*/ [0, 28100]) {
-            for (const p1 of /*tokA approval payment*/ [0, 28101]) {
-              const payment = [p1, p2, p3, p4, p5, p6];
-              payments.push(payment);
+    for (const p6 of [1, 0]) {
+      for (const p5 of /*first deplosit*/ [0, 1]) {
+        for (const p4 of /*tokA vsa deposit*/ [0, 28500]) {
+          for (const p3 of /*tokB vsa deposit */ [0, 28501]) {
+            for (const p2 of /*tokB approve payment*/ [0, 28100]) {
+              for (const p1 of /*tokA approval payment*/ [0, 28101]) {
+                const payment = [p1, p2, p3, p4, p5, p6];
+                payments.push(payment);
+              }
             }
           }
         }
       }
     }
-  }
 
     // move last payment to second payment position
     //const lastPayment = payments.pop();
@@ -586,7 +596,7 @@ export const deposit = async (
         buildO.push({
           ...obj,
           payment: 1e6,
-          note
+          note,
         });
       }
       // -------------------------------------------
@@ -603,26 +613,22 @@ export const deposit = async (
             0
           );
           const msg = `Initialize pool ${A.symbol} balances`;
-          if(opts.debug) {
+          if (opts.debug) {
             console.log(msg, 28502);
           }
           buildO.push({
             ...res.obj,
             payment: 28502,
-            note: new TextEncoder().encode(
-              msg
-            ),
+            note: new TextEncoder().encode(msg),
           });
           const msg2 = `Initialize pool ${B.symbol} balances`;
-          if(opts.debug) {
+          if (opts.debug) {
             console.log(msg2, 28502);
           }
           buildO.push({
             ...res2.obj,
             payment: 28502,
-            note: new TextEncoder().encode(
-              msg2
-            ),
+            note: new TextEncoder().encode(msg2),
           });
         }
       } while (0);
@@ -643,24 +649,22 @@ export const deposit = async (
         const aamt = amtAi;
         const xaid = Number(A.tokenId);
         const msg = `Deposit ${new BigNumber(amtAi.toString()).dividedBy(
-          new BigNumber(10)
-            .pow(Number(A.decimals))
-            .toFixed(Number(A.decimals))
+          new BigNumber(10).pow(Number(A.decimals)).toFixed(Number(A.decimals))
         )} ${A.symbol} to application address ${algosdk.getApplicationAddress(
           A.contractId
         )} from user address ${acc.addr}`;
-        if(opts.debug) {
+        if (opts.debug) {
           console.log(msg, payment);
         }
-        const note = new TextEncoder().encode(
-          msg
-        );
+        const note = new TextEncoder().encode(msg);
         const txnO = {
           ...obj,
           xaid,
           aamt,
           payment,
           note,
+          accounts: [algosdk.getApplicationAddress(Number(poolId))],
+          foreignApps: [Number(A.contractId)],
         };
         buildO.push(txnO);
       }
@@ -675,13 +679,11 @@ export const deposit = async (
         const aamt = amtBi;
         const xaid = Number(B.tokenId);
         const msg = `Deposit ${new BigNumber(amtBi.toString()).dividedBy(
-          new BigNumber(10)
-            .pow(Number(B.decimals))
-            .toFixed(Number(B.decimals))
+          new BigNumber(10).pow(Number(B.decimals)).toFixed(Number(B.decimals))
         )} ${B.symbol} to application address ${algosdk.getApplicationAddress(
           B.contractId
         )} from user address ${acc.addr}`;
-        if(opts.debug) {
+        if (opts.debug) {
           console.log(msg, payment);
         }
         const note = new TextEncoder().encode(msg);
@@ -702,20 +704,16 @@ export const deposit = async (
       if (A.tokenId === "0") {
         // Add box creation
         const msg = `Deposit ${new BigNumber(amtAi.toString()).dividedBy(
-          new BigNumber(10)
-            .pow(Number(A.decimals))
-            .toFixed(Number(A.decimals))
+          new BigNumber(10).pow(Number(A.decimals)).toFixed(Number(A.decimals))
         )} ${A.symbol} to application address ${algosdk.getApplicationAddress(
           A.contractId
         )} from user address ${acc.addr}`;
         const { obj } = await builder.tokA.deposit(amtAi);
         const payment = amtAi;
-        if(opts.debug) {
+        if (opts.debug) {
           console.log(msg, payment);
         }
-        const note = new TextEncoder().encode(
-          msg 
-        );
+        const note = new TextEncoder().encode(msg);
         const txnO = {
           ...obj,
           payment,
@@ -728,18 +726,14 @@ export const deposit = async (
         const { obj } = await builder.tokB.deposit(amtBi);
         const payment = amtBi;
         const msg = `Deposit ${new BigNumber(amtBi.toString()).dividedBy(
-          new BigNumber(10)
-            .pow(Number(B.decimals))
-            .toFixed(Number(B.decimals))
+          new BigNumber(10).pow(Number(B.decimals)).toFixed(Number(B.decimals))
         )} ${B.symbol} to application address ${algosdk.getApplicationAddress(
           B.contractId
         )} from user address ${acc.addr}`;
-        if(opts.debug) {
+        if (opts.debug) {
           console.log(msg, payment);
         }
-        const note = new TextEncoder().encode(
-          msg
-        );
+        const note = new TextEncoder().encode(msg);
         const txnO = {
           ...obj,
           payment,
@@ -758,13 +752,11 @@ export const deposit = async (
         );
         const payment = p1;
         const msg = `Approve ${new BigNumber(amtAi.toString()).dividedBy(
-          new BigNumber(10)
-            .pow(Number(decA))
-            .toFixed(Number(decA))
+          new BigNumber(10).pow(Number(decA)).toFixed(Number(decA))
         )} ${A.symbol} to application address ${algosdk.getApplicationAddress(
           poolId
         )} from user address ${acc.addr}`;
-        if(opts.debug) {
+        if (opts.debug) {
           console.log(msg, payment);
         }
         const note = new TextEncoder().encode(msg);
@@ -786,13 +778,11 @@ export const deposit = async (
         );
         const payment = p2;
         const msg = `Approve ${new BigNumber(amtBi.toString()).dividedBy(
-          new BigNumber(10)
-            .pow(Number(decB))
-            .toFixed(Number(decB))
+          new BigNumber(10).pow(Number(decB)).toFixed(Number(decB))
         )} ${B.symbol} to application address ${algosdk.getApplicationAddress(
           poolId
         )} from user address ${acc.addr}`;
-        if(opts.debug) {
+        if (opts.debug) {
           console.log(msg, payment);
         }
         const note = new TextEncoder().encode(msg);
@@ -812,18 +802,16 @@ export const deposit = async (
           [amtAi, amtBi],
           infoR.success ? simR.returnValue : 0
         );
-        const msg = `Provider_deposit ${new BigNumber(amtAi.toString()).dividedBy(
-          new BigNumber(10)
-            .pow(Number(decA))
-            .toFixed(Number(decA))
+        const msg = `Provider_deposit ${new BigNumber(
+          amtAi.toString()
+        ).dividedBy(
+          new BigNumber(10).pow(Number(decA)).toFixed(Number(decA))
         )} ${A.symbol} and ${new BigNumber(amtBi.toString()).dividedBy(
-          new BigNumber(10)
-            .pow(Number(decB))
-            .toFixed(Number(decB))
+          new BigNumber(10).pow(Number(decB)).toFixed(Number(decB))
         )} ${B.symbol} to application address ${algosdk.getApplicationAddress(
           poolId
         )} from user address ${acc.addr}`;
-        if(opts.debug) {
+        if (opts.debug) {
           console.log(msg);
         }
         const note = new TextEncoder().encode(msg);
@@ -835,25 +823,13 @@ export const deposit = async (
       } while (0);
       // -------------------------------------
       console.log(buildO, extraTxns);
-      //ci.setBeaconId(390001) // wVOI
-      //ci.setBeaconSelector("e33d8052"); // touch()void
+      ci.setBeaconId(Number(poolId));
       ci.setDebug(opts.debug);
       ci.setStep(5); // increase step for grs txns
       ci.setFee(4000); // fee for custom
-      //if(p6 > 0) {
-      //  ci.setExtraTxns([...extraTxns, ...buildO]);
-      //} else {
-        ci.setExtraTxns(buildO);
-      //}
+      ci.setExtraTxns(buildO);
       ci.setEnableGroupResourceSharing(true);
-      //const accounts = [algosdk.getApplicationAddress(poolId)];
-      // if (!isNaN(Number(A.tokenId)) && Number(A.tokenId) > 0) {
-      //   accounts.push(algosdk.getApplicationAddress(A.contractId));
-      // }
-      // if (!isNaN(Number(B.tokenId)) && Number(B.tokenId) > 0) {
-      //   accounts.push(algosdk.getApplicationAddress(B.contractId));
-      // }
-      //ci.setAccounts(accounts);
+      ci.setGroupResourceSharingStrategy("merge");
       customR = await ci.custom();
       console.log(customR);
       if (!customR.success) {
@@ -888,7 +864,9 @@ export const rate = (info, mA, mB) => {
     return 0;
   }
   const swapAForB = pTokA === mTokA && pTokB === mTokB;
-  const [decA, decB] = swapAForB ? [mA?.decimals, mB?.decimals] : [mB?.decimals, mA?.decimals];
+  const [decA, decB] = swapAForB
+    ? [mA?.decimals, mB?.decimals]
+    : [mB?.decimals, mA?.decimals];
   const poolASU = new BigNumber(poolA).dividedBy(
     new BigNumber(10).pow(Number(decA))
   );

@@ -188,7 +188,7 @@ export const swap = async (
         for (const p2 of [28501, 0]) {
           // 0 is do not ensure balance, 28500 is ensure balance
           // when swap out token balance does not exist ensure it
-          for (const p1 of [28100, 0]) {
+          for (const p1 of [28502, 0]) {
             payments.push([p1, p2, p3, p4]);
           }
         }
@@ -425,13 +425,18 @@ export const deposit = async (
   A,
   B,
   extraTxns = [],
-  opts = { debug: true }
+  opts = {
+    debug: true,
+  }
 ) => {
   if (!addr || !poolId || !A.amount || !B.amount) {
     return {
       success: false,
       error: "Invalid arguments",
     };
+  }
+  if (opts.debug) {
+    console.log({ A, B, extraTxns });
   }
   try {
     const acc = {
@@ -452,6 +457,24 @@ export const deposit = async (
     ].map(([contractId, abi]) =>
       makeCtc(contractInstance, acc, contractId, abi)
     );
+
+    const beaconBuilder = makeBuilder(contractInstance, acc, {
+      beacon: {
+        contractId: ci.getBeaconId(),
+        abi: {
+          name: "beacon",
+          description: "beacon",
+          methods: [
+            {
+              name: "nop",
+              args: [],
+              returns: { type: "void" },
+            },
+          ],
+          events: [],
+        },
+      },
+    });
 
     const infoR = await Info(contractInstance);
 
@@ -562,10 +585,10 @@ export const deposit = async (
     const payments = [];
     for (const p6 of [1, 0]) {
       for (const p5 of /*first deplosit*/ [0, 1]) {
-        for (const p4 of /*tokA vsa deposit*/ [0, 28500]) {
-          for (const p3 of /*tokB vsa deposit */ [0, 28501]) {
-            for (const p2 of /*tokB approve payment*/ [0, 28100]) {
-              for (const p1 of /*tokA approval payment*/ [0, 28101]) {
+        for (const p4 of /*tokA vsa deposit*/ [0, 28503]) {
+          for (const p3 of /*tokB vsa deposit */ [0, 28504]) {
+            for (const p2 of /*tokB approve payment*/ [0, 28105]) {
+              for (const p1 of /*tokA approval payment*/ [0, 28506]) {
                 const payment = [p1, p2, p3, p4, p5, p6];
                 payments.push(payment);
               }
@@ -583,7 +606,7 @@ export const deposit = async (
     let customR;
     for (const payment of [firstPayment, lastPayment, ...middlePayments]) {
       const [p1, p2, p3, p4, p5, p6] = payment;
-      const buildO = [];
+      const buildO = [...extraTxns];
       console.log({ p1, p2, p3, p4, p5, p6, A, B });
       // -------------------------------------------
       // if new pool
@@ -814,6 +837,18 @@ export const deposit = async (
         };
         buildO.push(txnO);
       } while (0);
+      // -------------------------------------------
+      // ensure resources
+      // -------------------------------------------
+      {
+        const txn0 = (await beaconBuilder.beacon.nop()).obj;
+        buildO.push({
+          ...txn0,
+          note: new TextEncoder().encode(
+            `beacon transaction (ADD LIQUIDITY ${A.symbol} + ${B.symbol})`
+          ),
+        });
+      }
       // -------------------------------------
       // deposit
       // -------------------------------------
@@ -843,7 +878,6 @@ export const deposit = async (
         buildO.push(txnO);
       } while (0);
       // -------------------------------------
-      console.log(buildO, extraTxns);
       ci.setBeaconId(Number(poolId));
       ci.setDebug(opts.debug);
       ci.setStep(5); // increase step for grs txns

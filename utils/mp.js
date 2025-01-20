@@ -45,10 +45,16 @@ const decodeRoyalties = (royalties) => {
  * @param ci: contract instance
  * @param addr: address
  * @returns: ensure balance
+ * @note: if balance is greater than 0, return false
+ *        if can transfer for free, return false
+ *        if can transfer for 28500, return true
  */
 const ensureBalance = async (ci, addr) => {
   let ensureBalance = false;
   do {
+    const arc200_balanceR = await ci.arc200_balanceOf(addr);
+    if (arc200_balanceR.success && arc200_balanceR.returnValue > BigInt(0))
+      break;
     const res = await ci.arc200_transfer(addr, 0);
     if (res.success) break;
     ci.setPaymentAmount(28500);
@@ -262,6 +268,7 @@ export const ensure = async (addr, token, opts) => {
       ci.setFee(minFee);
       ci.setExtraTxns(buildN);
       ci.setEnableGroupResourceSharing(true);
+      ci.setGroupResourceSharingStrategy("merge");
       customR = {
         ...(await ci.custom()),
         objs: buildN,
@@ -318,7 +325,7 @@ export const list = async (addr, token, price, currency, opts) => {
       tokV: uc.makeConstructor(opts.wrappedNetworkTokenId, abi.nt200),
       tokP: uc.makeConstructor(opts.paymentTokenId, abi.arc200),
       nft: uc.makeConstructor(Number(token.contractId), abi.arc72),
-      mp: uc.makeConstructor(opts.mpContractId, abi.mp), 
+      mp: uc.makeConstructor(opts.mpContractId, abi.mp),
     };
 
     const [
@@ -439,15 +446,16 @@ export const list = async (addr, token, price, currency, opts) => {
         // CORE
         // ------------------------------------------
         // mp206 deleteListings
-        for(const listing of opts.listingsToDelete || []) {
-          const res = await builder.mp.a_sale_deleteListing(listing.mpListingId);
-          console.log(res);
+        for (const listing of opts.listingsToDelete || []) {
+          const res = await builder.mp.a_sale_deleteListing(
+            listing.mpListingId
+          );
           buildN.push({
             ...res.obj,
             note: new TextEncoder().encode(`
             a_sale_deleteListing ${listing.mpListingId} ${listing.listId}
             `),
-            fee: 2000
+            fee: 2000,
           });
         }
 
@@ -582,6 +590,9 @@ export const buy = async (addr, listing, currency, opts) => {
     const createAddr2 = royaltyInfo?.creator2Address || zeroAddress;
     const createAddr3 = royaltyInfo?.creator3Address || zeroAddress;
 
+    const isBuySC = listing.currency > 0;
+    const isBuyNet = !isBuySC;
+
     const ctcAddr = algosdk.getApplicationAddress(listing.mpContractId);
 
     const uc = new uluClient(algodClient, indexerClient, addr);
@@ -601,6 +612,10 @@ export const buy = async (addr, listing, currency, opts) => {
       throw new Error("wVOI balance failed in simulate");
     const wVOIBalance = wVOIBalanceR.returnValue;
 
+    // check for false positive
+    // if wVOIBalance is 0, try create a balance box
+    // has box is create successfully, return false
+
     const builder = {
       tokV: uc.makeConstructor(opts.wrappedNetworkTokenId, abi.nt200),
       tokP: uc.makeConstructor(opts.paymentTokenId, abi.arc200),
@@ -608,47 +623,68 @@ export const buy = async (addr, listing, currency, opts) => {
       mp: uc.makeConstructor(listing.mpContractId, abi.mp),
     };
 
+    // const beaconBuilder = uc.makeConstructor(ci.getBeaconId(), {
+    //       name: "beacon",
+    //       description: "beacon",
+    //       methods: [
+    //         {
+    //           name: "nop",
+    //           args: [],
+    //           returns: { type: "void" },
+    //         },
+    //       ],
+    //       events: [],
+    //     })
+
     // make pTok
     const ciPTok = uc.makeCI(opts.paymentTokenId, abi.arc200);
 
     // do not ensure buyer balance
     //   buyer balance is not ensured because the buyer is expected to have enough balance to buy
 
-    const ensureMarketplaceBalance = opts.skipEnsure
-      ? false
-      : await ensureBalance(ciPTok, ctcAddr);
+    const ensureMarketplaceBalance =
+      opts.skipEnsure || isBuyNet
+        ? false
+        : await ensureBalance(ciPTok, ctcAddr);
 
-    const ensureManagerBalance = opts.skipEnsure
-      ? false
-      : await ensureBalance(ciPTok, manager);
+    const ensureManagerBalance =
+      opts.skipEnsure || isBuyNet
+        ? false
+        : await ensureBalance(ciPTok, manager);
 
-    const ensureSellerBalance = opts.skipEnsure
-      ? false
-      : await ensureBalance(ciPTok, listing.seller);
+    const ensureSellerBalance =
+      opts.skipEnsure || isBuyNet
+        ? false
+        : await ensureBalance(ciPTok, listing.seller);
 
-    const ensureCreator1Balance = opts.skipEnsure
-      ? false
-      : await ensureBalance(ciPTok, createAddr1);
+    const ensureCreator1Balance =
+      opts.skipEnsure || isBuyNet
+        ? false
+        : await ensureBalance(ciPTok, createAddr1);
 
-    const ensureCreator2Balance = opts.skipEnsure
-      ? false
-      : await ensureBalance(ciPTok, createAddr2);
+    const ensureCreator2Balance =
+      opts.skipEnsure || isBuyNet
+        ? false
+        : await ensureBalance(ciPTok, createAddr2);
 
-    const ensureCreator3Balance = opts.skipEnsure
-      ? false
-      : await ensureBalance(ciPTok, createAddr3);
+    const ensureCreator3Balance =
+      opts.skipEnsure || isBuyNet
+        ? false
+        : await ensureBalance(ciPTok, createAddr3);
 
-    const ensureBuyerApproval = opts.skipEnsure
-      ? false
-      : await ensureARC200Approval(ciPTok, ctcAddr, Number(listing.price));
+    const ensureBuyerApproval =
+      opts.skipEnsure || isBuyNet
+        ? false
+        : await ensureARC200Approval(ciPTok, ctcAddr, Number(listing.price));
 
-    const ensureCollectionBalance = opts.skipEnsure
-      ? false
-      : await ensureAccountBalance(
-          algodClient,
-          algosdk.getApplicationAddress(Number(listing.collectionId)),
-          28500
-        );
+    const ensureCollectionBalance =
+      opts.skipEnsure || isBuyNet
+        ? false
+        : await ensureAccountBalance(
+            algodClient,
+            algosdk.getApplicationAddress(Number(listing.collectionId)),
+            28500
+          );
 
     // -----------------------------------------
     // ensure
@@ -777,7 +813,7 @@ export const buy = async (addr, listing, currency, opts) => {
         const priceBi = BigInt(listing.price);
 
         // if buyNet and bal(wvoi) > 0
-        if (listing.currency === 0 && wVOIBalance > BigInt(0)) {
+        if (!isBuySC && wVOIBalance > BigInt(0)) {
           const withdrawAmount = priceBi <= wVOIBalance ? priceBi : wVOIBalance;
           const withdrawAmountSU = Number(withdrawAmount) / 10 ** 6;
           const txnO = await builder.tokV.withdraw(withdrawAmount);
@@ -791,19 +827,21 @@ export const buy = async (addr, listing, currency, opts) => {
         }
 
         // if buySC
-        if (listing.currency > 0) {
+        if (isBuySC) {
           // if WVOI
           //   deposit VOI x
-          do {
-            if (currency?.tokenId === "0" && wVOIBalance < priceBi) {
-              const depositAmount = priceBi - wVOIBalance;
-              const txnO = await builder.tokV.deposit(depositAmount);
-              buildN.push({
-                ...txnO.obj,
-                payment: depositAmount,
-              });
-            }
-          } while (0);
+          if (currency?.tokenId === "0" && wVOIBalance < priceBi) {
+            const depositAmount = priceBi - wVOIBalance;
+            const txnO = await builder.tokV.deposit(depositAmount);
+            buildN.push({
+              ...txnO.obj,
+              payment: depositAmount,
+              note: new TextEncoder().encode(`
+          deposit
+          amount: ${depositAmount} ${currencySymbol}
+        `),
+            });
+          }
 
           // arc200 approve x
           const txnO = await builder.tokP.arc200_approve(
@@ -822,8 +860,10 @@ export const buy = async (addr, listing, currency, opts) => {
         }
 
         // call a_sale_buy
-        if (listing.currency === 0) {
+        if (!isBuySC) {
+          // -------------------------------------------
           // mp sale buyNet listId with pmt x
+          // -------------------------------------------
           const txnO = await builder.mp.a_sale_buyNet(listing.mpListingId);
           buildN.push({
             ...txnO.obj,
@@ -835,7 +875,9 @@ export const buy = async (addr, listing, currency, opts) => {
         `),
           });
         } else {
+          // -------------------------------------------
           // mp sale buySC listId
+          // -------------------------------------------
           const txnO = await builder.mp.a_sale_buySC(listing.mpListingId);
           buildN.push({
             ...txnO.obj,
@@ -846,6 +888,9 @@ export const buy = async (addr, listing, currency, opts) => {
         `),
           });
         }
+      }
+      if (isBuySC) {
+        ci.setGroupResourceSharingStrategy("merge");
       }
       ci.setFee(minFee);
       ci.setEnableGroupResourceSharing(true);

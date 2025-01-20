@@ -58,6 +58,7 @@ interface BaseOptionsI {
   manager?: string;
   skipEnsure?: boolean;
   ensureOnly?: boolean;
+  strategy?: "merge" | "default";
 }
 
 interface BuyOptionsI extends BaseOptionsI {}

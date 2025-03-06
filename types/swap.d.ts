@@ -110,6 +110,7 @@ export class Contract extends arc200 {
     opts?: {
       debug: boolean;
       slippage: number;
+      degenMode: boolean;
     }
   ) => Promise<
     | { success: true; txns: string[]; returnValue: any }

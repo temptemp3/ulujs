@@ -92,8 +92,12 @@ export const swap = async (
   opts = {
     debug: true,
     slippage: 0.05,
+    degenMode: false,
   }
 ) => {
+  if (opts?.debug) {
+    console.log({ addr, poolId, A, B, extraTxns, opts });
+  }
   if (!addr || !poolId || !A.amount || !B.decimals) {
     return {
       success: false,
@@ -268,7 +272,7 @@ export const swap = async (
       // 1 pmt 28100
       // 1 approve x
       // -------------------------------------------
-      {
+      if (!opts?.degenMode) {
         const { obj } = await builder.tokA.arc200_approve(
           algosdk.getApplicationAddress(poolId),
           amtBi
@@ -287,12 +291,41 @@ export const swap = async (
           note,
         };
         buildO.push(txnO);
+      } else {
+        const arc200_allowanceAR = await ciTokA.arc200_allowance(
+          acc.addr,
+          algosdk.getApplicationAddress(poolId)
+        );
+        if (!arc200_allowanceAR.success)
+          throw new Error("Abort allowance no return");
+        const arc200_allowanceA = arc200_allowanceAR.returnValue;
+        console.log({ arc200_allowanceA, amtBi });
+        if (arc200_allowanceA < amtBi) {
+          const { obj } = await builder.tokA.arc200_approve(
+            algosdk.getApplicationAddress(poolId),
+            // BigUInt 2^256 - 1
+            BigInt(2) ** BigInt(256) - BigInt(1)
+          );
+          const payment = p1;
+          const note = new TextEncoder().encode(
+            `Approve ${
+              A.symbol
+            } spending to application address ${algosdk.getApplicationAddress(
+              poolId
+            )} from user address ${acc.addr}`
+          );
+          const txnO = {
+            ...obj,
+            payment,
+            note,
+          };
+          buildO.push(txnO);
+        }
       }
       // -------------------------------------------
       // 2 pmt 28500
       // 2 transfer 0
       // -------------------------------------------
-
       if (p2 > 0) {
         const { obj } = await builder.tokB.arc200_transfer(
           algosdk.getApplicationAddress(poolId),
@@ -316,12 +349,22 @@ export const swap = async (
       // -------------------------------------------
       // ensure resources
       // -------------------------------------------
+      const timestamp = Math.floor(Date.now() / 1000);
+      if (buildO.length === 0) {
+        const txn0 = (await beaconBuilder.beacon.nop()).obj;
+        buildO.push({
+          ...txn0,
+          note: new TextEncoder().encode(
+            `beacon transaction (SWAP ${B.symbol}/${A.symbol}) ${timestamp}-0`
+          ),
+        });
+      }
       if (buildO.length <= 1) {
         const txn0 = (await beaconBuilder.beacon.nop()).obj;
         buildO.push({
           ...txn0,
           note: new TextEncoder().encode(
-            `beacon transaction (SWAP ${B.symbol}/${A.symbol})`
+            `beacon transaction (SWAP ${B.symbol}/${A.symbol}) ${timestamp}-1`
           ),
         });
       }
@@ -400,7 +443,6 @@ export const swap = async (
                 ...obj,
                 note,
               };
-        console.log({ txnO });
         buildO.push(txnO);
       }
       // -------------------------------------------

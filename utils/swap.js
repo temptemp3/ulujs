@@ -88,7 +88,11 @@ export const swap = async (
   poolId,
   A,
   B,
-  extraTxns = []
+  extraTxns = [],
+  opts = {
+    debug: true,
+    slippage: 0.05,
+  }
 ) => {
   if (!addr || !poolId || !A.amount || !B.decimals) {
     return {
@@ -337,7 +341,17 @@ export const swap = async (
         if (whichOut === BigInt(0)) {
           throw new Error("Swap abort no return");
         }
-        const { obj } = await builder.pool[swapMethod](0, amtBi, whichOut);
+        const slippage = opts.slippage || 0.005;
+        const whichOutWithSlippage = BigInt(
+          new BigNumber(whichOut.toString())
+            .multipliedBy(new BigNumber(1).minus(slippage))
+            .toFixed(0)
+        );
+        const { obj } = await builder.pool[swapMethod](
+          0,
+          amtBi,
+          whichOutWithSlippage // minimum amount to receive
+        );
         const outBSU = new BigNumber(whichOut).dividedBy(
           new BigNumber(10).pow(Number(B.decimals))
         );

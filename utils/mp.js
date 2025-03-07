@@ -292,6 +292,9 @@ export const ensure = async (addr, token, opts) => {
  * @param opts: options
  */
 export const list = async (addr, token, price, currency, opts) => {
+  if (opts.debug) {
+    console.log({ addr, token, price, currency, opts });
+  }
   try {
     const minFee = 4000;
 
@@ -303,7 +306,7 @@ export const list = async (addr, token, price, currency, opts) => {
 
     const royalties = metadata?.royalties;
 
-    const royaltyInfo = royalties;
+    const royaltyInfo = decodeRoyalties(royalties || "");
 
     const createAddr1 = royaltyInfo?.creator1Address || zeroAddress;
     const createAddr2 = royaltyInfo?.creator2Address || zeroAddress;
@@ -349,11 +352,9 @@ export const list = async (addr, token, price, currency, opts) => {
       opts.skipEnsure || royaltyInfo.creator3Address === zeroAddress
         ? false
         : await ensureBalance(ciPTok, createAddr3);
-
-    const ensureARC72Approval = opts.skipEnsure
-      ? false
-      : await ensureARC72Approval(ciNFT, ctcAddr, token.tokenId);
-
+    // const doEnsureARC72Approval = opts.skipEnsure
+    //   ? false
+    //   : await ensureARC72Approval(ciNFT, ctcAddr, token.tokenId);
     // ------------------------------------------
     // EXTRAS
     //   accept extra txns
@@ -474,25 +475,25 @@ export const list = async (addr, token, price, currency, opts) => {
         const paymentTokenId = opts.paymentTokenId || 0;
         const endTime = opts.endTime || Number.MAX_SAFE_INTEGER;
         const royalties = opts.enforceRoyalties
-          ? Math.min(token?.royalties?.royaltyPoints || 0, royaltyBase - fee)
+          ? Math.min(royaltyInfo?.royaltyPoints || 0, royaltyBase - fee)
           : 0; // RoyaltyPoints
         const createPoints1 = opts.enforceRoyalties
-          ? token?.royalties?.creator1Points || 0
-          : 0; // CreatePoints1
+          ? royaltyInfo?.creator1Points || 0
+          : 10000; // CreatePoints1
         const createPoints2 = opts.enforceRoyalties
-          ? token?.royalties?.creator2Points || 0
+          ? royaltyInfo?.creator2Points || 0
           : 0; // CreatePoints1
         const createPoints3 = opts.enforceRoyalties
-          ? token?.royalties?.creator3Points || 0
+          ? royaltyInfo?.creator3Points || 0
           : 0; // CreatePoints1
         const createAddr1 = opts.enforceRoyalties
-          ? token?.royalties?.creator1Address || zeroAddress
+          ? royaltyInfo?.creator1Address || zeroAddress
           : zeroAddress; // CreatePoints1
         const createAddr2 = opts.enforceRoyalties
-          ? token?.royalties?.creator2Address || zeroAddress
+          ? royaltyInfo?.creator2Address || zeroAddress
           : zeroAddress; // CreatePoints1
         const createAddr3 = opts.enforceRoyalties
-          ? token?.royalties?.creator3Address || zeroAddress
+          ? royaltyInfo?.creator3Address || zeroAddress
           : zeroAddress; // CreatePoints1
         const noteRoyalties = opts.enforceRoyalties
           ? `royalties: ${(royalties / 10000) * 100}`
@@ -524,6 +525,17 @@ export const list = async (addr, token, price, currency, opts) => {
           });
         } else {
           // SaleListNet
+          console.log({
+            SaleListNet: {
+              royalties,
+              createPoints1,
+              createPoints2,
+              createPoints3,
+              createAddr1,
+              createAddr2,
+              createAddr3,
+            },
+          });
           buildN.push({
             ...(
               await builder.mp.a_sale_listNet(

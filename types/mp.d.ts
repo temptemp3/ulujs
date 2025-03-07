@@ -69,6 +69,7 @@ interface ListOptionsI extends BaseOptionsI {
   enforceRoyalties?: boolean;
   listingBoxPaymentOverride?: number;
   listingsToDelete?: NFTIndexerListingI[];
+  degenMode?: boolean;
 }
 
 interface EnsureOptionsI extends ListOptionsI {}

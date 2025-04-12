@@ -111,6 +111,7 @@ export class Contract extends arc200 {
       debug: boolean;
       slippage: number;
       degenMode: boolean;
+      skipWithdraw: boolean;
     }
   ) => Promise<
     | { success: true; txns: string[]; returnValue: any }

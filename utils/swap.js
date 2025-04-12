@@ -93,6 +93,7 @@ export const swap = async (
     debug: true,
     slippage: 0.05,
     degenMode: false,
+    skipWithdraw: false,
   }
 ) => {
   if (opts?.debug) {
@@ -418,7 +419,11 @@ export const swap = async (
       // if voi/wvoi/vsa out
       //   1 withdraw y
       // -------------------------------------------
-      if (!isNaN(Number(B.tokenId)) && Number(B.tokenId) >= 0) {
+      if (
+        !isNaN(Number(B.tokenId)) &&
+        Number(B.tokenId) >= 0 &&
+        !opts?.skipWithdraw
+      ) {
         const { obj } = await builder.tokB.withdraw(whichOut);
         const note = new TextEncoder().encode(
           `Withdraw ${new BigNumber(whichOut).dividedBy(
@@ -623,15 +628,23 @@ export const deposit = async (
     if (!arc200_allowanceAR.success)
       throw new Error("Abort allowance no return");
     const arc200_allowanceA = arc200_allowanceAR.returnValue;
-    const newArc200_allowanceA = arc200_allowanceA + amtAi;
+
+    const doApproveA = arc200_allowanceA < amtAi;
+
+    const newArc200_allowanceA = doApproveA ? arc200_allowanceA + amtAi : 0;
+
     const arc200_allowanceBR = await ciTokB.arc200_allowance(
       acc.addr,
       algosdk.getApplicationAddress(poolId)
     );
     if (!arc200_allowanceBR.success)
       throw new Error("Abort allowance no return");
+
     const arc200_allowanceB = arc200_allowanceBR.returnValue;
-    const newArc200_allowanceB = arc200_allowanceB + amtBi;
+
+    const doApproveB = arc200_allowanceB < amtBi;
+
+    const newArc200_allowanceB = doApproveB ? arc200_allowanceB + amtBi : 0;
 
     ciPool.setFee(4000);
     const simR = await ciPool.Provider_deposit(1, [amtAi, amtBi], 0);
@@ -845,7 +858,7 @@ export const deposit = async (
       // 1 pmt 28100
       // 1 approve x
       // -------------------------------------
-      do {
+      if (doApproveA) {
         const { obj } = await builder.tokA.arc200_approve(
           algosdk.getApplicationAddress(poolId),
           newArc200_allowanceA
@@ -866,12 +879,12 @@ export const deposit = async (
           note,
         };
         buildO.push(txnO);
-      } while (0);
+      } 
       // -------------------------------------
       // 1 pmt 28100
       // 1 approve y
       // -------------------------------------
-      do {
+      if (doApproveB) {
         const { obj } = await builder.tokB.arc200_approve(
           algosdk.getApplicationAddress(poolId),
           newArc200_allowanceB

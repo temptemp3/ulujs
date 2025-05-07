@@ -27,6 +27,8 @@ export class CONTRACT {
   custom: () => any;
   setTransfers(transfers: any[]): void;
   getEvents(opts: GetEventOpts): any;
+  getEnableParamsLastRoundMod: () => boolean;
+  getEnableRawBytes: () => boolean;
   setStep: any;
   setAccounts: any;
   setEnableGroupResourceSharing: any;
@@ -34,4 +36,6 @@ export class CONTRACT {
   setBeaconSelector: any;
   setOptins: any;
   setOnComplete: any;
+  setEnableParamsLastRoundMod: any;
+  setEnableRawBytes: any;
 }

@@ -82,6 +82,55 @@ export const Info = async (contractInstance) => {
   };
 };
 
+const arc200RedeemABI = {
+  name: "arc200_redeem",
+  description: "redeem ARC-200",
+  methods: [
+    {
+      name: "arc200_redeem",
+      args: [
+        {
+          type: "uint64",
+          name: "amount",
+          desc: "amount of ASA to redeem",
+        },
+      ],
+      readonly: false,
+      returns: {
+        type: "void",
+        desc: "None",
+      },
+      desc: "Redeem ASA for ARC-200",
+    },
+    {
+      name: "arc200_swapBack",
+      args: [
+        {
+          type: "uint64",
+          name: "amount",
+          desc: "amount of ARC-200 to swap back",
+        },
+      ],
+      readonly: false,
+      returns: {
+        type: "void",
+        desc: "None",
+      },
+      desc: "Swap ARC-200 back to ASA",
+    },
+    {
+      name: "arc200_exchange",
+      args: [],
+      readonly: false,
+      returns: {
+        type: "(uint64,address)",
+      },
+      desc: "ARC-200 exchange info (external)",
+    },
+  ],
+  events: [],
+};
+
 export const swap = async (
   contractInstance,
   addr,
@@ -113,14 +162,18 @@ export const swap = async (
     const contracts = {
       tokA: { contractId: A.contractId, abi: abi.nt200 },
       tokB: { contractId: B.contractId, abi: abi.nt200 },
+      redeemA: { contractId: A.contractId, abi: arc200RedeemABI },
+      redeemB: { contractId: B.contractId, abi: arc200RedeemABI },
       pool: { contractId: poolId, abi: abi.swap },
     };
     const builder = makeBuilder(contractInstance, acc, contracts);
-    const [ciTokA, ciTokB, ciPool, ci] = [
+    const [ciTokA, ciTokB, ciPool, ci, ciRedeemA, ciRedeemB] = [
       [A.contractId, abi.arc200],
       [B.contractId, abi.arc200],
       [poolId, abi.swap],
       [poolId, abi.custom],
+      [A.contractId, arc200RedeemABI],
+      [B.contractId, arc200RedeemABI],
     ].map(([contractId, abi]) =>
       makeCtc(contractInstance, acc, contractId, abi)
     );
@@ -175,6 +228,7 @@ export const swap = async (
       throw new Error("balB failed");
     }
     const balB = balBR.returnValue;
+
     if (!A.tokenId && amtBi > balA) {
       throw new Error(
         `Swap abort insufficient ${A.symbol} balance (${new BigNumber(
@@ -208,6 +262,14 @@ export const swap = async (
     const lastPayment = payments[payments.length - 1];
     const middlePayments = payments.slice(1, payments.length - 1);
 
+    const arc200_balanceOfA = await ciTokA.arc200_balanceOf(acc.addr);
+    if (!arc200_balanceOfA.success) {
+      throw new Error("arc200_balanceOfA failed");
+    }
+    const balanceA = arc200_balanceOfA.returnValue;
+    const skipDeposit = balanceA >= amtBi;
+    console.log({ balanceA, amtBi, skipDeposit });
+
     for (const payment of [lastPayment, firstPayment, ...middlePayments]) {
       const [p1, p2, p3, p4] = payment;
       const buildO = [];
@@ -221,26 +283,69 @@ export const swap = async (
         !isNaN(Number(A.tokenId)) &&
         Number(A.tokenId) > 0
       ) {
-        const { obj } = await builder.tokA.deposit(amtBi);
-        const payment = p3;
-        const aamt = amtBi;
-        const xaid = Number(A.tokenId);
-        const txnO = {
-          ...obj,
-          xaid,
-          aamt,
-          payment,
-          note: new TextEncoder().encode(
-            `Deposit ${new BigNumber(amtBi.toString()).dividedBy(
-              new BigNumber(10).pow(Number(decA)).toFixed(Number(decA))
-            )} ${
-              A.symbol
-            } to application address ${algosdk.getApplicationAddress(
-              A.contractId
-            )} from user address ${acc.addr}`
-          ),
-        };
-        buildO.push(txnO);
+        do {
+          if (skipDeposit) {
+            console.log("skipDeposit");
+            break;
+          }
+          const arc200_exchangeA = await ciRedeemA.arc200_exchange();
+          console.log("arc200_exchangeA", arc200_exchangeA);
+          if (arc200_exchangeA.success) {
+            console.log("arc200_redeem");
+            const assetBalance =
+              (
+                await contractInstance.algodClient
+                  .accountAssetInformation(acc.addr, A.tokenId)
+                  .do()
+              )["asset-holding"][0]?.amount || 0;
+            console.log("assetBalance", assetBalance);
+            const { obj } = await builder.redeemA.arc200_redeem(assetBalance);
+            console.log("obj", obj);
+            if (!obj) break;
+            const aamt = assetBalance;
+            const xaid = Number(A.tokenId);
+            const note = new TextEncoder().encode(
+              `Redeem ${new BigNumber(assetBalance.toString()).dividedBy(
+                new BigNumber(10).pow(Number(decA)).toFixed(Number(decA))
+              )} ${
+                A.symbol
+              } to application address ${algosdk.getApplicationAddress(
+                A.contractId
+              )} from user address ${acc.addr}`
+            );
+            const txnO = {
+              ...obj,
+              xaid,
+              aamt,
+              note,
+            };
+            buildO.push(txnO);
+          } else {
+            console.log("deposit");
+            const { obj } = await builder.tokA.deposit(amtBi);
+            console.log("obj", obj);
+            if (!obj) break;
+            const payment = p3;
+            const aamt = amtBi;
+            const xaid = Number(A.tokenId);
+            const txnO = {
+              ...obj,
+              xaid,
+              aamt,
+              payment,
+              note: new TextEncoder().encode(
+                `Deposit ${new BigNumber(amtBi.toString()).dividedBy(
+                  new BigNumber(10).pow(Number(decA)).toFixed(Number(decA))
+                )} ${
+                  A.symbol
+                } to application address ${algosdk.getApplicationAddress(
+                  A.contractId
+                )} from user address ${acc.addr}`
+              ),
+            };
+            buildO.push(txnO);
+          }
+        } while (0);
       }
       // -------------------------------------------
       // if voi/wvoi in
@@ -424,33 +529,45 @@ export const swap = async (
         Number(B.tokenId) >= 0 &&
         !opts?.skipWithdraw
       ) {
-        const { obj } = await builder.tokB.withdraw(whichOut);
-        const note = new TextEncoder().encode(
-          `Withdraw ${new BigNumber(whichOut).dividedBy(
-            new BigNumber(10)
-              .pow(Number(B.decimals))
-              .toFixed(Number(B.decimals))
-          )} ${B.symbol}
-                   from application address ${algosdk.getApplicationAddress(
-                     B.contractId
-                   )} to user address ${acc.addr}`
-        );
-        const txnO =
-          p4 > 0 && Number(B.tokenId) > 0
-            ? {
-                ...obj,
-                xaid: Number(B.tokenId),
-                snd: acc.addr,
-                arcv: acc.addr,
-                note,
-              }
-            : {
-                ...obj,
-                note,
-              };
-        buildO.push(txnO);
+        do {
+          const exchangeR = await ciRedeemB.arc200_exchange();
+          console.log("exchangeR", exchangeR);
+          if (exchangeR.success) {
+            console.log("exchange success skip withdraw");
+            break;
+          } else {
+            console.log("withdraw");
+            const { obj } = await builder.tokB.withdraw(whichOut);
+            if (!obj) break;
+            const note = new TextEncoder().encode(
+              `Withdraw ${new BigNumber(whichOut).dividedBy(
+                new BigNumber(10)
+                  .pow(Number(B.decimals))
+                  .toFixed(Number(B.decimals))
+              )} ${B.symbol}
+                    from application address ${algosdk.getApplicationAddress(
+                      B.contractId
+                    )} to user address ${acc.addr}`
+            );
+            const txn1 =
+              p4 > 0 && Number(B.tokenId) > 0
+                ? {
+                    ...obj,
+                    xaid: Number(B.tokenId),
+                    snd: acc.addr,
+                    arcv: acc.addr,
+                    note,
+                  }
+                : {
+                    ...obj,
+                    note,
+                  };
+            buildO.push(txn1);
+          }
+        } while (0);
       }
       // -------------------------------------------
+      console.log("buildO", buildO);
       ci.setFee(4000); // fee for custom
       ci.setExtraTxns([...buildO, ...extraTxns]);
       ci.setEnableGroupResourceSharing(true);
@@ -477,6 +594,10 @@ export const swap = async (
       error: e.message,
     };
   }
+};
+
+export const withdraw = async (contractInstance, addr, poolId, A, B) => {
+  // TODO
 };
 
 export const deposit = async (
@@ -508,13 +629,17 @@ export const deposit = async (
       tokA: { contractId: A.contractId, abi: abi.nt200 },
       tokB: { contractId: B.contractId, abi: abi.nt200 },
       pool: { contractId: poolId, abi: abi.swap },
+      redeemA: { contractId: A.contractId, abi: arc200RedeemABI },
+      redeemB: { contractId: B.contractId, abi: arc200RedeemABI },
     };
     const builder = makeBuilder(contractInstance, acc, contracts);
-    const [ciTokA, ciTokB, ciPool, ci] = [
+    const [ciTokA, ciTokB, ciPool, ci, ciRedeemA, ciRedeemB] = [
       [A.contractId, abi.arc200],
       [B.contractId, abi.arc200],
       [poolId, abi.swap],
       [poolId, abi.custom],
+      [A.contractId, arc200RedeemABI],
+      [B.contractId, arc200RedeemABI],
     ].map(([contractId, abi]) =>
       makeCtc(contractInstance, acc, contractId, abi)
     );
@@ -591,6 +716,8 @@ export const deposit = async (
     }
     const balA = balAR.returnValue;
 
+    const skipDepositA = balA >= amtAi;
+
     // TODO should ignore for wrapped asset
     // if (A.tokenId !== "0" && amtAi > balA) {
     //   throw new Error(
@@ -608,6 +735,7 @@ export const deposit = async (
       throw new Error("balB failed");
     }
     const balB = balBR.returnValue;
+    const skipDepositB = balB >= amtBi;
 
     // TODO should ignore for wrapped asset
     // if (B.tokenId !== "0" && amtBi > balB) {
@@ -752,62 +880,142 @@ export const deposit = async (
       //   1 axfer x
       //   1 deposit x
       // -------------------------------------------
-      if (
+      while (
         A.tokenId !== "0" &&
         !isNaN(Number(A.tokenId)) &&
         Number(A.tokenId) > 0
       ) {
-        const { obj } = await builder.tokA.deposit(amtAi);
-        const payment = p4;
-        const aamt = amtAi;
-        const xaid = Number(A.tokenId);
-        const msg = `Deposit ${new BigNumber(amtAi.toString()).dividedBy(
-          new BigNumber(10).pow(Number(A.decimals)).toFixed(Number(A.decimals))
-        )} ${A.symbol} to application address ${algosdk.getApplicationAddress(
-          A.contractId
-        )} from user address ${acc.addr}`;
-        if (opts.debug) {
-          console.log(msg, payment);
+        if (skipDepositA) {
+          break;
         }
-        const note = new TextEncoder().encode(msg);
-        const txnO = {
-          ...obj,
-          xaid,
-          aamt,
-          payment,
-          note,
-          accounts: [algosdk.getApplicationAddress(Number(poolId))],
-          foreignApps: [Number(A.contractId)],
-        };
-        buildO.push(txnO);
+        const arc200_exchangeA = await ciRedeemA.arc200_exchange();
+        if (arc200_exchangeA.success) {
+          console.log("redeemA", balanceA, amtBi);
+          const assetBalance =
+            (
+              await contractInstance.algodClient
+                .accountAssetInformation(acc.addr, A.tokenId)
+                .do()
+            )["asset-holding"][0]?.amount || 0;
+          console.log("assetBalance", assetBalance);
+          const { obj } = await builder.redeemA.arc200_redeem(assetBalance);
+          if (!obj) break;
+          const payment = p3;
+          const aamt = assetBalance;
+          const xaid = Number(A.tokenId);
+          const note = new TextEncoder().encode(
+            `Redeem ${new BigNumber(assetBalance.toString()).dividedBy(
+              new BigNumber(10).pow(Number(decA)).toFixed(Number(decA))
+            )} ${
+              A.symbol
+            } to application address ${algosdk.getApplicationAddress(
+              A.contractId
+            )} from user address ${acc.addr}`
+          );
+          txnO = {
+            ...obj,
+            xaid,
+            aamt,
+            payment,
+            note,
+          };
+          buildO.push(txnO);
+        } else {
+          const { obj } = await builder.tokA.deposit(amtAi);
+          const payment = p4;
+          const aamt = amtAi;
+          const xaid = Number(A.tokenId);
+          const msg = `Deposit ${new BigNumber(amtAi.toString()).dividedBy(
+            new BigNumber(10)
+              .pow(Number(A.decimals))
+              .toFixed(Number(A.decimals))
+          )} ${A.symbol} to application address ${algosdk.getApplicationAddress(
+            A.contractId
+          )} from user address ${acc.addr}`;
+          if (opts.debug) {
+            console.log(msg, payment);
+          }
+          const note = new TextEncoder().encode(msg);
+          const txnO = {
+            ...obj,
+            xaid,
+            aamt,
+            payment,
+            note,
+            accounts: [algosdk.getApplicationAddress(Number(poolId))],
+            foreignApps: [Number(A.contractId)],
+          };
+          buildO.push(txnO);
+        }
+        break;
       }
       // -------------------------------------------
-      if (
+      while (
         B.tokenId !== "0" &&
         !isNaN(Number(B.tokenId)) &&
         Number(B.tokenId) > 0
       ) {
-        const { obj } = await builder.tokB.deposit(amtBi);
-        const payment = p3;
-        const aamt = amtBi;
-        const xaid = Number(B.tokenId);
-        const msg = `Deposit ${new BigNumber(amtBi.toString()).dividedBy(
-          new BigNumber(10).pow(Number(B.decimals)).toFixed(Number(B.decimals))
-        )} ${B.symbol} to application address ${algosdk.getApplicationAddress(
-          B.contractId
-        )} from user address ${acc.addr}`;
-        if (opts.debug) {
-          console.log(msg, payment);
+        if (skipDepositB) {
+          break;
         }
-        const note = new TextEncoder().encode(msg);
-        const txnO = {
-          ...obj,
-          xaid,
-          aamt,
-          payment,
-          note,
-        };
-        buildO.push(txnO);
+        const arc200_exchangeB = await ciRedeemB.arc200_exchange();
+        if (arc200_exchangeB.success) {
+          console.log("redeemB", balanceB, amtBi);
+          const assetBalance =
+            (
+              await contractInstance.algodClient
+                .accountAssetInformation(acc.addr, B.tokenId)
+                .do()
+            )["asset-holding"][0]?.amount || 0;
+          console.log("assetBalance", assetBalance);
+          const { obj } = await builder.redeemB.arc200_redeem(assetBalance);
+          if (!obj) break;
+          const payment = p3;
+          const aamt = assetBalance;
+          const xaid = Number(B.tokenId);
+          const note = new TextEncoder().encode(
+            `Redeem ${new BigNumber(assetBalance.toString()).dividedBy(
+              new BigNumber(10).pow(Number(decA)).toFixed(Number(decA))
+            )} ${
+              B.symbol
+            } to application address ${algosdk.getApplicationAddress(
+              B.contractId
+            )} from user address ${acc.addr}`
+          );
+          txnO = {
+            ...obj,
+            xaid,
+            aamt,
+            payment,
+            note,
+          };
+          buildO.push(txnO);
+        } else {
+          const { obj } = await builder.tokB.deposit(amtBi);
+          const payment = p3;
+          const aamt = amtBi;
+          const xaid = Number(B.tokenId);
+          const msg = `Deposit ${new BigNumber(amtBi.toString()).dividedBy(
+            new BigNumber(10)
+              .pow(Number(B.decimals))
+              .toFixed(Number(B.decimals))
+          )} ${B.symbol} to application address ${algosdk.getApplicationAddress(
+            B.contractId
+          )} from user address ${acc.addr}`;
+          if (opts.debug) {
+            console.log(msg, payment);
+          }
+          const note = new TextEncoder().encode(msg);
+          const txnO = {
+            ...obj,
+            xaid,
+            aamt,
+            payment,
+            note,
+          };
+          buildO.push(txnO);
+        }
+        break;
       }
       // -------------------------------------
       // if voi/wvoi in
@@ -879,7 +1087,7 @@ export const deposit = async (
           note,
         };
         buildO.push(txnO);
-      } 
+      }
       // -------------------------------------
       // 1 pmt 28100
       // 1 approve y
@@ -905,7 +1113,8 @@ export const deposit = async (
           note,
         };
         buildO.push(txnO);
-      } while (0);
+      }
+      while (0);
       // -------------------------------------------
       // ensure resources
       // -------------------------------------------
@@ -915,6 +1124,15 @@ export const deposit = async (
           ...txn0,
           note: new TextEncoder().encode(
             `beacon transaction (ADD LIQUIDITY ${A.symbol} + ${B.symbol})`
+          ),
+        });
+      }
+      {
+        const txn0 = (await beaconBuilder.beacon.nop()).obj;
+        buildO.push({
+          ...txn0,
+          note: new TextEncoder().encode(
+            `beacon transaction (ADD LIQUIDITY ${A.symbol} + ${B.symbol}) ii`
           ),
         });
       }
@@ -947,9 +1165,8 @@ export const deposit = async (
         buildO.push(txnO);
       } while (0);
       // -------------------------------------
-      ci.setBeaconId(Number(poolId));
+      console.log("buildO", buildO);
       ci.setDebug(opts.debug);
-      ci.setStep(5); // increase step for grs txns
       ci.setFee(4000); // fee for custom
       ci.setExtraTxns(buildO);
       ci.setEnableGroupResourceSharing(true);

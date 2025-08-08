@@ -1069,7 +1069,7 @@ export const deposit = async (
       if (doApproveA) {
         const { obj } = await builder.tokA.arc200_approve(
           algosdk.getApplicationAddress(poolId),
-          newArc200_allowanceA
+          newArc200_allowanceA * BigInt(2)
         );
         const payment = p1;
         const msg = `Approve ${new BigNumber(amtAi.toString()).dividedBy(
@@ -1095,7 +1095,7 @@ export const deposit = async (
       if (doApproveB) {
         const { obj } = await builder.tokB.arc200_approve(
           algosdk.getApplicationAddress(poolId),
-          newArc200_allowanceB
+          newArc200_allowanceB * BigInt(2)
         );
         const payment = p2;
         const msg = `Approve ${new BigNumber(amtBi.toString()).dividedBy(

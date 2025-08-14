@@ -297,7 +297,7 @@ export const swap = async (
                 await contractInstance.algodClient
                   .accountAssetInformation(acc.addr, A.tokenId)
                   .do()
-              )["asset-holding"][0]?.amount || 0;
+              )["asset-holding"]?.amount || 0;
             console.log("assetBalance", assetBalance);
             const { obj } = await builder.redeemA.arc200_redeem(assetBalance);
             console.log("obj", obj);
@@ -896,7 +896,7 @@ export const deposit = async (
               await contractInstance.algodClient
                 .accountAssetInformation(acc.addr, A.tokenId)
                 .do()
-            )["asset-holding"][0]?.amount || 0;
+            )["asset-holding"]?.amount || 0;
           console.log("assetBalance", assetBalance);
           const { obj } = await builder.redeemA.arc200_redeem(assetBalance);
           if (!obj) break;
@@ -966,7 +966,7 @@ export const deposit = async (
               await contractInstance.algodClient
                 .accountAssetInformation(acc.addr, B.tokenId)
                 .do()
-            )["asset-holding"][0]?.amount || 0;
+            )["asset-holding"]?.amount || 0;
           console.log("assetBalance", assetBalance);
           const { obj } = await builder.redeemB.arc200_redeem(assetBalance);
           if (!obj) break;

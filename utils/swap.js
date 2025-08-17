@@ -1127,15 +1127,6 @@ export const deposit = async (
           ),
         });
       }
-      {
-        const txn0 = (await beaconBuilder.beacon.nop()).obj;
-        buildO.push({
-          ...txn0,
-          note: new TextEncoder().encode(
-            `beacon transaction (ADD LIQUIDITY ${A.symbol} + ${B.symbol}) ii`
-          ),
-        });
-      }
       // -------------------------------------
       // deposit
       // -------------------------------------
@@ -1170,7 +1161,13 @@ export const deposit = async (
       ci.setFee(4000); // fee for custom
       ci.setExtraTxns(buildO);
       ci.setEnableGroupResourceSharing(true);
-      ci.setGroupResourceSharingStrategy("merge");
+      // when buildO only contains 2 txns (ensure resource txn + Provider_deposit it will failed due to merge overflow)
+      if (buildO.length >= 3) {
+        if (opts.debug) {
+          console.log("Debug: Using group resource sharing merge strategy");
+        }
+        ci.setGroupResourceSharingStrategy("merge");
+      }
       customR = await ci.custom();
       console.log(customR);
       if (!customR.success) {

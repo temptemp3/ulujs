@@ -1120,7 +1120,7 @@ export const deposit = async (
       // -------------------------------------------
       {
         const txn0 = (await beaconBuilder.beacon.nop()).obj;
-        buildO.push({
+        buildO.unshift({
           ...txn0,
           note: new TextEncoder().encode(
             `beacon transaction (ADD LIQUIDITY ${A.symbol} + ${B.symbol})`
@@ -1162,7 +1162,7 @@ export const deposit = async (
       ci.setExtraTxns(buildO);
       ci.setEnableGroupResourceSharing(true);
       // when buildO only contains 2 txns (ensure resource txn + Provider_deposit it will failed due to merge overflow)
-      if (buildO.length >= 3) {
+      if (buildO.length > 3) {
         if (opts.debug) {
           console.log("Debug: Using group resource sharing merge strategy");
         }

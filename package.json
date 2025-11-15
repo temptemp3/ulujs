@@ -23,6 +23,6 @@
   },
   "types": "./types/index.d.ts",
   "dependencies": {
-    "arccjs": "^3.0.1"
+    "arccjs": "^3.0.2"
   }
 }
